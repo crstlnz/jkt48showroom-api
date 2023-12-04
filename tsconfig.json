@@ -1,0 +1,46 @@
+{
+  "ts-node": {
+    "files": true,
+    // Do not forget to `npm i -D tsconfig-paths`
+    "require": [
+      "tsconfig-paths/register"
+    ]
+  },
+  "compilerOptions": {
+    "target": "ES2021",
+    "lib": [
+      "ES2021"
+    ],
+    "baseUrl": ".",
+    "rootDir": "src",
+    "module": "commonjs",
+    "paths": {
+      "@/*": [
+        "src/*"
+      ],
+      "@utils/*": [
+        "src/utils/*"
+      ],
+      "@database/*": [
+        "src/database/*"
+      ],
+      "@schema/*": [
+        "src/database/schema/*"
+      ]
+    },
+    "resolveJsonModule": true,
+    "strict": true,
+    "outDir": ".output",
+    "esModuleInterop": true,
+    "skipLibCheck": true
+  },
+  "include": [
+    "src/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "dev/**",
+    "**/*.js"
+  ],
+  "compileOnSave": true
+}
