@@ -1,5 +1,4 @@
 {
-  "type": "module",
   "engines": {
     "node": ">=20.x.x"
   },
@@ -24,6 +23,7 @@
   "devDependencies": {
     "@antfu/eslint-config": "^2.2.2",
     "eslint": "^8.55.0",
+    "rimraf": "^5.0.5",
     "tsc-alias": "^1.8.8",
     "tsconfig-paths": "^4.2.0",
     "tsx": "^3.12.2",
