@@ -35,7 +35,7 @@ jobs:
             pm2 stop 1 2
             cd ~/apps/api
             git stash
-            git pull origin master
+            git pull origin main
             git status
             npx pnpm i
             npx pnpm build
