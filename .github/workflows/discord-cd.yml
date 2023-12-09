@@ -32,7 +32,7 @@ jobs:
             whoami
             node -v
             cd ~/apps
-            pm2 stop ecosystem.config.js
+            pm2 stop 1 2
             cd ~/apps/api
             git stash
             git pull origin master
@@ -40,5 +40,5 @@ jobs:
             npx pnpm i
             npx pnpm build
             cd ~/apps
-            pm2 start ecosystem.config.js
+            pm2 start 1 2
             pm2 save
