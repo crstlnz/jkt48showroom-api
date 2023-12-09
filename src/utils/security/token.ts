@@ -24,8 +24,10 @@ export function checkToken(mustAuth: boolean = true) {
       }
     }
 
-    clearToken(c)
+    if (token || refreshToken) clearToken(c)
     if (mustAuth) {
+      console.log('Token', token)
+      console.log('Refresh Token', refreshToken)
       throw createError({ status: 401, message: 'Unauthorized!' })
     }
     return await next()
@@ -33,6 +35,7 @@ export function checkToken(mustAuth: boolean = true) {
 }
 
 export async function getRefreshedToken(c: Context, accessToken: string, refreshToken: string) {
+  console.log('Refreshing token...')
   const decodedRefreshToken = await verify(refreshToken, process.env.AUTH_SECRET!).catch(_ => null)
   const decodedToken = decode(accessToken)
   if (decodedRefreshToken.id === decodedToken.payload.id) {
@@ -41,12 +44,16 @@ export async function getRefreshedToken(c: Context, accessToken: string, refresh
       token: refreshToken,
     })
 
-    console.log('Token isUsed :', tokenDoc?.isUsed)
+    console.log('Refresh token :', refreshToken)
     if (tokenDoc && !tokenDoc.isUsed) {
       tokenDoc.isUsed = true
       await tokenDoc.save()
-      const { sessionData } = await createToken(c, decodedToken.payload.id, decodedToken.payload.sr_id)
+      const { sessionData, refreshToken: wew } = await createToken(c, decodedToken.payload.id, decodedToken.payload.sr_id)
+      console.log('Token refreshed...', wew)
       return sessionData
+    }
+    else {
+      console.log('Failed to refresh token...')
     }
   }
   throw new Error('Failed to refresh token!')

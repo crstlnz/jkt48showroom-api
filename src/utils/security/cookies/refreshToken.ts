@@ -11,6 +11,7 @@ export function setRefreshToken(c: Context, token: string) {
 }
 
 export function deleteRefreshToken(c: Context) {
+  console.log('REFRESH TOKEN DELETED')
   deleteCookie(c, '_refresh_token', { path: '/' })
 }
 

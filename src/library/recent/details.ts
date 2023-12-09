@@ -64,7 +64,8 @@ export async function getRecentDetails(id: string): Promise<IRecentDetail> {
   })
 
   const userMap = new Map<number, Database.IFansCompact>()
-  for (const stageList of (data.live_info.stage_list ?? [])) {
+  const stageList = (data.live_info.stage_list ?? []).pop()
+  if (stageList) {
     for (const userId of stageList.list) {
       const u = data.users.get(userId)
       if (u) {
@@ -90,7 +91,7 @@ export async function getRecentDetails(id: string): Promise<IRecentDetail> {
       viewers: data.live_info.viewers,
       screenshot: data.live_info.screenshot,
       background_image: data.live_info.background_image,
-      stage_list: data.live_info.stage_list,
+      stage_list: stageList ? [stageList] : [],
       date: data.live_info.date,
       gift: {
         log: data.live_info.gift.log.slice(0, giftPerpage),

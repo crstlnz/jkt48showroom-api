@@ -8,12 +8,12 @@ import { checkToken } from '@/utils/security/token'
 const showroomURL = process.env.SHOWROOM_API || ''
 const app = new Hono()
 
-async function showroomRequest(c: Context, url: string, ms = 60000) {
+async function showroomRequest(c: Context, url: string, ms = 60000, unique = false) {
   const query = c.req.query()
+  const href = c.req.url
   const user = c.get('user')
-  const res = await cache.fetch(`${showroomURL}${url}`, async () => {
+  const res = await cache.fetch(`${href}${unique ? user?.id || 0 : ''}`, async () => {
     return await ofetch(`${showroomURL}${url}`, { params: query, headers: {
-
       Cookie: user?.sr_id ? `sr_id=${user.sr_id}` : '',
     } })
   }, ms)
@@ -24,7 +24,7 @@ app.use('*', checkToken(false))
 app.use('*', useShowroomSession())
 
 app.get('/user/profile', async (c) => {
-  return showroomRequest(c, '/api/user/profile')
+  return showroomRequest(c, '/api/user/profile', 60000, true)
 })
 
 app.get('/status', async (c) => {
@@ -56,7 +56,7 @@ app.get('/telop', async (c) => {
 })
 
 app.get('/greeting', async (c) => {
-  return showroomRequest(c, '/api/room/greeting')
+  return showroomRequest(c, '/api/room/greeting', 1000, true)
 })
 
 app.get('/streaming_url', async (c) => {
@@ -64,11 +64,15 @@ app.get('/streaming_url', async (c) => {
 })
 
 app.get('/current_user', async (c) => {
-  return showroomRequest(c, '/api/live/current_user')
+  return showroomRequest(c, '/api/live/current_user', 60000 * 60, true)
 })
 
 app.get('/csrf_token', async (c) => {
-  return showroomRequest(c, '/api/csrf_token')
+  return showroomRequest(c, '/api/csrf_token', 10000, true)
+})
+
+app.get('/follow', async (c) => {
+  return showroomRequest(c, '/api/follow/rooms', 1000, true)
 })
 
 export default app

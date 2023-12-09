@@ -33,7 +33,7 @@ jobs:
             node -v
             cd ~/apps
             pm2 stop ecosystem.config.js
-            cd ~/apps/jkt48showroom-api
+            cd ~/apps/api
             git stash
             git pull origin master
             git status

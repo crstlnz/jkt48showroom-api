@@ -1,6 +1,7 @@
 import { getCommentLog, getCurrentUser, getGiftList, getGiftLog, getRoomStatus, getStreamingURL } from '@utils/showroomAPI'
 
 export async function getWatchData(query: object, cookies?: string) {
+  console.log(cookies)
   return await getData(query, cookies)
 }
 

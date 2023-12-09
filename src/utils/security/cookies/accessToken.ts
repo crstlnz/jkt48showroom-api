@@ -7,10 +7,14 @@ export function getAccessToken(c: Context) {
 }
 
 export function setAccessToken(c: Context, token: string) {
-  setCookie(c, '_sess_token', token, { path: '/', maxAge: ONE_MONTH })
+  setCookie(c, '_sess_token', token, {
+    path: '/',
+    maxAge: ONE_MONTH,
+  })
 }
 
 export function deleteAccessToken(c: Context) {
+  console.log('ACCESS TOKEN DELETED')
   deleteCookie(c, '_sess_token', { path: '/' })
 }
-export const accessTokenTime = 100000 // TODO 1 hour
+export const accessTokenTime = 500000 // TODO 1 hour

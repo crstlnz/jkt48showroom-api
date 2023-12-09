@@ -177,3 +177,8 @@ interface IHistoryRecents {
   perpage: number
   total_count: number
 }
+
+interface IStageListApi {
+  stage_list: Database.IStage[]
+  users: Database.IFansCompact[]
+}

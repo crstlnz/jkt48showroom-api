@@ -2,6 +2,7 @@ import 'dotenv/config'
 import { serve } from '@hono/node-server'
 import { Hono } from 'hono'
 import { FetchError } from 'ofetch'
+import pkg from '../package.json'
 import { ApiError } from './utils/errorResponse'
 import api from './routes'
 
@@ -14,6 +15,7 @@ if (!process.env.SHOWROOM_API) throw new Error('Showroom API not provided!')
 app.get('/', c => c.json({
   author: 'crstlnz',
   website: 'https://dc.crstlnz.site',
+  version: `${pkg.version}`,
 }))
 
 app.route('/api', api)

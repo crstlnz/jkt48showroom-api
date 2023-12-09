@@ -2,8 +2,8 @@ import type { Hono } from 'hono'
 import { useCache } from '@/utils/useCache'
 
 export function cacheSettings(app: Hono) {
-  app.get('/recent', useCache())
-  // app.get('/recent/:id', useCache())
+  // app.get('/recent', useCache())
+  app.get('/recent/:id', useCache())
   app.get('/recent/:id/gifts', useCache())
   app.get('/member/:id', useCache(7200000))
 

@@ -44,6 +44,10 @@ async function getNowLiveDirect(
   return data.filter(i => i) as INowLive[]
 }
 
+async function newOnlivesCookies() {
+  // TODO
+}
+
 async function getNowLiveCookies(membersData: IMember[] | null = null, group: string | null = null): Promise<INowLive[]> {
   const members: IMember[] = membersData ?? await getMembers(group)
   const rooms = await getAllFollows().catch(_ => [])

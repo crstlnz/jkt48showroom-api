@@ -26,6 +26,8 @@ import { getSchedule } from '@/library/jkt48/nextSchedule'
 import { getMemberBirthdays } from '@/library/stage48/birthday'
 import { getMember48List } from '@/library/stage48/memberList'
 import { generateCSRF } from '@/utils/security'
+import { getStageList } from '@/library/recent/stageList'
+import { checkToken } from '@/utils/security/token'
 
 const app = new Hono()
 
@@ -41,7 +43,7 @@ app.use('*', cors({
   credentials: true,
 }))
 
-// app.use('*', checkToken(false))
+app.use('*', checkToken(false))
 // app.use('*', useShowroomSession())
 
 app.route('/auth', auth)
@@ -62,6 +64,7 @@ app.get('/stats', async c => c.json(await getStats(c.req.query())))
 app.get('/recent', async c => c.json(await getRecents(c.req.query())))
 app.get('/recent/:id', async c => c.json(await getRecentDetails(c.req.param('id'))))
 app.get('/recent/:id/gifts', async c => c.json(await getGifts(c.req.param('id'), c.req.query('s'), Number(c.req.query('page') || 1))))
+app.get('/recent/:id/stagelist', async c => c.json(await getStageList(c.req.param('id'))))
 // app.get('/member', async c => useCache(c, () => getMembers(c.req.query('group'))))
 app.get('/member', async c => c.json(await getMembers(c.req.query('group'))))
 app.get('/member/:id', async c => c.json(await getMemberDetails(c.req.param('id'))))
@@ -69,7 +72,7 @@ app.get('/member/:id', async c => c.json(await getMemberDetails(c.req.param('id'
 app.get('/now_live', async c => c.json(await getNowLive(c.req.query())))
 app.get('/next_live', async c => c.json(await getNextLive(c.req.query())))
 
-app.get('/watch/:id', async c => c.json(await getWatchData({ room_url_key: c.req.param('id') })))
+app.get('/watch/:id', async (c: Context) => c.json(await getWatchData({ room_url_key: c.req.param('id') }, `sr_id=${c.get('user')?.sr_id}`)))
 app.get('/first_data', async c => c.json(await getFirstData(c.req.query())))
 
 app.get('/screenshots/:id', async c => c.json(await getScreenshots(c.req.param('id'))))

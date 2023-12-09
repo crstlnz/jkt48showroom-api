@@ -94,7 +94,7 @@ export function logout(opts?: any | undefined): Promise<void> {
 }
 
 export async function getFollows(page = 1): Promise<ShowroomAPI.Follow> {
-  const count = 100
+  const count = 150
   const url = `https://www.showroom-live.com/api/follow/rooms?page=${page}&count=${count}&_=${new Date().getTime()}`
   const data = await ofetch(url, { headers: { cookie: cookies } })
   if (!('rooms' in data && 'next_page' in data && 'total_entries' in data && 'last_page' in data)) console.warn('Follow Api changes in some fields')
