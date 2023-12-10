@@ -58,3 +58,15 @@ export function generateCSRF(c: Context) {
   const data = `${userAgent}-${sessId}-${dayjs().startOf('day').toISOString()}${decodedToken?.payload?.sr_id ? `-${decodedToken.payload.sr_id}` : ''}`
   return hashWithSecret(data, process.env.SECRET || '')
 }
+
+export function useSessionID() {
+  return createMiddleware((c, next) => {
+    const sessIdCookie = getSessId(c)
+    const sessId = sessIdCookie || generateUUID()
+    c.set('sid', sessId)
+    if (sessIdCookie == null) {
+      setSessId(c, sessId)
+    }
+    return next()
+  })
+}

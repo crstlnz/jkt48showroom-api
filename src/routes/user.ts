@@ -6,14 +6,13 @@ import { deleteLike, getLike, getLikes, setLike } from '@/library/user/likes'
 import { sendComment } from '@/library/comment/send'
 import { useShowroomSession } from '@/utils/showroomSession'
 import { reorderFollow } from '@/library/follow/reorder'
-import { follow, isFollow } from '@/library/follow'
+import { follow } from '@/library/follow'
 
 const app = new Hono()
 const secret = process.env.AUTH_SECRET
 if (!secret) throw new Error('Auth secret not found!')
 
 app.use('*', checkToken())
-
 app.get('/', (c: Context) => c.json(c.get('user')))
 app.get('/history', async (c: Context) => c.json(await getUserHistory(c.req.query(), c.get('user')?.id)))
 app.get('/likes', async (c: Context) => c.json(await getLikes(c.get('user')?.id)))
@@ -27,7 +26,5 @@ app.use('*', useShowroomSession())
 app.post('/comment', sendComment)
 app.post('/follow/reorder', c => reorderFollow(c))
 app.post('/follow', c => follow(c))
-
-app.get('/follow', c => isFollow(c))
 
 export default app

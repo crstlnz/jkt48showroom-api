@@ -182,3 +182,10 @@ interface IStageListApi {
   stage_list: Database.IStage[]
   users: Database.IFansCompact[]
 }
+
+interface IMiniRoomProfile {
+  follower: number
+  is_follow: boolean
+  visit_count: number
+  room_level: number
+}

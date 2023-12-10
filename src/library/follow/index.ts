@@ -22,21 +22,3 @@ export async function follow(c: Context) {
   })
   return c.json({ ok: true })
 }
-
-export async function isFollow(c: Context) {
-  const user = c.get('user')
-  const srSess = c.get('showroom_session')
-  const body = c.req.query()
-  if (!user || !srSess) throw createError({ status: 401, message: 'Unauthorized!' })
-  if (!body.room_id) throw createError({ status: 400, message: 'Bad request!' })
-  const data = await ofetch<ShowroomAPI.Profile>(`${process.env.SHOWROOM_API}/api/room/profile`, {
-    query: {
-      room_id: body.room_id,
-    },
-    headers: {
-      Cookie: `sr_id=${srSess.sr_id}`,
-    },
-  })
-
-  return c.json({ follow: data.is_follow })
-}

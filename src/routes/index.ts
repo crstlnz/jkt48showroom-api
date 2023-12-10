@@ -25,30 +25,26 @@ import { getNews } from '@/library/jkt48/news'
 import { getSchedule } from '@/library/jkt48/nextSchedule'
 import { getMemberBirthdays } from '@/library/stage48/birthday'
 import { getMember48List } from '@/library/stage48/memberList'
-import { generateCSRF } from '@/utils/security'
+import { generateCSRF, useSessionID } from '@/utils/security'
 import { getStageList } from '@/library/recent/stageList'
-import { checkToken } from '@/utils/security/token'
+import { getProfile } from '@/library/room/profile'
+import { useShowroomSession } from '@/utils/showroomSession'
 
 const app = new Hono()
 
-// app.use('/*', async (c, next) => {
-//   await calculationTime(next, c.req.path)
-// })
 if (process.env.NODE_ENV === 'development') {
   app.use('*', logger())
 }
+
+app.use('*', useSessionID())
 
 app.use('*', cors({
   origin: 'http://192.168.2.2:3000',
   credentials: true,
 }))
 
-app.use('*', checkToken(false))
-// app.use('*', useShowroomSession())
-
 app.route('/auth', auth)
 app.route('/user', user)
-
 app.route('/showroom', showroom)
 
 app.use('/*', async (c, next) => {
@@ -90,32 +86,14 @@ app.get('/birthday', async c => c.json(await getMemberBirthdays(c.req.query())))
 
 app.get('/48/member', async c => c.json(await getMember48List(c.req.query('group'))))
 
+app.use('/profile', useShowroomSession())
+app.get('/profile', async c => c.json(await getProfile(c)))
+
 app.get('/csrf_token', async (c) => {
   const token = generateCSRF(c)
-  // let sr_id = ''
-  // const sess = await ofetch(`${process.env.SHOWROOM_API}/api/csrf_token`, {
-  //   onResponse({ response }) {
-  //     const cookies = parseCookieString(response.headers.get('Set-Cookie') || '')
-  //     sr_id = cookies.sr_id?.value
-  //   },
-  // })
-  // const encrypted = encrypt(sr_id)
-  // console.log('ENCRYPTED', encrypted)
-  // console.log('DECRYPTED', decrypt(encrypted))
   return c.json({
     csrf_token: token,
-    // sr_id: encrypt(sr_id),
-    // showroom_csrf: sess.csrf_token,
   })
 })
 
-app.get('/test_cookie', async (c: Context) => {
-  // await setSignedCookie(c, '_kokijarantas', 'astaw', process.env.COOKIE_SECRET, {
-  //   httpOnly: true,
-  // })
-  console.log(c.get('showroom_session'))
-  return c.json({
-    test: 'ahay',
-  })
-})
 export default app

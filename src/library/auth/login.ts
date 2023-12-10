@@ -5,6 +5,7 @@ import RefreshToken from '@/database/schema/auth/RefreshToken'
 import { createError } from '@/utils/errorResponse'
 import { clearToken, createToken } from '@/utils/security/token'
 import { getRefreshToken } from '@/utils/security/cookies/refreshToken'
+import { getShowroomSession } from '@/utils/showroomSession'
 
 export async function login(c: Context) {
   const loginData = await c.req.parseBody()
@@ -49,19 +50,17 @@ export async function login(c: Context) {
 
 export async function logout(c: Context) {
   try {
-    const sess = c.get('showroom_session')
+    const sess = c.get('showroom_session') || (await getShowroomSession(c))?.session
+    if (!sess) throw createError({ status: 401, message: 'Unauthorized!' })
     const body = new URLSearchParams()
     body.append('csrf_token', sess.csrf_token || '')
-    const res = await ofetch(`${process.env.SHOWROOM_API}/user/logout_api`, {
+    await ofetch(`${process.env.SHOWROOM_API}/user/logout_api`, {
       headers: {
         'Cookie': `sr_id=${sess.sr_id};`,
         'Content-Type': 'application/x-www-form-urlencoded',
       },
       method: 'POST',
       body: body.toString(),
-      onResponseError(ctx) {
-        console.log(ctx.response._data)
-      },
     })
 
     const refreshToken = getRefreshToken(c)
@@ -73,7 +72,6 @@ export async function logout(c: Context) {
     return c.json({ success: true })
   }
   catch (e) {
-    console.log(e)
     throw createError({ status: 401, message: 'Unauthorized!' })
   }
 }

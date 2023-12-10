@@ -7,12 +7,27 @@ import { createError } from '../errorResponse'
 import { accessTokenTime, deleteAccessToken, getAccessToken, setAccessToken } from './cookies/accessToken'
 import { deleteRefreshToken, getRefreshToken, refreshTokenTime, setRefreshToken } from './cookies/refreshToken'
 import { deleteShowroomSess } from './cookies/showroomSess'
+import { getSessId } from './cookies/sessId'
 import RefreshToken from '@/database/schema/auth/RefreshToken'
+import { logout } from '@/library/auth/login'
+
+export function getDecodedToken(c: Context): ShowroomLogin.User | null {
+  const token = getAccessToken(c)
+  if (token) {
+    return decode(token).payload
+  }
+
+  return null
+}
+
+export const tokenCaches = new Map<string, { accessToken: string, refreshToken: string, to: NodeJS.Timeout }>()
 
 export function checkToken(mustAuth: boolean = true) {
   return createMiddleware(async (c, next) => {
-    const token = getAccessToken(c)
-    const refreshToken = getRefreshToken(c)
+    const sessId = getSessId(c)
+    const cachedToken = sessId ? tokenCaches.get(sessId) : null
+    const token = cachedToken?.accessToken || getAccessToken(c)
+    const refreshToken = cachedToken?.refreshToken || getRefreshToken(c)
     if (token) {
       let decoded = await verify(token, process.env.AUTH_SECRET!).catch(_ => null)
       if (!decoded && refreshToken) {
@@ -24,7 +39,10 @@ export function checkToken(mustAuth: boolean = true) {
       }
     }
 
-    if (token || refreshToken) clearToken(c)
+    if (token || refreshToken) {
+      if (token) logout(c).catch(_ => null)
+      clearToken(c)
+    }
     if (mustAuth) {
       console.log('Token', token)
       console.log('Refresh Token', refreshToken)
@@ -60,6 +78,7 @@ export async function getRefreshedToken(c: Context, accessToken: string, refresh
 }
 
 export async function createToken(c: Context, user_id: string, sr_id: string) {
+  const sessId = getSessId(c)
   const userProfile = await ofetch<ShowroomAPI.UserProfile>('https://www.showroom-live.com/api/user/profile', {
     params: { user_id },
     headers: {
@@ -78,8 +97,6 @@ export async function createToken(c: Context, user_id: string, sr_id: string) {
     image: userProfile.image,
     avatar_id: String(userProfile.avatar_id),
     sr_id,
-    iat: currentTime,
-    nbf: currentTime,
     exp: currentTime + accessTokenTime, // 1 hour
   }
 
@@ -87,8 +104,6 @@ export async function createToken(c: Context, user_id: string, sr_id: string) {
 
   const refreshToken = await sign({
     id: user_id,
-    iat: currentTime,
-    nbf: currentTime,
     exp: currentTime + refreshTokenTime, // 1 month
   }, process.env.AUTH_SECRET!)
 
@@ -97,9 +112,22 @@ export async function createToken(c: Context, user_id: string, sr_id: string) {
     token: refreshToken,
   }).save()
 
-  console.log('SET ACCESS TOKEN', accessToken)
   setAccessToken(c, accessToken)
   setRefreshToken(c, refreshToken)
+
+  if (sessId) {
+    const token = tokenCaches.get(sessId)
+    if (token?.to) {
+      clearTimeout(token.to)
+    }
+    tokenCaches.set(sessId, {
+      accessToken,
+      refreshToken,
+      to: setTimeout(() => {
+        tokenCaches.delete(sessId)
+      }, 10000),
+    })
+  }
 
   return {
     accessToken,

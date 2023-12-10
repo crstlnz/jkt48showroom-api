@@ -1,20 +1,21 @@
 import type { Context } from 'hono'
 import { deleteCookie, getCookie, setCookie } from 'hono/cookie'
 import { ONE_MONTH } from '@/const'
+import { logout } from '@/library/auth/login'
 
+const name = '_st'
 export function getAccessToken(c: Context) {
-  return getCookie(c, '_sess_token')
+  return getCookie(c, name)
 }
 
 export function setAccessToken(c: Context, token: string) {
-  setCookie(c, '_sess_token', token, {
+  setCookie(c, name, token, {
     path: '/',
     maxAge: ONE_MONTH,
   })
 }
 
 export function deleteAccessToken(c: Context) {
-  console.log('ACCESS TOKEN DELETED')
-  deleteCookie(c, '_sess_token', { path: '/' })
+  deleteCookie(c, name, { path: '/' })
 }
-export const accessTokenTime = 500000 // TODO 1 hour
+export const accessTokenTime = 3600 // 1 hour
