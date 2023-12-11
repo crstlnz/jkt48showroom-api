@@ -37,9 +37,15 @@ if (process.env.NODE_ENV === 'development') {
 }
 
 app.use('*', useSessionID())
+app.get('/csrf_token', async (c) => {
+  const token = generateCSRF(c)
+  return c.json({
+    csrf_token: token,
+  })
+})
 
 app.use('*', cors({
-  origin: 'http://192.168.2.2:3000',
+  origin: '*',
   credentials: true,
 }))
 
@@ -88,12 +94,5 @@ app.get('/48/member', async c => c.json(await getMember48List(c.req.query('group
 
 app.use('/profile', useShowroomSession())
 app.get('/profile', async c => c.json(await getProfile(c)))
-
-app.get('/csrf_token', async (c) => {
-  const token = generateCSRF(c)
-  return c.json({
-    csrf_token: token,
-  })
-})
 
 export default app
