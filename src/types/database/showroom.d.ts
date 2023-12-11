@@ -105,6 +105,7 @@ declare namespace Database {
     bloodType?: string
     height?: string
     recentTheater?: ITheater[]
+    upcomingTheater?: ITheater[]
   }
 
   interface FreeGift {

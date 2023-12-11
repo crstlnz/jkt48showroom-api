@@ -189,3 +189,30 @@ interface IMiniRoomProfile {
   visit_count: number
   room_level: number
 }
+
+interface ITheaterAPI extends Database.ITheater {
+  poster?: string
+}
+
+interface IMemberProfileAPI extends IMemberBasicData {
+  name: string
+  nickname?: string
+  fullname: string
+  description: string
+  img: string
+  img_alt: string
+  banner: string
+  group: string
+  url: string
+  room_id: number
+  jikosokai?: string
+  is_graduate: boolean
+  is_group: boolean
+  socials: SocialNetwork[]
+  generation?: string
+  birthdate?: Date
+  bloodType?: string
+  height?: string
+  recentTheater?: ITheaterAPI[]
+  upcomingTheater?: ITheaterAPI[]
+}

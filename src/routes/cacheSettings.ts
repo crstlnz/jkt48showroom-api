@@ -5,7 +5,7 @@ export function cacheSettings(app: Hono) {
   // app.get('/recent', useCache())
   app.get('/recent/:id', useCache())
   app.get('/recent/:id/gifts', useCache())
-  app.get('/member/:id', useCache(7200000))
+  app.get('/member/:id', useCache(3600000))
 
   app.get('/now_live', useCache(10000))
   app.get('/next_live', useCache(14400000))
