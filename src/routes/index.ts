@@ -29,6 +29,7 @@ import { getStageList } from '@/library/recent/stageList'
 import { getProfile } from '@/library/room/profile'
 import { useShowroomSession } from '@/utils/showroomSession'
 import { handler } from '@/utils/factory'
+import { useCORS } from '@/utils/cors'
 
 const app = new Hono()
 
@@ -50,6 +51,16 @@ app.get('/csrf_token', async (c) => {
   })
 })
 
+app.use('/admin*', useCORS('self'))
+app.use('/user*', useCORS('self'))
+app.use('/auth*', useCORS('self'))
+app.use('/showroom*', useCORS('self'))
+
+app.route('/admin', admin)
+app.route('/auth', auth)
+app.route('/user', user)
+app.route('/showroom', showroom)
+
 const origin = ['*']
 if (process.env.ORIGINS) {
   origin.push(...(process.env.ORIGINS || '').split(','))
@@ -60,10 +71,7 @@ app.use('*', cors({
   credentials: true,
 }))
 
-app.route('/admin', admin)
-app.route('/auth', auth)
-app.route('/user', user)
-app.route('/showroom', showroom)
+app.use('*', useCORS('all'))
 
 app.use('/*', async (c, next) => {
   await dbConnect(2)
