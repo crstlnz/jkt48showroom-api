@@ -61,6 +61,7 @@ export function useCSRF() {
   return createMiddleware((c, next) => {
     const csrfToken = c.req.query('csrf_token')
     if (csrfToken !== generateCSRF(c)) {
+      console.log('CSRF TOKEN INVALID')
       throw createError({
         status: 403,
         message: 'Forbidden!',

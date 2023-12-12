@@ -9,7 +9,7 @@ app.use('*', useCORS('self'))
 app.use('*', checkToken(false))
 app.use('*', useShowroomSession())
 
-app.post('/login', ...login())
-app.post('/logout', ...logout())
+// app.post('/login', ...login())
+// app.post('/logout', ...logout())
 
 export default app
