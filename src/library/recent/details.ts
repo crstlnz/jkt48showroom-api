@@ -1,10 +1,12 @@
 import ShowroomLog from '@schema/showroom/ShowroomLog'
 import ShowroomGift from '@schema/showroom/ShowroomGift'
+import type { Context } from 'hono'
 import { calculateFansPoints } from '../fansPoints'
 import { createError } from '@/utils/errorResponse'
 import config from '@/config'
 
-export async function getRecentDetails(id: string): Promise<IRecentDetail> {
+export async function getRecentDetails(c: Context): Promise<IRecentDetail> {
+  const id = c.req.param('id')
   const data = await ShowroomLog.getDetails(id)
   const giftPerpage = config.giftPerpage
   if (!data) throw createError({ statusMessage: 'Data not found!', statusCode: 404 })

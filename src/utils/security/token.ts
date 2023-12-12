@@ -8,8 +8,9 @@ import { accessTokenTime, deleteAccessToken, getAccessToken, setAccessToken } fr
 import { deleteRefreshToken, getRefreshToken, refreshTokenTime, setRefreshToken } from './cookies/refreshToken'
 import { deleteShowroomSess } from './cookies/showroomSess'
 import { getSessId } from './cookies/sessId'
+import { isAdmin } from '.'
 import RefreshToken from '@/database/schema/auth/RefreshToken'
-import { logout } from '@/library/auth/login'
+import { logoutHandler as logout } from '@/library/auth/login'
 
 export function getDecodedToken(c: Context): ShowroomLogin.User | null {
   const token = getAccessToken(c)
@@ -96,6 +97,7 @@ export async function createToken(c: Context, user_id: string, sr_id: string) {
     account_id: userProfile.account_id,
     image: userProfile.image,
     avatar_id: String(userProfile.avatar_id),
+    is_admin: isAdmin(user_id),
     sr_id,
     exp: currentTime + accessTokenTime, // 1 hour
   }

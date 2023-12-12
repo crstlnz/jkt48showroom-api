@@ -1,12 +1,17 @@
 import Fuse from 'fuse.js'
 import ShowroomLog from '@schema/showroom/ShowroomLog'
+import type { Context } from 'hono'
 import config from '@/config'
 
 function notEmpty<TValue>(value: TValue | null | undefined): value is TValue {
   return value !== null && value !== undefined
 }
 
-export async function getGifts(data_id: string, search = '', page = 1, perpage = config.giftPerpage): Promise<IApiGifts> {
+export async function getGifts(c: Context): Promise<IApiGifts> {
+  let page = Number(c.req.query('page') || 1)
+  const data_id = c.req.query('data_id') || ''
+  const search = c.req.query('data_id') || ''
+  const perpage = Number(c.req.query('perpage') || config.giftPerpage)
   const data = await ShowroomLog.findOne({ data_id }).select({ gift_data: 1, users: 1 }).lean()
   let total_count = data?.gift_data?.gift_log?.length ?? 0
   const raw = data?.gift_data?.gift_log ?? []

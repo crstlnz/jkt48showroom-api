@@ -1,8 +1,9 @@
+import type { Context } from 'hono'
 import News from '@/database/showroomDB/jkt48/News'
 
-async function getNews(query?: any): Promise<IApiNews> {
-  let page = Number(query?.page) || 1
-  const perpage = Number(query?.perpage) || 10
+export async function getNews(c: Context): Promise<IApiNews> {
+  let page = Number(c.req.query('page')) || 1
+  const perpage = Number(c.req.query('perpage')) || 10
   const total = await News.countDocuments({})
   const maxPage = Math.ceil(total / perpage)
   if (page < 1) page = 1
@@ -15,5 +16,3 @@ async function getNews(query?: any): Promise<IApiNews> {
     total_count: total,
   }
 }
-
-export { getNews }

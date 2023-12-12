@@ -1,9 +1,11 @@
+import type { Context } from 'hono'
 import Member from '@/database/schema/48group/Member'
 import Theater from '@/database/showroomDB/jkt48/Theater'
 import { createError } from '@/utils/errorResponse'
 
 // const time = 600000 // 10 minutes
-export async function getTheaterDetail(id: string): Promise<IApiTheaterDetailList> {
+export async function getTheaterDetail(c: Context): Promise<IApiTheaterDetailList> {
+  const id = c.req.param('id')
   const data = await Theater.find({ id: new RegExp(`^${id}`) }).populate<{ members: JKT48.Member[] }>('members').populate<{ setlist: JKT48.Setlist }>('setlist').populate<{ seitansai: JKT48.Member[] }>('seitansai').lean()
   const memberList = data.reduce<JKT48.Member[]>((a, b) => {
     a.push(...b.members)

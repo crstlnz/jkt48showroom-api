@@ -3,12 +3,10 @@ import { Buffer } from 'buffer'
 import dayjs from 'dayjs'
 import type { Context } from 'hono'
 import { createMiddleware } from 'hono/factory'
-import { decode, verify } from 'hono/jwt'
+import { decode } from 'hono/jwt'
 import { createError } from '../errorResponse'
-import { deleteAccessToken, getAccessToken } from './cookies/accessToken'
-import { deleteRefreshToken, getRefreshToken } from './cookies/refreshToken'
+import { getAccessToken } from './cookies/accessToken'
 import { getSessId, setSessId } from './cookies/sessId'
-import { getRefreshedToken } from './token'
 
 function generateIV(): Buffer {
   return crypto.randomBytes(16)
@@ -59,6 +57,19 @@ export function generateCSRF(c: Context) {
   return hashWithSecret(data, process.env.SECRET || '')
 }
 
+export function useCSRF() {
+  return createMiddleware((c, next) => {
+    const csrfToken = c.req.query('csrf_token')
+    if (csrfToken !== generateCSRF(c)) {
+      throw createError({
+        status: 403,
+        message: 'Forbidden!',
+      })
+    }
+    return next()
+  })
+}
+
 export function useSessionID() {
   return createMiddleware((c, next) => {
     const sessIdCookie = getSessId(c)
@@ -67,6 +78,19 @@ export function useSessionID() {
     if (sessIdCookie == null) {
       setSessId(c, sessId)
     }
+    return next()
+  })
+}
+
+export function isAdmin(userId: string | number) {
+  const ids = (process.env.ADMIN_IDS || '').split(',')
+  return ids.includes(String(userId))
+}
+
+export function checkAdmin() {
+  return createMiddleware(async (c, next) => {
+    const user = c.get('user')
+    if (!user?.is_admin) return await c.notFound()
     return next()
   })
 }

@@ -151,7 +151,6 @@ declare namespace Database {
   }
 
   interface IShowroomLog {
-    live_type?: number
     custom?: CustomData
     is_dev: boolean
     live_id: number
@@ -160,10 +159,10 @@ declare namespace Database {
     record_dates: RecordDate[]
     live_info: {
       is_premium: boolean
+      live_type?: number
       comments: IComments
       screenshot?: IScreenshot
       background_image?: string
-      // stage_list?: IStage[]
       viewers: Viewers
       penonton?: {
         history: {

@@ -1,16 +1,15 @@
+import type { Context } from 'hono'
 import { getMembers } from './member'
 import ShowroomLog from '@/database/schema/showroom/ShowroomLog'
-import config from '@/config'
 
-export async function getFirstData(query: any): Promise<{ date: string }> {
-  const group = config.getGroup(query?.group || '')
+export async function getFirstData(c: Context): Promise<{ date: string }> {
   return {
-    date: await fetchData(group),
+    date: await fetchData(c),
   }
 }
 
-async function fetchData(group: string | null = null): Promise<string> {
-  const members = await getMembers(group)
+async function fetchData(c: Context): Promise<string> {
+  const members = await getMembers(c)
   const data = await ShowroomLog.findOne({ room_id: members.map(i => i.room_id) }).sort({ _id: 1 })
   return data?.live_info.start_date.toISOString() || ''
 }

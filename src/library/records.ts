@@ -1,13 +1,12 @@
+import type { Context } from 'hono'
 import { getMembers } from './member'
-import config from '@/config'
 import ShowroomLog from '@/database/schema/showroom/ShowroomLog'
 
-export async function getRecords(query?: any) {
-  const group = config.getGroup(query?.group)
-  return await fetchData(group)
+export async function getRecords(c: Context) {
+  return await fetchData(c)
 }
 
-async function fetchData(group: string | null = null): Promise<ShowroomRecord[]> {
+async function fetchData(c: Context): Promise<ShowroomRecord[]> {
   const populatePath = {
     path: 'room_info',
     select: '-_id name img url -room_id member_data',
@@ -16,7 +15,7 @@ async function fetchData(group: string | null = null): Promise<ShowroomRecord[]>
       select: '-_id name img',
     },
   }
-  const members = await getMembers(group)
+  const members = await getMembers(c)
   const options: { is_dev: boolean, room_id?: number[] | number } = {
     is_dev: false,
   }

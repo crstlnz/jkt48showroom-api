@@ -1,17 +1,16 @@
+import type { Context } from 'hono'
 import { getMembers } from './member'
-import config from '@/config'
 import { getAllFollows, getIsLive, getOnlives, getRoomStatus, getStreamingURL } from '@/utils/showroomAPI'
 
-export async function getNowLive(query?: any) {
-  const group = config.getGroup(query?.group || '')
-  return await getNowLiveCookies(null, group)
+export async function getNowLive(c: Context) {
+  return await getNowLiveCookies(null, c)
 }
 
 async function getNowLiveDirect(
   membersData: IMember[] | null = null,
-  group: string | null = null,
+  c: Context,
 ): Promise<INowLive[]> {
-  const members: IMember[] = membersData ?? await getMembers(group)
+  const members: IMember[] = membersData ?? await getMembers(c)
   const promises: Promise<INowLive | null>[] = []
   for (const member of members) {
     promises.push(
@@ -48,8 +47,8 @@ async function newOnlivesCookies() {
   // TODO
 }
 
-async function getNowLiveCookies(membersData: IMember[] | null = null, group: string | null = null): Promise<INowLive[]> {
-  const members: IMember[] = membersData ?? await getMembers(group)
+async function getNowLiveCookies(membersData: IMember[] | null = null, c: Context): Promise<INowLive[]> {
+  const members: IMember[] = membersData ?? await getMembers(c)
   const rooms = await getAllFollows().catch(_ => [])
   const roomMap = new Map<string, ShowroomAPI.RoomFollow>()
   const result: Promise<INowLive>[] = []
@@ -99,13 +98,13 @@ async function getNowLiveCookies(membersData: IMember[] | null = null, group: st
   const lives = []
   lives.push(...await Promise.all(result))
   if (missing.length) {
-    lives.push(...await getNowLiveDirect(missing))
+    lives.push(...await getNowLiveDirect(missing, c))
   }
   return lives
 }
 
-async function getNowLiveIndirect(membersData: IMember[] | null = null): Promise<INowLive[]> {
-  const members: IMember[] = membersData ?? await getMembers()
+async function getNowLiveIndirect(membersData: IMember[] | null = null, c: Context): Promise<INowLive[]> {
+  const members: IMember[] = membersData ?? await getMembers(c)
   const memberMap = new Map<string | number, IMember>()
   for (const member of members) {
     memberMap.set(member.room_id, member)

@@ -8,7 +8,7 @@ const app = new Hono()
 app.use('*', checkToken(false))
 app.use('*', useShowroomSession())
 
-app.post('/login', c => login(c))
-app.post('/logout', c => logout(c))
+app.post('/login', ...login())
+app.post('/logout', ...logout())
 
 export default app

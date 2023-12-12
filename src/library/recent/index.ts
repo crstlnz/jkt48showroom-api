@@ -1,13 +1,15 @@
 import Fuse from 'fuse.js'
 import ShowroomLog from '@schema/showroom/ShowroomLog'
+import type { Context } from 'hono'
 import config from '@/config'
 import { getMembers } from '@/library/member'
 
-export async function getRecents(qq: RecentsQuery | null = null): Promise<IApiRecents> {
+export async function getRecents(c: Context): Promise<IApiRecents> {
+  const qq = c.req.query()
   let page = 1
   const group = config.getGroup(qq?.group)
   const maxPerpage = 30
-  const perpage = Math.min(qq?.perpage || 10, maxPerpage)
+  const perpage = Math.min(Number(qq?.perpage || 10), maxPerpage)
   const query: RecentsQuery = qq ?? {}
   if (query.page) page = Number(query.page) ?? 1
   if (page < 1) page = 1
@@ -48,7 +50,7 @@ export async function getRecents(qq: RecentsQuery | null = null): Promise<IApiRe
   }
   else {
     const search = query.search ? String(query.search) ?? '' : ''
-    members = await getMembers(group)
+    members = await getMembers(c)
     if (search !== '') {
       const fuse = new Fuse(members, {
         threshold: 0.2,

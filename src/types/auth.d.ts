@@ -37,6 +37,7 @@ declare namespace ShowroomLogin {
     image: string
     avatar_id: string
     sr_id: string
+    is_admin: boolean
     exp: number
   }
 }

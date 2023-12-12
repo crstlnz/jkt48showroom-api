@@ -1,9 +1,10 @@
+import type { Context } from 'hono'
 import Member from '@/database/schema/48group/Member'
 import cache from '@/utils/cache'
 import { createError } from '@/utils/errorResponse'
 
-export async function getMemberBirthdays(query?: any) {
-  const group = query?.group
+export async function getMemberBirthdays(c: Context) {
+  const group = c.req.query('group')
   const cacheKey = group ? `${group}-birthday` : 'birthday'
   const data = await cache
     .fetch<BirthdayData>(cacheKey, () => fetchData(group as string), 86400000)

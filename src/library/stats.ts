@@ -69,7 +69,7 @@ export async function fetchData(type: Stats.IDateRangeType | Stats.IDateRangeMem
 
   let members: IMember[] = []
   if (!roomId) {
-    members = await getMembers(group)
+    members = await getMembers(group || '')
     if (!members?.length) {
       throw createError({
         statusCode: 500,

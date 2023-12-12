@@ -18,4 +18,5 @@ export default {
     const sort: SortType[] = ['date', 'gift', 'views', 'duration']
     return sort.includes(s)
   },
+  uploadFolder: 'uploads',
 }

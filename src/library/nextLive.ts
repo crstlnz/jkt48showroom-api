@@ -1,15 +1,13 @@
 import { getNextLive as fetchNextLive, getAllFollows } from '@utils/showroomAPI'
+import type { Context } from 'hono'
 import { getMembers } from './member'
-import config from '@/config'
 
-export async function getNextLive(query?: any): Promise<INextLive[]> {
-  const group = config.getGroup(query?.group || '')
-  return await getFromCookies(null, group)
+export async function getNextLive(c: Context): Promise<INextLive[]> {
+  return await getFromCookies(null, c)
 }
 
-async function getFromCookies(membersData: IMember[] | null = null, group: string | null = null): Promise<INextLive[]> {
-  const members: IMember[] = membersData ?? await getMembers(group)
-  console.log(members.length)
+async function getFromCookies(membersData: IMember[] | null = null, c: Context): Promise<INextLive[]> {
+  const members: IMember[] = membersData ?? await getMembers(c)
   const rooms = await getAllFollows().catch(_ => [])
   const roomMap = new Map<string, ShowroomAPI.RoomFollow>()
   const result: INextLive[] = []
@@ -47,14 +45,14 @@ async function getFromCookies(membersData: IMember[] | null = null, group: strin
   const lives = []
   lives.push(...result)
   if (missing.length) {
-    lives.push(...await getDirectNextLive(missing))
+    lives.push(...await getDirectNextLive(missing, c))
   }
   return lives
 }
 
-async function getDirectNextLive(membersData: IMember[] | null = null): Promise<INextLive[]> {
+async function getDirectNextLive(membersData: IMember[] | null = null, c: Context): Promise<INextLive[]> {
   try {
-    const members: IMember[] = (membersData ?? (await getMembers())).filter(i => i.room_exists)
+    const members: IMember[] = (membersData ?? (await getMembers(c))).filter(i => i.room_exists)
     const promises: Promise<INextLive | null>[] = []
     for (const member of members) {
       promises.push(

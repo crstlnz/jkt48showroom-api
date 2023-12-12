@@ -1,7 +1,9 @@
+import type { Context } from 'hono'
 import Member from '@/database/schema/48group/Member'
 import { createError } from '@/utils/errorResponse'
 
-export async function getMember48List(group: string | null = null): Promise<ISortMember[]> {
+export async function getMember48List(c: Context): Promise<ISortMember[]> {
+  const group = c.req.query('group')
   const options = group ? { group } : {}
   const data = await Member.find(options)
   if (!data) throw createError({ statusMessage: 'Data not found!', statusCode: 404 })

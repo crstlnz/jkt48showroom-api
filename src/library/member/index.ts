@@ -1,17 +1,21 @@
 import Showroom from '@schema/showroom/Showroom'
+import type { Context } from 'hono'
 import config from '@/config'
 import cache from '@/utils/cache'
 
 const jkt48officialId = 332503
-export async function getMembers(group: string | null = null, roomId: number | null = null) {
-  return await cache.fetch(group ? `${group}-members` : 'members', () => fetch(group, roomId), 86400000)
+export async function getMembers(group?: string | null): Promise<IMember[]>
+export async function getMembers(c?: Context): Promise<IMember[]>
+export async function getMembers(c?: Context | string | null): Promise<IMember[]> {
+  const group = c == null ? '' : typeof c === 'string' ? c : c.req.query('group')
+  return await cache.fetch(group ? `${group}-members` : 'members', () => fetch(group), 86400000)
 }
 
-async function fetch(group: string | null = null, roomId: number | null = null): Promise<IMember[]> {
+async function fetch(group: string | null = null): Promise<IMember[]> {
   try {
     const options = {} as any
     if (group) options.group = group
-    if (roomId) options.room_id = roomId
+    // if (roomId) options.room_id = roomId
     const members: Database.IShowroomMember[] = await Showroom.find(options)
       .select('name description img url room_id member_data room_exists generation')
       .populate({

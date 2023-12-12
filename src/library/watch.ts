@@ -1,8 +1,9 @@
 import { getCommentLog, getCurrentUser, getGiftList, getGiftLog, getRoomStatus, getStreamingURL } from '@utils/showroomAPI'
+import type { Context } from 'hono'
 
-export async function getWatchData(query: object, cookies?: string) {
-  console.log(cookies)
-  return await getData(query, cookies)
+export async function getWatchData(c: Context) {
+  const srId = c.get('user')?.sr_id
+  return await getData({ room_url_key: c.req.param('id') }, `sr_id=${srId};`)
 }
 
 async function getData(params: object, cookies?: string | undefined): Promise<Watch.WatchData> {
