@@ -44,7 +44,7 @@ app.put('*', useCSRF())
 
 app.use('*', useSessionID())
 
-app.get('/csrf_token', async (c) => {
+app.get('/csrf_token', useCORS('self'), async (c) => {
   const token = generateCSRF(c)
   return c.json({
     csrf_token: token,
