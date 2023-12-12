@@ -32,7 +32,7 @@ export async function getShowroomSession(c: Context): Promise<{ session: Showroo
   let sess = await verify(getShowroomSess(c) || '', process.env.SECRET!).catch(_ => null)
   let setCookie = false
   const user = c.get('user')
-  if ((!sess?.sr_id || sess.sr_id !== user?.sr_id || !sess?.csrf_token) || !c.get('showroom_session')) {
+  if ((!sess?.sr_id || (user?.sr_id && sess.sr_id !== user.sr_id) || !sess?.csrf_token) || !c.get('showroom_session')) {
     sess = await createShowroomSession(c).catch(_ => null)
     setCookie = true
   }
