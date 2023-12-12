@@ -54,10 +54,9 @@ const origin = ['*']
 if (process.env.ORIGINS) {
   origin.push(...(process.env.ORIGINS || '').split(','))
 }
-console.log('Origin', origin)
-
 app.use('*', cors({
   origin,
+  allowMethods: ['POST', 'GET', 'DELETE', 'PUT'],
   credentials: true,
 }))
 
