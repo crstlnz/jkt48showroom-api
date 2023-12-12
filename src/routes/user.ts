@@ -8,11 +8,12 @@ import { useShowroomSession } from '@/utils/showroomSession'
 import { reorderFollow } from '@/library/follow/reorder'
 import { follow } from '@/library/follow'
 import { handler } from '@/utils/factory'
+import { useCORS } from '@/utils/cors'
 
 const app = new Hono()
 const secret = process.env.AUTH_SECRET
 if (!secret) throw new Error('Auth secret not found!')
-
+app.use('*', useCORS('self'))
 app.use('*', checkToken())
 app.get('/', (c: Context) => c.json(c.get('user')))
 app.get('/history', ...handler(c => getUserHistory(c.req.query(), c.get('user')?.id)))

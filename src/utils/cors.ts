@@ -1,5 +1,4 @@
 import { cors } from 'hono/cors'
-import { createMiddleware } from 'hono/factory'
 
 type CorsLevel = 'self' | 'all'
 export function useCORS(level: CorsLevel) {

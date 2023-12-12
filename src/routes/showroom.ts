@@ -4,10 +4,10 @@ import { ofetch } from 'ofetch'
 import cache from '@utils/cache'
 import { useShowroomSession } from '@utils/showroomSession'
 import { checkToken } from '@/utils/security/token'
+import { useCORS } from '@/utils/cors'
 
 const showroomURL = process.env.SHOWROOM_API || ''
 const app = new Hono()
-
 async function showroomRequest(c: Context, url: string, ms = 60000, unique = false) {
   const query = c.req.query()
   const href = c.req.url
@@ -19,6 +19,8 @@ async function showroomRequest(c: Context, url: string, ms = 60000, unique = fal
   }, ms)
   return c.json(res)
 }
+
+app.use('*', useCORS('self'))
 
 app.use('*', checkToken(false))
 app.use('*', useShowroomSession())

@@ -51,11 +51,6 @@ app.get('/csrf_token', useCORS('self'), async (c) => {
   })
 })
 
-app.use('/admin*', useCORS('self'))
-app.use('/user*', useCORS('self'))
-app.use('/auth*', useCORS('self'))
-app.use('/showroom*', useCORS('self'))
-
 app.route('/admin', admin)
 app.route('/auth', auth)
 app.route('/user', user)

@@ -17,9 +17,10 @@ import { setBanner } from '@/library/admin/input/member/banner'
 import { setImage } from '@/library/admin/input/member/image'
 import { inputShowroomLog } from '@/library/admin/input/inputShowroomLog'
 import { editJikosoukai } from '@/library/admin/input/member/jikosokai'
+import { useCORS } from '@/utils/cors'
 
 const app = new Hono()
-
+app.use('*', useCORS('self'))
 app.use('*', checkToken(false))
 app.use('*', checkAdmin())
 // app.use('*', useShowroomSession())
