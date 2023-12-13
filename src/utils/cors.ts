@@ -1,5 +1,13 @@
 import { cors } from 'hono/cors'
 
+interface CORSOptions {
+  allowMethods?: string[]
+  allowHeaders?: string[]
+  maxAge?: number
+  credentials?: boolean
+  exposeHeaders?: string[]
+}
+
 type CorsLevel = 'self' | 'all'
 export function useCORS(level: CorsLevel) {
   const origin: string[] = []
@@ -7,7 +15,7 @@ export function useCORS(level: CorsLevel) {
     origin.push(...process.env.ORIGINS.split(','))
   }
 
-  const corsOptions = {
+  const corsOptions: CORSOptions = {
     allowMethods: ['POST', 'GET', 'DELETE', 'PUT'],
     credentials: true,
   }
