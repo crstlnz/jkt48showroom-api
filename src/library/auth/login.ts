@@ -23,7 +23,6 @@ export function login() {
 
     if (loginData.captcha_word) body.append('captcha_word', loginData.captcha_word)
 
-    console.log('Request', body.toString())
     let sr_id = sr_sess?.sr_id
     const data = await ofetch<ShowroomLogin.Data | ShowroomLogin.Error>('https://www.showroom-live.com/user/login', {
       method: 'POST',

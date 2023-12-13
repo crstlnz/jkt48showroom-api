@@ -1,15 +1,22 @@
 import type { Context } from 'hono'
 import { deleteCookie, getCookie, setCookie } from 'hono/cookie'
+import type { CookieOptions } from 'hono/utils/cookie'
 
 const name = '_sid'
+const cookieSettings: CookieOptions = {
+  path: '/',
+  sameSite: 'None',
+}
 export function getSessId(c: Context) {
   return c.get('sid') || getCookie(c, name)
 }
 
 export function setSessId(c: Context, token: string) {
-  setCookie(c, name, token, { path: '/' })
+  setCookie(c, name, token, {
+    ...cookieSettings,
+  })
 }
 
 export function deleteSessId(c: Context) {
-  deleteCookie(c, name, { path: '/' })
+  deleteCookie(c, name, { ...cookieSettings })
 }

@@ -1,26 +1,32 @@
 import type { Context } from 'hono'
 import { deleteCookie, getCookie, setCookie } from 'hono/cookie'
+import type { CookieOptions } from 'hono/utils/cookie'
 import { ONE_MONTH } from '@/const'
 
 const name = '_rt'
 const isDev = process.env.NODE_ENV === 'development'
+const cookieSettings: CookieOptions = {
+  secure: !isDev,
+  domain: process.env.COOKIE_DOMAIN,
+  httpOnly: true,
+  sameSite: 'None',
+  path: '/',
+}
+
 export function getRefreshToken(c: Context) {
   return getCookie(c, name)
 }
 
 export function setRefreshToken(c: Context, token: string) {
   setCookie(c, name, token, {
-    secure: !isDev,
-    domain: process.env.COOKIE_DOMAIN,
-    httpOnly: true,
-    path: '/',
+    ...cookieSettings,
     maxAge: ONE_MONTH,
   })
 }
 
 export function deleteRefreshToken(c: Context) {
   console.log('REFRESH TOKEN DELETED')
-  deleteCookie(c, name, { path: '/' })
+  deleteCookie(c, name, { ...cookieSettings })
 }
 
 export const refreshTokenTime = 2630000 // 1 month
