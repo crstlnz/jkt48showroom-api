@@ -5,6 +5,7 @@ import type { CookieOptions } from 'hono/utils/cookie'
 const name = '_sid'
 const cookieSettings: CookieOptions = {
   path: '/',
+  secure: true,
   sameSite: 'None',
 }
 export function getSessId(c: Context) {

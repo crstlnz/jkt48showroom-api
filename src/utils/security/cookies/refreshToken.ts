@@ -4,11 +4,9 @@ import type { CookieOptions } from 'hono/utils/cookie'
 import { ONE_MONTH } from '@/const'
 
 const name = '_rt'
-const isDev = process.env.NODE_ENV === 'development'
 const cookieSettings: CookieOptions = {
-  secure: !isDev,
+  secure: true,
   domain: process.env.COOKIE_DOMAIN,
-  httpOnly: true,
   sameSite: 'None',
   path: '/',
 }

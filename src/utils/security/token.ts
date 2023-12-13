@@ -2,6 +2,7 @@ import type { Context } from 'hono'
 import { decode, sign, verify } from 'hono/jwt'
 import { ofetch } from 'ofetch'
 import { createMiddleware } from 'hono/factory'
+import { getCookie } from 'hono/cookie'
 import { parseCookieString } from '..'
 import { createError } from '../errorResponse'
 import { accessTokenTime, deleteAccessToken, getAccessToken, setAccessToken } from './cookies/accessToken'
@@ -27,6 +28,7 @@ export function checkToken(mustAuth: boolean = true) {
   return createMiddleware(async (c, next) => {
     const sessId = getSessId(c)
     const cachedToken = sessId ? tokenCaches.get(sessId) : null
+    console.log(getCookie(c))
     const token = cachedToken?.accessToken || getAccessToken(c)
     const refreshToken = cachedToken?.refreshToken || getRefreshToken(c)
     if (token) {

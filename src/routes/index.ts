@@ -37,10 +37,11 @@ if (process.env.NODE_ENV === 'development') {
   app.use('*', logger())
 }
 
-// CSRF
+// CSRF //
 app.post('*', useCSRF())
 app.delete('*', useCSRF())
 app.put('*', useCSRF())
+// CSRF //
 
 app.use('*', useSessionID())
 

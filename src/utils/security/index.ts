@@ -4,6 +4,7 @@ import dayjs from 'dayjs'
 import type { Context } from 'hono'
 import { createMiddleware } from 'hono/factory'
 import { decode } from 'hono/jwt'
+import { getCookie } from 'hono/cookie'
 import { createError } from '../errorResponse'
 import { getAccessToken } from './cookies/accessToken'
 import { getSessId, setSessId } from './cookies/sessId'
@@ -59,9 +60,9 @@ export function generateCSRF(c: Context) {
 
 export function useCSRF() {
   return createMiddleware((c, next) => {
-    const csrfToken = c.req.query('csrf_token')
-    if (csrfToken !== generateCSRF(c)) {
-      console.log('CSRF TOKEN INVALID')
+    const csrfToken = c.req.header('X-CSRF-TOKEN')
+    const csrf = generateCSRF(c)
+    if (csrfToken !== csrf) {
       throw createError({
         status: 403,
         message: 'Forbidden!',

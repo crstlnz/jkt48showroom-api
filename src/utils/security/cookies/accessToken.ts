@@ -4,12 +4,10 @@ import type { CookieOptions } from 'hono/utils/cookie'
 import { ONE_MONTH } from '@/const'
 import { logout } from '@/library/auth/login'
 
-const isDev = process.env.NODE_ENV === 'development'
 const name = '_st'
 const cookieSettings: CookieOptions = {
-  secure: !isDev,
+  secure: true,
   domain: process.env.COOKIE_DOMAIN,
-  httpOnly: true,
   sameSite: 'None',
   path: '/',
 }

@@ -5,6 +5,7 @@ import type { CookieOptions } from 'hono/utils/cookie'
 const name = '_sr'
 const cookieSettings: CookieOptions = {
   path: '/',
+  secure: true,
   domain: process.env.COOKIE_DOMAIN,
   sameSite: 'None',
 }
