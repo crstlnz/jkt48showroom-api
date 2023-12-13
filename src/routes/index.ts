@@ -56,11 +56,6 @@ app.route('/auth', auth)
 app.route('/user', user)
 app.route('/showroom', showroom)
 
-const origin = ['*']
-if (process.env.ORIGINS) {
-  origin.push(...(process.env.ORIGINS || '').split(','))
-}
-
 app.use('*', useCORS('all'))
 
 app.use('/*', async (c, next) => {
@@ -71,7 +66,6 @@ app.use('/*', async (c, next) => {
 /// already use cache
 app.get('/stats', ...handler(c => getStats(c.req.query())))
 ///
-
 app.get('/recent', ...handler(getRecents))
 app.get('/recent/:id', ...handler(getRecentDetails, { hours: 1 }))
 app.get('/recent/:id/gifts', ...handler(getGifts, { hours: 1 }))
