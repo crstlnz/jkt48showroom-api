@@ -106,7 +106,7 @@ export async function fetchData(type: Stats.IDateRangeType | Stats.IDateRangeMem
     }
   }
 
-  if (!process.env.IS_DEV) option.is_dev = false
+  if (process.env.NODE_ENV !== 'development') option.is_dev = false
   const logs = await ShowroomLog.find(option, select)
     .lean()
     .populate({

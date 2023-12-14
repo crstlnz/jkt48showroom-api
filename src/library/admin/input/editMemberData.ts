@@ -3,7 +3,7 @@ import Member from '@/database/schema/48group/Member'
 import { createError } from '@/utils/errorResponse'
 
 export async function editMemberData(c: Context) {
-  const query = c.req.query()
+  const query = await c.req.parseBody()
   const data = {
     name: query.name,
     img: query.img,
@@ -12,7 +12,7 @@ export async function editMemberData(c: Context) {
     jikosokai: query.jikosokai,
     group: query.group,
     generation: query.generation,
-    jkt48id: query.jkt48id,
+    jkt48id: query['jkt48id[]'],
   }
 
   const member = await Member.findOneAndUpdate(

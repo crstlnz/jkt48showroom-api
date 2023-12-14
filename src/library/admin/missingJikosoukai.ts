@@ -3,7 +3,7 @@ import Showroom from '@/database/schema/showroom/Showroom'
 export default async function getMissingJikosoukai(): Promise<Admin.MissingJiko[]> {
   const member = (await Showroom.find({}).populate({
     path: 'member_data',
-  }).lean()).filter(i => i.member_data != null && i.member_data?.jikosokai == null).sort((a, b) => {
+  }).lean()).filter(i => i.member_data != null && (i.member_data?.jikosokai == null || i.member_data?.jikosokai?.toLowerCase() === 'trivia')).sort((a, b) => {
     if (a.group === b.group) {
       if (a.member_data?.isGraduate === b.member_data?.isGraduate) {
         return (a.name > b.name) ? 1 : -1

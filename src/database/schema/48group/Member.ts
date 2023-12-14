@@ -31,7 +31,7 @@ const memberSchema = new Schema<Database.I48Member>({
     type: String,
   },
   jkt48id: {
-    type: String,
+    type: [String],
   },
   generation: String,
   nicknames: [String],

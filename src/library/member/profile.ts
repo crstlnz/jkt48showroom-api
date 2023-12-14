@@ -15,8 +15,9 @@ export async function getMemberDetails(key: string): Promise<IMemberProfileAPI> 
   let upcomingTheater: ITheaterAPI[] = []
 
   if (data.group === 'jkt48') {
-    const next = await Theater.find({ memberIds: data.member_data?.jkt48id, date: { $gte: new Date() } }).populate<{ setlist: JKT48.Setlist }>('setlist').sort({ date: -1 }).limit(5)
-    const theater = await Theater.find({ memberIds: data.member_data?.jkt48id, date: { $lte: new Date() } }).populate<{ setlist: JKT48.Setlist }>('setlist').sort({ date: -1 }).limit(5)
+    console.log(data.member_data?.jkt48id)
+    const next = await Theater.find({ memberIds: { $in: data.member_data?.jkt48id }, date: { $gte: new Date() } }).populate<{ setlist: JKT48.Setlist }>('setlist').sort({ date: -1 }).limit(5)
+    const theater = await Theater.find({ memberIds: { $in: data.member_data?.jkt48id }, date: { $lte: new Date() } }).populate<{ setlist: JKT48.Setlist }>('setlist').sort({ date: -1 }).limit(5)
     recentTheater = theater.map<ITheaterAPI>((i) => {
       return {
         id: i.id,
@@ -50,6 +51,7 @@ export async function getMemberDetails(key: string): Promise<IMemberProfileAPI> 
     jikosokai: data.member_data?.jikosokai ?? '',
     generation: data.generation || '',
     room_id: data.room_id,
+    showroom_exists: data.room_exists,
     socials: data.member_data?.socials ?? [],
     is_graduate: data.member_data?.isGraduate ?? false,
     bloodType: data.member_data?.bloodType,

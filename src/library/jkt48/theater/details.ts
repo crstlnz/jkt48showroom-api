@@ -3,7 +3,6 @@ import Member from '@/database/schema/48group/Member'
 import Theater from '@/database/showroomDB/jkt48/Theater'
 import { createError } from '@/utils/errorResponse'
 
-// const time = 600000 // 10 minutes
 export async function getTheaterDetail(c: Context): Promise<IApiTheaterDetailList> {
   const id = c.req.param('id')
   const data = await Theater.find({ id: new RegExp(`^${id}`) }).populate<{ members: JKT48.Member[] }>('members').populate<{ setlist: JKT48.Setlist }>('setlist').populate<{ seitansai: JKT48.Member[] }>('seitansai').lean()
@@ -12,7 +11,7 @@ export async function getTheaterDetail(c: Context): Promise<IApiTheaterDetailLis
     return a
   }, [])
 
-  const memberDetails = await Member.find({ jkt48id: memberList.map(i => i.id) }).select({
+  const memberDetails = await Member.find({ jkt48id: { $in: memberList.map(i => i.id) } }).select({
     name: 1,
     img: 1,
     showroom_id: 1,
@@ -20,10 +19,6 @@ export async function getTheaterDetail(c: Context): Promise<IApiTheaterDetailLis
   }).populate('showroom')
     .lean()
 
-  const memberMap = new Map<string, Database.I48Member>()
-  for (const member of memberDetails) {
-    memberMap.set(member.jkt48id ?? '0', member)
-  }
   if (!data?.length) throw createError({ statusMessage: 'Data not found!', statusCode: 404 })
   return {
     shows: data.map((i) => {
@@ -33,7 +28,9 @@ export async function getTheaterDetail(c: Context): Promise<IApiTheaterDetailLis
         url: i.url,
         setlist: i.setlist,
         members: i.members.map((i) => {
-          const detailedMember = memberMap.get(i.id)
+          const detailedMember = memberDetails.find((m) => {
+            return m.jkt48id?.includes(i.id)
+          })
           return {
             id: i.id,
             name: i.name,
