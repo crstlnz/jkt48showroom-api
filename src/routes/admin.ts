@@ -18,6 +18,8 @@ import { setImage } from '@/library/admin/input/member/image'
 import { inputShowroomLog } from '@/library/admin/input/inputShowroomLog'
 import { editJikosoukai } from '@/library/admin/input/member/jikosokai'
 import { useCORS } from '@/utils/cors'
+import getMissingJKT48ID from '@/library/admin/missingJKT48ID'
+import { editJKT48ID } from '@/library/admin/input/member/jkt48id'
 
 const app = new Hono()
 app.use('*', useCORS('self'))
@@ -26,6 +28,7 @@ app.use('*', checkAdmin())
 // app.use('*', useShowroomSession())
 
 app.get('/missing_jikosokai', ...handler(getMissingJikosoukai))
+app.get('/missing_jkt48id', ...handler(getMissingJKT48ID))
 app.get('/setlist', ...handler(getAllSetlist))
 app.get('/stage48', ...handler(c => getStage48(c.req.query('group'))))
 app.get('/jkt48member', ...handler(getJKT48Members))
@@ -38,6 +41,7 @@ app.post('/edit_memberdata', ...handler(editMemberData))
 app.post('/setlist', ...handler(addOrEditSetlist))
 
 app.post('/member/jikosokai', ...handler(editJikosoukai))
+app.post('/member/jkt48id', ...handler(editJKT48ID))
 app.post('/member/banner', ...handler(setBanner))
 app.post('/member/image', ...handler(setImage))
 app.post('/input/showroom_log', ...handler(inputShowroomLog))

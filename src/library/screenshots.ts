@@ -3,7 +3,7 @@ import ShowroomLog from '@/database/schema/showroom/ShowroomLog'
 import { createError } from '@/utils/errorResponse'
 
 export async function getScreenshots(c: Context) {
-  return await fetchData(c.req.query('data_id') || '0')
+  return await fetchData(c.req.param('id') || '0')
 }
 
 async function fetchData(data_id: string): Promise<Database.IScreenshot> {

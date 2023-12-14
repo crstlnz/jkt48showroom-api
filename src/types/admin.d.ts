@@ -13,4 +13,21 @@ declare namespace Admin {
     url: string
   }
 
+  interface MissingJKT48ID {
+    _id: string
+    name: string
+    img: string
+    generation?: string
+    isGraduate: boolean
+  }
+
+  interface JKT48MemberId {
+    id: string
+    name: string
+  }
+
+  interface ApiMissingJKT48ID {
+    members: MissingJKT48ID[]
+    jkt48members: JKT48MemberId[]
+  }
 }

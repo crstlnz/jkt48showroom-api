@@ -4,7 +4,7 @@ import { StageList } from '@/database/showroomDB'
 import { createError } from '@/utils/errorResponse'
 
 export async function getStageList(c: Context): Promise<IStageListApi> {
-  const data_id = c.req.query('data_id')
+  const data_id = c.req.param('data_id')
   const data = await ShowroomLog.findOne({ data_id }).select({ users: 1 })
   const stageListData = await StageList.findOne({ data_id }).lean()
   if (!stageListData || !data) {
