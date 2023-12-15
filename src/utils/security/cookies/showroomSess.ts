@@ -3,11 +3,12 @@ import { deleteCookie, getCookie, setCookie } from 'hono/cookie'
 import type { CookieOptions } from 'hono/utils/cookie'
 
 const name = '_sr'
+const isDev = process.env.NODE_ENV === 'development'
 const cookieSettings: CookieOptions = {
   path: '/',
-  secure: true,
-  domain: process.env.COOKIE_DOMAIN,
-  sameSite: 'None',
+  secure: !isDev,
+  domain: isDev ? undefined : process.env.COOKIE_DOMAIN,
+  sameSite: isDev ? undefined : 'None',
 }
 export function getShowroomSess(c: Context) {
   return getCookie(c, name)

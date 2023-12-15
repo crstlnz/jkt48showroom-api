@@ -20,6 +20,7 @@ import { editJikosoukai } from '@/library/admin/input/member/jikosokai'
 import { useCORS } from '@/utils/cors'
 import getMissingJKT48ID from '@/library/admin/missingJKT48ID'
 import { editJKT48ID } from '@/library/admin/input/member/jkt48id'
+import { getMemberDataForEdits } from '@/library/admin/getMemberData'
 
 const app = new Hono()
 app.use('*', useCORS('self'))
@@ -34,6 +35,7 @@ app.get('/stage48', ...handler(c => getStage48(c.req.query('group'))))
 app.get('/jkt48member', ...handler(getJKT48Members))
 app.get('/member', ...handler(getMembers))
 app.get('/fans_list', ...handler(getFansList))
+app.get('/member/data', ...handler(getMemberDataForEdits))
 
 app.post('/set_graduate', ...handler(setGraduate))
 app.post('/edit_showroom', ...handler(editShowroom))

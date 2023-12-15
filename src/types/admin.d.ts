@@ -30,4 +30,10 @@ declare namespace Admin {
     members: MissingJKT48ID[]
     jkt48members: JKT48MemberId[]
   }
+
+  interface ApiMemberEditData {
+    member: IShowroomMember
+    stage48members: Database.I48Member[]
+    jkt48members: JKT48.Member[]
+  }
 }

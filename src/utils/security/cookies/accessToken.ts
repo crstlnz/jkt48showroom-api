@@ -2,13 +2,13 @@ import type { Context } from 'hono'
 import { deleteCookie, getCookie, setCookie } from 'hono/cookie'
 import type { CookieOptions } from 'hono/utils/cookie'
 import { ONE_MONTH } from '@/const'
-import { logout } from '@/library/auth/login'
 
 const name = '_st'
+const isDev = process.env.NODE_ENV === 'development'
 const cookieSettings: CookieOptions = {
-  secure: true,
-  domain: process.env.COOKIE_DOMAIN,
-  sameSite: 'None',
+  secure: !isDev,
+  domain: isDev ? undefined : process.env.COOKIE_DOMAIN,
+  sameSite: isDev ? undefined : 'None',
   path: '/',
 }
 

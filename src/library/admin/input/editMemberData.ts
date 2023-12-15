@@ -13,6 +13,7 @@ export async function editMemberData(c: Context) {
     group: query.group,
     generation: query.generation,
     jkt48id: query['jkt48id[]'],
+    nicknames: query['nicknames[]'],
   }
 
   const member = await Member.findOneAndUpdate(
