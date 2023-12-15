@@ -10,7 +10,7 @@ function notEmpty<TValue>(value: TValue | null | undefined): value is TValue {
 export async function getGifts(c: Context): Promise<IApiGifts> {
   let page = Number(c.req.query('page') || 1)
   const data_id = c.req.param('data_id') || ''
-  const search = c.req.query('data_id') || ''
+  const search = c.req.query('s') || ''
   const perpage = Number(c.req.query('perpage') || config.giftPerpage)
   const data = await ShowroomLog.findOne({ data_id }).select({ gift_data: 1, users: 1 }).lean()
   let total_count = data?.gift_data?.gift_log?.length ?? 0
