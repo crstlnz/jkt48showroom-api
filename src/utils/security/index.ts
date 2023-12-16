@@ -92,7 +92,7 @@ export function isAdmin(userId: string | number) {
 export function checkAdmin() {
   return createMiddleware(async (c, next) => {
     const user = c.get('user')
-    if (isAdmin(user.id)) return await c.notFound()
+    if (!isAdmin(user.id)) return await c.notFound()
     return next()
   })
 }
