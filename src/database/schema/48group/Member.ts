@@ -38,6 +38,7 @@ const memberSchema = new Schema<Database.I48Member>({
   socials: {
     type: [
       {
+        _id: false,
         title: String,
         url: String,
       },

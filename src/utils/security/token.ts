@@ -2,7 +2,6 @@ import type { Context } from 'hono'
 import { decode, sign, verify } from 'hono/jwt'
 import { ofetch } from 'ofetch'
 import { createMiddleware } from 'hono/factory'
-import { getCookie } from 'hono/cookie'
 import { parseCookieString } from '..'
 import { createError } from '../errorResponse'
 import { accessTokenTime, deleteAccessToken, getAccessToken, setAccessToken } from './cookies/accessToken'
@@ -95,6 +94,7 @@ export async function createToken(c: Context, user_id: string, sr_id: string) {
     exp: currentTime + accessTokenTime, // 1 hour
   }
 
+  if (!sessionData.account_id) throw createError({ status: 401, message: 'Unauthorized!' })
   const accessToken = await sign(sessionData, process.env.AUTH_SECRET!)
 
   const refreshToken = await sign({
