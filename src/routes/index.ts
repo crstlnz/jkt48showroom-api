@@ -14,7 +14,6 @@ import { getStats } from '@/library/stats'
 import { getGifts } from '@/library/recent/gifts'
 import { getNowLive } from '@/library/nowLive'
 import { getNextLive } from '@/library/nextLive'
-import { getWatchData } from '@/library/watch'
 import { getFirstData } from '@/library/firstData'
 import { getScreenshots } from '@/library/screenshots'
 import { getRecords } from '@/library/records'
@@ -30,6 +29,9 @@ import { getProfile } from '@/library/room/profile'
 import { useShowroomSession } from '@/utils/showroomSession'
 import { handler } from '@/utils/factory'
 import { useCORS } from '@/utils/cors'
+import { getIDNLives } from '@/library/idn/lives'
+import { getIDNLive } from '@/library/watch/idn'
+import { getWatchData } from '@/library/watch'
 
 const app = new Hono()
 
@@ -67,6 +69,7 @@ app.use('/*', async (c, next) => {
 /// already use cache
 app.get('/stats', ...handler(c => getStats(c.req.query())))
 ///
+app.get('/idn_lives', ...handler(getIDNLives, { seconds: 10 }))
 app.get('/recent', ...handler(getRecents))
 app.get('/recent/:id', ...handler(getRecentDetails, { hours: 1 }))
 app.get('/recent/:data_id/gifts', ...handler(getGifts, { hours: 1 }))
@@ -76,6 +79,7 @@ app.get('/member/:id', ...handler(c => getMemberDetails(c.req.param('id')), { mi
 app.get('/now_live', ...handler(getNowLive, { seconds: 10 }))
 app.get('/next_live', ...handler(getNextLive, { hours: 1 }))
 app.get('/watch/:id', ...handler(getWatchData, { seconds: 10 }))
+app.get('/watch/:id/idn', ...handler(getIDNLive, { seconds: 10 }))
 app.get('/first_data', ...handler(getFirstData, { days: 1 }))
 app.get('/screenshots/:id', ...handler(getScreenshots, { hours: 12 }))
 app.get('/records', ...handler(getRecords, { hours: 2 }))

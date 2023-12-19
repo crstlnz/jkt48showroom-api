@@ -49,6 +49,7 @@ const memberSchema = new Schema<Database.I48Member>({
   bloodType: String,
   height: String,
   showroom_id: Number,
+  idn_username: String,
 })
 
 memberSchema.virtual('showroom', {

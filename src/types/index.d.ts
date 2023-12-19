@@ -217,3 +217,19 @@ interface IMemberProfileAPI extends IMemberBasicData {
   recentTheater?: ITheaterAPI[]
   upcomingTheater?: ITheaterAPI[]
 }
+
+interface IDNUser {
+  id: string
+  name: string
+  username: string
+  avatar: string
+}
+interface IDNLives {
+  user: IDNUser
+  image: string
+  title: string
+  slug: string
+  view_count: number
+  live_at: string
+  stream_url: string
+}
