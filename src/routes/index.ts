@@ -32,12 +32,16 @@ import { useCORS } from '@/utils/cors'
 import { getIDNLives } from '@/library/idn/lives'
 import { getIDNLive } from '@/library/watch/idn'
 import { getWatchData } from '@/library/watch'
+import { passCookie } from '@/library/bot/passCookies'
 
 const app = new Hono()
 
 if (process.env.NODE_ENV === 'development') {
   app.use('*', logger())
 }
+
+// bot purpose
+app.post('/pass', useCORS('all'), ...handler(passCookie))
 
 // CSRF //
 app.post('*', useCSRF())
