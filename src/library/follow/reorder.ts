@@ -10,7 +10,7 @@ export async function reorderFollow(c: Context) {
   if (!body.room_id) throw createError({ status: 400, message: 'Bad request!' })
   const data = new URLSearchParams()
   data.append('csrf_token', srSess.csrf_token || '')
-  data.append('room_id', body.room_id || '')
+  data.append('room_id', String(body.room_id || ''))
   await ofetch(`${process.env.SHOWROOM_API}/api/room/update_follow`, {
     method: 'POST',
     headers: {

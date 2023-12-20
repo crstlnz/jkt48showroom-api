@@ -1,5 +1,6 @@
 import type { Context } from 'hono'
 import ipc from 'node-ipc'
+import { fetchNewsJKT48, fetchScheduleJKT48 } from '../jkt48/scraper'
 import { createError } from '@/utils/errorResponse'
 import Config from '@/database/schema/config/Config'
 
@@ -42,7 +43,7 @@ export async function passCookie(c: Context) {
           runValidators: true,
         },
       )
-      pingDiscordBot()
+      fetchJKT48()
       return true
     }
     catch (e) {
@@ -53,15 +54,22 @@ export async function passCookie(c: Context) {
   throw createError({ status: 404, message: 'Endpoint not found!' })
 }
 
-export function pingDiscordBot() {
-  const botId = 'discord-bot'
-  ipc.config.id = 'api'
-  ipc.config.retry = 1500
-  ipc.config.silent = true
-  ipc.connectTo(botId, () => {
-    ipc.of[botId].on('connect', () => {
-      ipc.of[botId].emit('fetch-jkt48', 'The message we send')
-      ipc.disconnect(botId)
+let delay = false
+export async function fetchJKT48() {
+  if (!delay) {
+    delay = true
+    setTimeout(() => {
+      delay = false
+    }, 10000)
+
+    console.log('Fetching JKT48 Schedule data...')
+    await fetchScheduleJKT48().then(_ => console.log('Fetch Schedule JKT48 Success!')).catch((_) => {
+      console.log('Fetch Schedule JKT48 Failed')
     })
-  })
+
+    console.log('Fetching JKT48 News data...')
+    await fetchNewsJKT48().then(_ => console.log('Fetch News JKT48 Success!')).catch((_) => {
+      console.log('Fetch News JKT48 Failed')
+    })
+  }
 }

@@ -12,9 +12,9 @@ export async function sendComment(c: Context): Promise<Response> {
   if (!srSess.csrf_token || !body.comment || !body.live_id) throw createError({ statusCode: 400, statusMessage: 'Bad request!' })
   const params = new URLSearchParams()
   params.append('csrf_token', srSess.csrf_token || body.csrf_token || '')
-  params.append('comment', body.comment)
-  params.append('live_id', body.live_id)
-  params.append('is_delay', body.is_delay)
+  params.append('comment', String(body.comment))
+  params.append('live_id', String(body.live_id))
+  params.append('is_delay', String(body.is_delay))
   return c.json(await commentAPI({
     headers: {
       'Cookie': `sr_id=${srSess.sr_id}`,

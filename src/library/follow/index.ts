@@ -10,8 +10,8 @@ export async function follow(c: Context) {
   if (!body.flag || !body.room_id) throw createError({ status: 400, message: 'Bad request!' })
   const data = new URLSearchParams()
   data.append('csrf_token', srSess.csrf_token || '')
-  data.append('room_id', body.room_id || '')
-  data.append('flag', body.flag || 0)
+  data.append('room_id', String(body.room_id || ''))
+  data.append('flag', String(body.flag || 0))
   await ofetch(`${process.env.SHOWROOM_API}/api/room/follow`, {
     method: 'POST',
     headers: {

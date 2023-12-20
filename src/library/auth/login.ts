@@ -15,13 +15,13 @@ export function login() {
     const loginData = await c.req.parseBody()
     const body = new URLSearchParams()
 
-    body.append('account_id', loginData.account_id || '')
-    body.append('password', loginData.password || '')
+    body.append('account_id', String(loginData.account_id || ''))
+    body.append('password', String(loginData.password || ''))
 
     const sr_sess: ShowroomLogin.Session | null = c.get('showroom_session')
     if (sr_sess?.csrf_token) body.append('csrf_token', sr_sess?.csrf_token)
 
-    if (loginData.captcha_word) body.append('captcha_word', loginData.captcha_word)
+    if (loginData.captcha_word) body.append('captcha_word', String(loginData.captcha_word))
 
     let sr_id = sr_sess?.sr_id
     const data = await ofetch<ShowroomLogin.Data | ShowroomLogin.Error>('https://www.showroom-live.com/user/login', {

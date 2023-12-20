@@ -38,7 +38,17 @@ export async function getTheaterDetail(c: Context): Promise<IApiTheaterDetailLis
             url_key: (detailedMember as any)?.showroom?.url,
           }
         }),
-        seitansai: i.seitansai,
+        seitansai: i.seitansai.map((i) => {
+          const detailedMember = memberDetails.find((m) => {
+            return m.jkt48id?.includes(i.id)
+          })
+          return {
+            id: i.id,
+            name: i.name,
+            img: detailedMember?.img ?? undefined,
+            url_key: (detailedMember as any)?.showroom?.url,
+          }
+        }),
         date: i.date,
         team: i.team,
       }
