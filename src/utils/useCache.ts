@@ -32,7 +32,9 @@ export function useCache(opts?: CacheOptions | Utils.DurationUnits) {
     else {
       const oldJson = c.json
       const newJson = (object: JSONValue, status?: number | undefined, headers?: any | undefined) => {
-        cache.set(cacheName, object as object, ms)
+        if (status === undefined || status === 200) {
+          cache.set(cacheName, object as object, ms)
+        }
         return oldJson(object as any, status, headers)
       }
       c.json = newJson as any
