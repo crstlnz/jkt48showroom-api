@@ -1,13 +1,10 @@
 import type { Context } from 'hono'
+import ipc from 'node-ipc'
 import { createError } from '@/utils/errorResponse'
 import Config from '@/database/schema/config/Config'
 
 export async function passCookie(c: Context) {
   const body = await c.req.parseBody()
-  console.log(body.cookies)
-  console.log(body.pass)
-  console.log(body.user_agent)
-  console.log(c.req.header('user-agent'))
   if (body.pass === process.env.PASS && body.cookies) {
     try {
       await Config.updateOne(
@@ -45,6 +42,7 @@ export async function passCookie(c: Context) {
           runValidators: true,
         },
       )
+      pingDiscordBot()
       return true
     }
     catch (e) {
@@ -53,4 +51,17 @@ export async function passCookie(c: Context) {
   }
 
   throw createError({ status: 404, message: 'Endpoint not found!' })
+}
+
+export function pingDiscordBot() {
+  const botId = 'discord-bot'
+  ipc.config.id = 'api'
+  ipc.config.retry = 1500
+  ipc.config.silent = true
+  ipc.connectTo(botId, () => {
+    ipc.of[botId].on('connect', () => {
+      ipc.of[botId].emit('fetch-jkt48', 'The message we send')
+      ipc.disconnect(botId)
+    })
+  })
 }

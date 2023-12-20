@@ -32,7 +32,7 @@ import { useCORS } from '@/utils/cors'
 import { getIDNLives } from '@/library/idn/lives'
 import { getIDNLive } from '@/library/watch/idn'
 import { getWatchData } from '@/library/watch'
-import { passCookie } from '@/library/bot/passCookies'
+import { passCookie, pingDiscordBot } from '@/library/bot/passCookies'
 
 const app = new Hono()
 
