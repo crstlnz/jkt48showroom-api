@@ -12,7 +12,7 @@ export async function setBanner(c: Context): Promise<{
   if (!body.banner) throw createError({ statusCode: 400, statusMessage: 'Banner not included!' })
   const member = await Member.findOne({ _id: body.id })
   if (!member) throw createError({ statusCode: 400, statusMessage: 'Bad request!' })
-  const img = await uploadImageBuffer(await body.banner.arrayBuffer())
+  const img = await uploadImageBuffer(await (body.banner as File).arrayBuffer())
   member.banner = img.secure_url
   await member.save()
   return {

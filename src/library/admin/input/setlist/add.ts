@@ -7,13 +7,13 @@ import Setlist from '@/database/showroomDB/jkt48/Setlist'
 
 export async function addOrEditSetlist(c: Context) {
   const data = await c.req.parseBody()
-  const poster = data.poster
-  const banner = data.banner
+  const poster = data.poster as File
+  const banner = data.banner as File
   const origin_id = data.origin_id
-  const id = data.id
-  const title = data.title
-  const title_alt = data.title_alt
-  const description = data.description
+  const id = String(data.id)
+  const title = String(data.title)
+  const title_alt = String(data.title_alt)
+  const description = String(data.description)
 
   if (!id || !title) throw createError({ statusCode: 400, statusMessage: 'Bad request!' })
 

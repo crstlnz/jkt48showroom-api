@@ -5,19 +5,19 @@ import { createError } from '@/utils/errorResponse'
 export async function editMemberData(c: Context) {
   const query = await c.req.parseBody()
   const data: Partial<Database.I48Member> = {
-    name: query.name,
-    img: query.img,
-    stage48: query.stage48,
-    banner: query.banner,
-    jikosokai: query.jikosokai,
-    group: query.group,
-    generation: query.generation,
-    jkt48id: query['jkt48id[]'],
-    nicknames: query['nicknames[]'],
-    idn_username: query.idn_username,
+    name: query.name.toString(),
+    img: query.img.toString(),
+    stage48: query.stage48.toString(),
+    banner: query.banner.toString(),
+    jikosokai: query.jikosokai.toString(),
+    group: query.group.toString(),
+    generation: query.generation.toString(),
+    jkt48id: query['jkt48id[]'] as any,
+    nicknames: query['nicknames[]'] as any,
+    idn_username: query.idn_username.toString(),
   }
 
-  const rawSocials = query['socials[]']
+  const rawSocials = query['socials[]'] as any[]
   if (rawSocials) {
     const socials = []
     for (const s of rawSocials) {

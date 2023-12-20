@@ -13,7 +13,7 @@ export async function setImage(c: Context): Promise<{
   if (!body.image) throw createError({ statusCode: 400, statusMessage: 'Image not included!' })
   const member = await Member.findOne({ _id: body.id })
   if (!member) throw createError({ statusCode: 400, statusMessage: 'Bad request!' })
-  const img = await uploadImageBuffer(await body.image.arrayBuffer())
+  const img = await uploadImageBuffer(await (body.image as File).arrayBuffer())
   member.img = img.secure_url
   await member.save()
   return {
