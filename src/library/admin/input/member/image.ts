@@ -9,7 +9,6 @@ export async function setImage(c: Context): Promise<{
 }> {
   const body = await c.req.parseBody()
   if (!body.id) throw createError({ statusCode: 400, statusMessage: 'Bad request!' })
-  console.log(body.id)
   if (!body.image) throw createError({ statusCode: 400, statusMessage: 'Image not included!' })
   const member = await Member.findOne({ _id: body.id })
   if (!member) throw createError({ statusCode: 400, statusMessage: 'Bad request!' })

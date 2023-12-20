@@ -9,7 +9,22 @@ export async function getAllIDNUsername(): Promise<string[]> {
   })
 }
 
+let idnLivesCache: IDNLives[] = []
 export async function getIDNLives(): Promise<IDNLives[]> {
+  try {
+    const data = await fetch()
+    idnLivesCache = data
+    return data
+  }
+  catch (e) {
+    if (idnLivesCache.length) {
+      return idnLivesCache
+    }
+    throw e
+  }
+}
+
+export async function fetch(): Promise<IDNLives[]> {
   const res = await ofetch(`https://api.idn.app/graphql`, {
     headers: {
       'Content-Type': 'application/json',
