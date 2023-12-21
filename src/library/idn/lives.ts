@@ -39,10 +39,25 @@ export async function fetch(): Promise<IDNLives[]> {
   const data = res?.data?.searchLivestream?.result
 
   if (data?.length) {
-    const idn_usernames = [...await getAllIDNUsername()]
-    return data.filter((i: any) => {
+    const idn_usernames = [...await getAllIDNUsername(), 'jkt48-official']
+    const result = []
+    const filtered = data.filter((i: any) => {
       return idn_usernames.includes(i.creator?.username || '0')
-    }).map((i: any) => {
+    })
+
+    if (process.env.NODE_ENV === 'development') {
+      if (filtered.length) {
+        result.push(...filtered)
+      }
+      else {
+        result.push(...data.slice(0, 5))
+      }
+    }
+    else {
+      result.push(...filtered)
+    }
+
+    return result.map((i: any) => {
       return {
         user: {
           id: i.creator?.uuid,

@@ -113,4 +113,4 @@ class CacheManager {
   }
 }
 
-export default new CacheManager({ key: 'GROUP', cacheType: 'auto' })
+export default new CacheManager({ key: process.env.NODE_ENV === 'development' ? 'DEV' : 'GROUP', cacheType: 'auto' })
