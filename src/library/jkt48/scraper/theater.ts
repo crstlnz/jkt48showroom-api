@@ -20,7 +20,7 @@ export async function getTheaterDetail(id: string, retry = 1, headers: HeadersIn
     const theaterId = getTheaterId(url) ?? url
     const memberMap = new Map<string, JKT48.Member>()
     for (const [num, show] of shows.entries()) {
-      const title = show.querySelector('td:nth-child(2)')?.textContent ?? ''
+      const title = (show.querySelector('td:nth-child(2)')?.textContent ?? '').trim()
       const team = show.querySelector('td:nth-child(2) img')?.getAttribute('src') ?? ''
       const dateString = (show.querySelector('td:nth-child(1)')?.textContent ?? '').toLowerCase().split('show')
       const clock = dateString[1]
@@ -55,9 +55,10 @@ export async function getTheaterDetail(id: string, retry = 1, headers: HeadersIn
         throw new Error(`Date kosong , ${url}`)
       }
 
+      const setlistId = title.replaceAll(' ', '').toLowerCase().trim()
       theaterData.push({
         id: shows.length > 1 ? `${theaterId}-${num}` : theaterId,
-        setlistId: title.replaceAll(' ', '').toLowerCase().trim(),
+        setlistId,
         title,
         team: {
           id: extractTeamId(team) ?? '',

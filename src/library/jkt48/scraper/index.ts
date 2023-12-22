@@ -90,6 +90,7 @@ export async function fetchScheduleJKT48() {
         )
       }
       for (const theaterDetail of theaterData.show) {
+        console.log(theaterDetail.setlistId)
         await Theater.updateOne(
           { id: theaterDetail.id },
           {

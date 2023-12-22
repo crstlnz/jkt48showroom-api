@@ -21,6 +21,7 @@ const theaterSchema = new Schema<JKT48.Theater>({
     type: [Number],
     default: [],
   },
+  setlistId: String,
   seitansaiIds: {
     type: [Number],
     default: [],
