@@ -1,14 +1,17 @@
 import type { Context } from 'hono'
 import Member from '@/database/schema/48group/Member'
 import { createError } from '@/utils/errorResponse'
+import { uploadImageBuffer } from '@/utils/cloudinary'
 
 export async function editMemberData(c: Context) {
   const query = await c.req.parseBody()
+  const banner = query.banner instanceof File ? await uploadImageBuffer(await (query.banner as File).arrayBuffer()) : query.banner
+  const img = query.img instanceof File ? await uploadImageBuffer(await (query.img as File).arrayBuffer()) : query.img
   const data: Partial<Database.I48Member> = {
     name: query.name.toString(),
-    img: query.img.toString(),
+    img,
+    banner,
     stage48: query.stage48.toString(),
-    banner: query.banner.toString(),
     jikosokai: query.jikosokai.toString(),
     group: query.group.toString(),
     generation: query.generation.toString(),

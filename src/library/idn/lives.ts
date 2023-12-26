@@ -1,12 +1,26 @@
 import { ofetch } from 'ofetch'
 import Member from '@/database/schema/48group/Member'
-import cache from '@/utils/cache'
 
-export async function getAllIDNUsername(): Promise<string[]> {
-  return cache.fetch<string[]>('member_idn_username', async () => {
-    const data = (await Member.find({ idn_username: { $exists: true } }).lean()).map(i => i.idn_username) || []
-    return data as string[]
-  })
+const idnUsernames = new Set<string>()
+const additionalUsernames = ['jkt48-official']
+export async function getAllIDNUsername(): Promise<Set<string>> {
+  if (idnUsernames.size) return idnUsernames
+  const data = (await Member.find({ idn_username: { $exists: true } }).lean()).map(i => i.idn_username) || []
+  if (data.length) {
+    const usernames = [...data.filter(i => i != null) as string[], ...additionalUsernames]
+    for (const username of usernames) {
+      idnUsernames.add(username)
+    }
+
+    setTimeout(() => {
+      idnUsernames.clear()
+    }, 3600_000)
+  }
+  else {
+    console.log('IDN Usernames is empty!')
+  }
+
+  return idnUsernames
 }
 
 let idnLivesCache: IDNLives[] = []
@@ -39,10 +53,10 @@ export async function fetch(): Promise<IDNLives[]> {
   const data = res?.data?.searchLivestream?.result
 
   if (data?.length) {
-    const idn_usernames = [...await getAllIDNUsername(), 'jkt48-official']
+    const usernames = await getAllIDNUsername()
     const result = []
     const filtered = data.filter((i: any) => {
-      return idn_usernames.includes(i.creator?.username || '0')
+      return usernames.has(i.creator?.username || '0')
     })
 
     if (process.env.NODE_ENV === 'development') {
