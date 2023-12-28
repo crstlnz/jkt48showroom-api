@@ -1,4 +1,4 @@
-namespace Stats {
+declare namespace Stats {
   type IDateRangeType = 'weekly' | 'monthly' | 'quarterly'
   type IDateRangeMemberType = 'weekly' | 'monthly' | 'all'
 

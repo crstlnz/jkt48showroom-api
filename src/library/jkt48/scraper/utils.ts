@@ -14,7 +14,7 @@ export function extractDateTime(input: string) {
   const match = input.match(dateRegex)
 
   if (match) {
-    const [fullMatch, dateStr, timeStr] = match
+    const [, dateStr, timeStr] = match
     const [day, month, year] = dateStr.split(/[.:]/).map(Number)
     const [hours, minutes] = timeStr.split(/[.:]/).map(Number)
 

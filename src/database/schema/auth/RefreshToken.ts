@@ -1,5 +1,4 @@
 import { Schema, model } from 'mongoose'
-import config from '@/config'
 import { refreshTokenTime } from '@/utils/security/cookies/refreshToken'
 
 interface RefreshToken {

@@ -1,7 +1,7 @@
 import { Schema } from 'mongoose'
-import { connection } from '..'
 import Member from './Member'
 import Setlist from './Setlist'
+import { jkt48DB } from '@/database'
 
 const theaterSchema = new Schema<JKT48.Theater>({
   id: {
@@ -55,7 +55,7 @@ theaterSchema.virtual('seitansai', {
   foreignField: 'id',
 })
 
-export default connection.model<JKT48.Theater>(
+export default jkt48DB.model<JKT48.Theater>(
   'JKT48Theater',
   theaterSchema,
 )

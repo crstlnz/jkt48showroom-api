@@ -1,5 +1,5 @@
 import { Schema } from 'mongoose'
-import { connection } from '..'
+import { jkt48DB } from '@/database'
 
 const memberSchema = new Schema<JKT48.Member>({
   id: {
@@ -17,7 +17,7 @@ const memberSchema = new Schema<JKT48.Member>({
   },
 })
 
-export default connection.model<JKT48.Member>(
+export default jkt48DB.model<JKT48.Member>(
   'JKT48Member',
   memberSchema,
 )
