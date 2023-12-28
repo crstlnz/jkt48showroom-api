@@ -1,6 +1,6 @@
 import type { Context } from 'hono'
 import ShowroomLog from '@/database/schema/showroom/ShowroomLog'
-import { StageList } from '@/database/showroomDB/StageList'
+import { StageList } from '@/database/showroomDB'
 import { createError } from '@/utils/errorResponse'
 
 export async function getStageList(c: Context): Promise<IStageListApi> {
@@ -25,7 +25,7 @@ export async function getStageList(c: Context): Promise<IStageListApi> {
   for (const stage_list of stageListData.stage_list) {
     for (const user of stage_list.list) {
       const u = users.get(user)
-      if (u) filteredUser.set(u.id, u)
+      if (u) { filteredUser.set(u.id, u) }
     }
   }
 

@@ -1,5 +1,5 @@
 import { Schema } from 'mongoose'
-import { jkt48DB } from '@/database'
+import { connection } from '..'
 
 const eventSchema = new Schema<JKT48.Schedule>({
   id: {
@@ -13,7 +13,7 @@ const eventSchema = new Schema<JKT48.Schedule>({
   date: Date,
 })
 
-export default jkt48DB.model<JKT48.Schedule>(
+export default connection.model<JKT48.Schedule>(
   'JKT48Schedule',
   eventSchema,
 )

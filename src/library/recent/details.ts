@@ -85,7 +85,6 @@ export async function getRecentDetails(c: Context): Promise<IRecentDetail> {
 
   return {
     ...data,
-    live_id: Number(data.live_id) || 0,
     users: [...userMap.values()],
     fans: fansRank,
     live_info: {

@@ -43,7 +43,6 @@ async function getNowLiveDirect(
   return data.filter(i => i) as INowLive[]
 }
 
-// eslint-disable-next-line no-unused-vars, unused-imports/no-unused-vars
 async function newOnlivesCookies() {
   // TODO
 }
@@ -65,7 +64,7 @@ async function getNowLiveCookies(membersData: IMember[] | null = null, c: Contex
       if (room.is_online) {
         let isPremium = false
         result.push((async () => {
-          const streamURLS = await getStreamingURL({ room_id: room.room_id }).catch(() => {
+          const streamURLS = await getStreamingURL({ room_id: room.room_id }).catch((e) => {
             return {
               streaming_url_list: [],
             }
@@ -104,7 +103,7 @@ async function getNowLiveCookies(membersData: IMember[] | null = null, c: Contex
   return lives
 }
 
-export async function getNowLiveIndirect(membersData: IMember[] | null = null, c: Context): Promise<INowLive[]> {
+async function getNowLiveIndirect(membersData: IMember[] | null = null, c: Context): Promise<INowLive[]> {
   const members: IMember[] = membersData ?? await getMembers(c)
   const memberMap = new Map<string | number, IMember>()
   for (const member of members) {

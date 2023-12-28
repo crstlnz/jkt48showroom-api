@@ -1,4 +1,4 @@
-declare namespace Watch {
+namespace Watch {
 
   interface TelopApi {
     telops: Telops[]

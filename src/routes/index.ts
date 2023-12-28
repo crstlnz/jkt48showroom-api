@@ -1,5 +1,6 @@
 import { Hono } from 'hono'
 import { logger } from 'hono/logger'
+import { cors } from 'hono/cors'
 import showroom from './showroom'
 import auth from './auth'
 import user from './user'
@@ -60,27 +61,26 @@ app.get('/csrf_token', useCORS('self'), async (c) => {
 app.route('/admin', admin)
 app.route('/auth', auth)
 app.route('/user', user)
+app.route('/showroom', showroom)
 
 app.use('*', useCORS('all'))
 
-app.route('/showroom', showroom)
-
 app.use('/*', async (c, next) => {
-  await dbConnect('all')
+  await dbConnect(2)
   await next()
 })
 
 /// already use cache
 app.get('/stats', ...handler(c => getStats(c.req.query())))
 ///
-app.get('/idn_lives', ...handler(getIDNLives, { seconds: 5 }))
+app.get('/idn_lives', ...handler(getIDNLives, { seconds: 10 }))
 app.get('/recent', ...handler(getRecents))
 app.get('/recent/:id', ...handler(getRecentDetails, { hours: 1 }))
 app.get('/recent/:data_id/gifts', ...handler(getGifts, { hours: 1 }))
 app.get('/recent/:data_id/stagelist', ...handler(getStageList, { hours: 1 }))
 app.get('/member', ...handler(getMembers, { hours: 12 }))
 app.get('/member/:id', ...handler(c => getMemberDetails(c.req.param('id')), { minutes: 30 }))
-app.get('/now_live', ...handler(getNowLive, { seconds: 7 }))
+app.get('/now_live', ...handler(getNowLive, { seconds: 10 }))
 app.get('/next_live', ...handler(getNextLive, { hours: 1 }))
 app.get('/watch/:id', ...handler(getWatchData, { seconds: 10 }))
 app.get('/watch/:id/idn', ...handler(getIDNLive, { seconds: 10 }))

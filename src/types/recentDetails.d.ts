@@ -1,4 +1,4 @@
-declare namespace RecentDetails{
+namespace RecentDetails{
   interface IFansGift {
     name: string
     id: number

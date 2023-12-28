@@ -1,6 +1,6 @@
 import type { Model } from 'mongoose'
 import { Schema, model } from 'mongoose'
-import { StageList } from '../../showroomDB/StageList'
+import { StageList } from '../../showroomDB'
 import Showroom from './Showroom'
 import ShowroomGift from './ShowroomGift'
 import ShowroomUser from './ShowroomUser'

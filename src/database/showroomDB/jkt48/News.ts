@@ -1,5 +1,5 @@
 import { Schema } from 'mongoose'
-import { jkt48DB } from '@/database'
+import { connection } from '..'
 
 const eventSchema = new Schema<JKT48.News>({
   id: {
@@ -14,7 +14,14 @@ const eventSchema = new Schema<JKT48.News>({
   date: Date,
 })
 
-export default jkt48DB.model<JKT48.News>(
+// memberSchema.virtual('showroom', {
+//   ref: 'Showroom',
+//   localField: 'showroom_id',
+//   foreignField: 'room_id',
+//   justOne: true
+// })
+
+export default connection.model<JKT48.News>(
   'JKT48News',
   eventSchema,
 )

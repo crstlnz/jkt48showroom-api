@@ -1,6 +1,8 @@
+import fs from 'fs'
+import { Buffer } from 'buffer'
 import type { Context } from 'hono'
 import { createError } from '@/utils/errorResponse'
-import { uploadImageBuffer } from '@/utils/cloudinary'
+import { uploadImage, uploadImageBuffer } from '@/utils/cloudinary'
 import Setlist from '@/database/showroomDB/jkt48/Setlist'
 
 export async function addOrEditSetlist(c: Context) {

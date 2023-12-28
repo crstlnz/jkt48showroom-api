@@ -63,7 +63,7 @@ export async function getRefreshedToken(c: Context, accessToken: string, refresh
     if (tokenDoc && !tokenDoc.isUsed) {
       tokenDoc.isUsed = true
       await tokenDoc.save()
-      const { sessionData } = await createToken(c, decodedToken.payload.id, decodedToken.payload.sr_id)
+      const { sessionData, refreshToken: wew } = await createToken(c, decodedToken.payload.id, decodedToken.payload.sr_id)
       return sessionData
     }
   }
@@ -79,9 +79,7 @@ export async function createToken(c: Context, user_id: string, sr_id: string) {
     },
     async onResponse({ response }) {
       const cookies = parseCookieString(response.headers.get('Set-Cookie') || '')
-      if (cookies.sr_id?.value) {
-        sr_id = cookies.sr_id.value
-      }
+      if (cookies.sr_id?.value) { sr_id = cookies.sr_id.value }
     },
   })
   const currentTime = Math.floor(Date.now() / 1000)

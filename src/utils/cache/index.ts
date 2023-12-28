@@ -15,7 +15,6 @@ class CacheManager {
   private key?: string
   initType: cacheType
   /**
-   * @param {CacheOptions} [opts] - options for cache
    * @param {CacheOptions} [opts.cacheType] - cacheType is type of the cache
    * @param {CacheOptions} [opts.key] - key is additional string before the given key (for multiple cache purpose)
    */
