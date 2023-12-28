@@ -72,7 +72,7 @@ class RedisManager {
   ): Promise<void> {
     if (retry > 0) await this.sleep(this.delay)
     try {
-      await redis.set(String(key), JSON.stringify(value),'PX', ms)
+      await redis.set(String(key), JSON.stringify(value), 'PX', ms)
     }
     catch (e) {
       if (retry < this.maxRetry) {

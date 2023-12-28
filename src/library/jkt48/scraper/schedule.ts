@@ -12,7 +12,7 @@ export async function getAllCalendar(headers: HeadersInit): Promise<string[]> {
   const monthsData = doc.querySelectorAll(
     '.entry-schedule__footer .entry-schedule__footer--month a',
   )
-  return monthsData.map(i => i.getAttribute('href')).filter(i => i !== undefined).sort((a, b) => -1) as string[]
+  return monthsData.map(i => i.getAttribute('href')).filter(i => i !== undefined).sort(() => -1) as string[]
 }
 
 export async function getAllCalendarEvents(headers: HeadersInit): Promise<JKT48.Schedule[]> {
@@ -41,7 +41,7 @@ function getEvents(body: string, url: string): JKT48.Schedule[] {
     const dateString = Number.parseInt(event.querySelector('td:nth-child(1)')?.textContent?.trim() ?? '') ?? 1
     const yearMonth = extractYearAndMonthFromUrl(`https://jkt48.com${url}`)
     const date = dayjs(`${dateString}-${yearMonth.month}-${yearMonth.year}`, 'D-M-YYYY')
-    for (const [index, content] of event.querySelectorAll('td .contents').entries()) {
+    for (const [, content] of event.querySelectorAll('td .contents').entries()) {
       const id = `${date.format('YYYYMMDD')}-${content.textContent.trim().toLowerCase().replaceAll(' ', '-')}`
       events.push({
         id,

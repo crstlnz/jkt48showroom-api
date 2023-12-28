@@ -2,7 +2,7 @@ import Fuse from 'fuse.js'
 import { getMembers } from '../member'
 import config from '@/config'
 import ShowroomLog from '@/database/schema/showroom/ShowroomLog'
-import { StageList } from '@/database/showroomDB'
+import { StageList } from '@/database/showroomDB/StageList'
 import { createError } from '@/utils/errorResponse'
 
 export async function getUserHistory(qq: any = null, userId: string): Promise<IHistoryRecents> {

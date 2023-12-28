@@ -1,7 +1,5 @@
 import { Schema, model } from 'mongoose'
-import type { Model } from 'mongoose'
 import Member from '../48group/Member'
-import Theater from '../../showroomDB/jkt48/Theater'
 
 const ShowroomSchema = new Schema<Database.IShowroomMember>({
   name: {

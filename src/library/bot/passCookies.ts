@@ -1,5 +1,4 @@
 import type { Context } from 'hono'
-import ipc from 'node-ipc'
 import { fetchNewsJKT48, fetchScheduleJKT48 } from '../jkt48/scraper'
 import { createError } from '@/utils/errorResponse'
 import Config from '@/database/schema/config/Config'

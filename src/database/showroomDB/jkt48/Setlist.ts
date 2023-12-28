@@ -1,6 +1,6 @@
 import { Schema } from 'mongoose'
-import { connection } from '..'
 import Song from './Song'
+import { jkt48DB } from '@/database'
 
 const eventSchema = new Schema<JKT48.Setlist>({
   id: {
@@ -20,7 +20,7 @@ const eventSchema = new Schema<JKT48.Setlist>({
   songs: [{ type: Schema.Types.ObjectId, ref: Song }],
 })
 
-export default connection.model<JKT48.Setlist>(
+export default jkt48DB.model<JKT48.Setlist>(
   'JKT48Setlist',
   eventSchema,
 )

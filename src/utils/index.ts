@@ -1,6 +1,3 @@
-import fs from 'fs/promises'
-import type { Buffer } from 'buffer'
-
 export function getDateRange(type: Stats.IDateRangeType): Stats.IDateRange {
   const date = new Date()
   date.setHours(0, 0, 0, -1)

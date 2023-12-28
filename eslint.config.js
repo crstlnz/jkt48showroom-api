@@ -6,7 +6,7 @@ module.exports = antfu(
       'node_modules',
     ],
     rules: {
-      'no-console': 'warn',
+      'no-console': 'off',
       'no-unused-vars': 'warn',
       'curly': ['error', 'multi-line'],
       'antfu/if-newline': 'off',

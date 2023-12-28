@@ -1,5 +1,4 @@
 import 'dotenv/config'
-import { createSecureServer } from 'node:http2'
 import { serve } from '@hono/node-server'
 import { Hono } from 'hono'
 import { FetchError } from 'ofetch'

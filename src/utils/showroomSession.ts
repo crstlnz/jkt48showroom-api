@@ -16,7 +16,9 @@ export async function createShowroomSession(c: Context): Promise<ShowroomLogin.S
     onResponse({ response }) {
       if (!sr_id) {
         const cookies = parseCookieString(response.headers.get('Set-Cookie') || '')
-        if (cookies.sr_id?.value) { sr_id = cookies.sr_id?.value }
+        if (cookies.sr_id?.value) {
+          sr_id = cookies.sr_id?.value
+        }
       }
     },
   })

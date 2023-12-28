@@ -1,5 +1,5 @@
 import { Schema } from 'mongoose'
-import { connection } from '..'
+import { jkt48DB } from '@/database'
 
 const eventSchema = new Schema<JKT48.Song>({
   id: {
@@ -13,7 +13,7 @@ const eventSchema = new Schema<JKT48.Song>({
   lyrics: String,
 })
 
-export default connection.model<JKT48.Song>(
+export default jkt48DB.model<JKT48.Song>(
   'JKT48Song',
   eventSchema,
 )

@@ -4,7 +4,7 @@ import { calculateRanks } from './calculateRanks'
 import { getDateRange } from '@/utils'
 import { createError } from '@/utils/errorResponse'
 import ShowroomLog from '@/database/schema/showroom/ShowroomLog'
-import { StageList } from '@/database/showroomDB'
+import { StageList } from '@/database/showroomDB/StageList'
 import config from '@/config'
 
 const time = 43200000 // 12 hours
