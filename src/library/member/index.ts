@@ -20,7 +20,7 @@ async function fetch(group: string | null = null): Promise<IMember[]> {
       .select('name description img url room_id member_data room_exists generation')
       .populate({
         path: 'member_data',
-        select: '-_id isGraduate img nicknames bloodType height',
+        select: '-_id isGraduate img nicknames bloodType height idn_username',
       })
       .lean()
     return members
@@ -40,6 +40,7 @@ async function fetch(group: string | null = null): Promise<IMember[]> {
           generation: member.generation,
           bloodType: member.member_data?.bloodType,
           height: member.member_data?.height,
+          idn_username: member.member_data?.idn_username,
         }
       })
       .sort((a, b) => a.name.localeCompare(b.name))
