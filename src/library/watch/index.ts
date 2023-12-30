@@ -8,7 +8,6 @@ export async function getWatchData(c: Context) {
 }
 
 async function getData(params: object, cookies?: string | undefined): Promise<Watch.WatchData> {
-  console.log('GET DATA')
   try {
     const data = await getRoomStatus(params, cookies)
     const streamUrl = data.is_live ? (await getStreamingURL({ room_id: data.room_id }, cookies)).streaming_url_list : []

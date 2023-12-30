@@ -48,7 +48,7 @@ export function getGiftList(roomId: number, cookies: string | null = null): Prom
 }
 
 export function getStreamingURL(params: object, cookies: string | null = null): Promise<ShowroomAPI.StreamingUrlList> {
-  return ofetch('https://www.showroom-live.com/api/live/streaming_url', { params: { ...params, _: new Date().getTime() }, headers: { cookie: cookies || '' } })
+  return ofetch('https://www.showroom-live.com/api/live/streaming_url', { params: { ...params }, headers: { cookie: cookies || '' } })
 }
 export function getCommentLog(roomId: number, cookies: string | null = null): Promise<{ comment_log: Watch.APIComment[] }> {
   return ofetch(`https://www.showroom-live.com/api/live/comment_log?room_id=${roomId}&_=${new Date().getTime()}`, { headers: { cookie: cookies || '' } })
@@ -70,7 +70,7 @@ export function getSummaryRanking(roomId: number): Promise<ShowroomAPI.SummaryRa
 }
 
 export function getStageUserList(roomId: number, cookies: string | null = null): Promise<Watch.StageList> {
-  return ofetch('https://www.showroom-live.com/api/live/stage_user_list', { params: { room_id: roomId, _: new Date().getTime() }, headers: { cookie: cookies || '' } })
+  return ofetch('https://www.showroom-live.com/api/live/stage_user_list', { params: { room_id: roomId }, headers: { cookie: cookies || '' } })
 }
 
 export function sendComment(opts?: any | undefined): Promise<Watch.CommentResponse> {
