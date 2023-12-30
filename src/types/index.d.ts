@@ -234,3 +234,8 @@ interface IDNLives {
   live_at: string
   stream_url: string
 }
+
+interface CacheOptions {
+  name?: string
+  duration?: Utils.DurationUnits
+}

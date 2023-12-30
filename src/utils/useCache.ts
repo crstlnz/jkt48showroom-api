@@ -2,29 +2,31 @@ import { createMiddleware } from 'hono/factory'
 import type { JSONValue } from 'hono/utils/types'
 import duration from 'dayjs/plugin/duration'
 import dayjs from 'dayjs'
+import type { Context } from 'hono'
 import cache from './cache'
 
 dayjs.extend(duration)
-interface CacheOptions {
-  name?: string
-  duration?: Utils.DurationUnits
-}
 
-export function useCache(opts?: CacheOptions | Utils.DurationUnits) {
+export function useCache(cacheOpts?: ((c: Context) => CacheOptions | Utils.DurationUnits) | CacheOptions | Utils.DurationUnits) {
   return createMiddleware(async (c, next) => {
+    const cc = cacheOpts ?? { seconds: 0 }
+
+    const opts = typeof cc === 'function' ? cc(c) : cc
     let cacheName = c.req.url
     let ms = 0
     if (opts && 'duration' in opts) {
       const durationUnits = (opts as CacheOptions)?.duration
       ms = durationUnits ? dayjs.duration(durationUnits).asMilliseconds() : 0
       if (ms === 0) return await next()
-      cacheName = (Number.isNaN(opts) ? (opts as CacheOptions)?.name : null) || c.req.url
+      cacheName = (opts as CacheOptions)?.name || c.req.url
     }
     else if (opts) {
       ms = dayjs.duration(opts as Utils.DurationUnits).asMilliseconds()
     }
 
     if (ms === 0) return await next()
+
+    console.log('CACHE NAME ', cacheName)
     const res = await cache.get(cacheName)
     if (res) {
       return c.json(res)

@@ -7,8 +7,8 @@ const factory = createFactory()
 export const createMiddleware = factory.createMiddleware
 export const createHandlers = factory.createHandlers
 
-export function handler(fetch: (c: Context) => Promise<any>, cache?: Utils.DurationUnits) {
-  return createHandlers(useCache(cache ?? { seconds: 0 }), async (c) => {
+export function handler(fetch: (c: Context) => Promise<any>, opts?: ((c: Context) => CacheOptions | Utils.DurationUnits) | CacheOptions | Utils.DurationUnits) {
+  return createHandlers(useCache(opts), async (c) => {
     return c.json(await fetch(c) as any)
   })
 }

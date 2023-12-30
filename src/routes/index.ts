@@ -73,20 +73,29 @@ app.use('/*', async (c, next) => {
 /// already use cache
 app.get('/stats', ...handler(c => getStats(c.req.query())))
 ///
-app.get('/idn_lives', ...handler(getIDNLives, { seconds: 5 }))
+app.get('/idn_lives', ...handler(getIDNLives, { seconds: 60 }))
 app.get('/recent', ...handler(getRecents))
 app.get('/recent/:id', ...handler(getRecentDetails, { hours: 1 }))
 app.get('/recent/:data_id/gifts', ...handler(getGifts, { hours: 1 }))
 app.get('/recent/:data_id/stagelist', ...handler(getStageList, { hours: 1 }))
 app.get('/member', ...handler(getMembers, { hours: 12 }))
 app.get('/member/:id', ...handler(c => getMemberDetails(c.req.param('id')), { minutes: 30 }))
-app.get('/now_live', ...handler(getNowLive, { seconds: 15 }))
+app.get('/now_live', ...handler(getNowLive, (c) => {
+  let group = c.req.query('group')
+  group = group === 'hinatazaka46' ? 'hinatazaka46' : 'jkt48'
+  return {
+    name: `${group}-nowlive`,
+    duration: {
+      seconds: 15,
+    },
+  }
+}))
 app.get('/next_live', ...handler(getNextLive, { hours: 1 }))
-app.get('/watch/:id', ...handler(getWatchData, { seconds: 10 }))
+app.get('/watch/:id', ...handler(getWatchData, { seconds: 15 }))
 app.get('/watch/:id/idn', ...handler(getIDNLive, { seconds: 10 }))
 app.get('/first_data', ...handler(getFirstData, { days: 1 }))
 app.get('/screenshots/:id', ...handler(getScreenshots, { hours: 12 }))
-app.get('/records', ...handler(getRecords, { hours: 2 }))
+app.get('/records', ...handler(getRecords, { hours: 12 }))
 app.get('/next_schedule', ...handler(getSchedule, { minutes: 1 }))
 app.get('/theater/:id', ...handler(getTheaterDetail, { minutes: 30 }))
 app.get('/news', ...handler(getNews))
