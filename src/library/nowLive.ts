@@ -65,7 +65,8 @@ async function getNowLiveCookies(membersData: IMember[] | null = null, c: Contex
       if (room.is_online) {
         let isPremium = false
         result.push((async () => {
-          const streamURLS = await getStreamingURL({ room_id: room.room_id }).catch(() => {
+          const streamURLS = await getStreamingURL({ room_id: room.room_id }).catch((e) => {
+            console.log(e)
             return {
               streaming_url_list: [],
             }
