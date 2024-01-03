@@ -3,9 +3,15 @@ import ShowroomLog from '@schema/showroom/ShowroomLog'
 import type { Context } from 'hono'
 import config from '@/config'
 import { getMembers } from '@/library/member'
+import LiveLog from '@/database/live/schema/LiveLog'
 
 export async function getRecents(c: Context): Promise<IApiRecents> {
   const qq = c.req.query()
+
+  let type: string | undefined = qq.type || 'showroom'
+  if (type === 'all') type = undefined
+
+  console.log('type', type)
   let page = 1
   const maxPerpage = 30
   const perpage = Math.min(Number(qq?.perpage || 10), maxPerpage)
@@ -18,7 +24,7 @@ export async function getRecents(c: Context): Promise<IApiRecents> {
     return `${order < 0 ? '-' : ''}${(() => {
         switch (sort) {
           case 'date':
-            return 'live_info.end_date'
+            return 'live_info.date.end'
           case 'gift':
             return 'total_point'
           case 'views':
@@ -26,7 +32,7 @@ export async function getRecents(c: Context): Promise<IApiRecents> {
           case 'duration':
             return 'live_info.duration'
           default:
-            return 'live_info.end_date'
+            return 'live_info.date.end'
         }
       })()}`
   }
@@ -39,10 +45,12 @@ export async function getRecents(c: Context): Promise<IApiRecents> {
     room_id?: number[] | number
     is_dev?: boolean
     'live_info.viewers.peak'?: object
-    'live_info.end_date'?: object
+    'live_info.date.end'?: object
+    type?: string
   }
 
   const options: Options = {}
+  if (type) options.type = type
   if (process.env.NODE_ENV !== 'development') options.is_dev = false
   if (query.room_id) {
     options.room_id = query.room_id
@@ -74,7 +82,7 @@ export async function getRecents(c: Context): Promise<IApiRecents> {
     if (query.date) {
       try {
         const date = JSON.parse(String(query.date))
-        options['live_info.end_date'] = {
+        options['live_info.date.end'] = {
           $gte: new Date(Number(date.start)).toISOString(),
           $lte: new Date(Number(date.end)).toISOString(),
         }
@@ -92,23 +100,25 @@ export async function getRecents(c: Context): Promise<IApiRecents> {
   }
 
   if (members.length || query.room_id) {
-    logs = await ShowroomLog.find(options)
+    logs = await LiveLog.find(options)
       .select({
         custom: 1,
+        idn: 1,
         live_info: {
           duration: 1,
           viewers: {
             peak: 1,
             is_excitement: 1,
           },
-          start_date: 1,
-          end_date: 1,
+          date: 1,
         },
         data_id: 1,
-        total_point: 1,
+        total_gifts: 1,
         created_at: 1,
         room_id: 1,
+        gift_rate: 1,
         room_info: 1,
+        type: 1,
       })
       .sort(getSort(sort))
       .skip((page - 1) * perpage)
@@ -130,6 +140,7 @@ export async function getRecents(c: Context): Promise<IApiRecents> {
     recents: logs.map<IRecent>(i => ({
       _id: i._id,
       data_id: i.data_id,
+      idn: i.idn,
       member: {
         name: i.room_info?.name ?? 'Member not Found!',
         nickname: i.custom ? (i.custom.title ?? i.custom.theater?.title) : i.room_info?.member_data?.nicknames[0] || undefined,
@@ -141,7 +152,6 @@ export async function getRecents(c: Context): Promise<IApiRecents> {
       },
       created_at: i.created_at.toISOString(),
       live_info: {
-        comments: i.live_info?.comments ?? undefined,
         duration: i.live_info?.duration ?? 0,
         viewers: i.live_info?.viewers?.peak
           ? {
@@ -150,12 +160,14 @@ export async function getRecents(c: Context): Promise<IApiRecents> {
             }
           : undefined,
         date: {
-          start: i.live_info.start_date.toISOString(),
-          end: i.live_info.end_date.toISOString(),
+          start: i.live_info.date.start.toISOString(),
+          end: i.live_info.date.end.toISOString(),
         },
       },
+      gift_rate: i.gift_rate,
       room_id: i.room_id,
-      points: i.total_point,
+      points: i.total_gifts || 0,
+      type: i.type,
     })),
     page,
     perpage,

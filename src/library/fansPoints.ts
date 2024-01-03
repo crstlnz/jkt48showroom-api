@@ -1,13 +1,13 @@
 const fansMaxSize = 50
 
-export function calculateFansPoints(usersData: RecentDetails.IFansCompact[], stageList: Database.IStage[]) {
+export function calculateFansPoints(usersData: Log.ShowroomMiniUser[], stageList: Database.IStage[]) {
   const fansRanks: Map<string | number, number> = new Map()
   const users: Map<string | number, Stats.IFans> = new Map()
   for (const user of usersData) {
-    users.set(user.id, {
+    users.set(user.user_id, {
       name: user.name,
       avatar_id: user.avatar_id,
-      id: user.id,
+      id: user.user_id,
     })
   }
 

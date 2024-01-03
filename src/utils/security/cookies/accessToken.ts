@@ -26,4 +26,4 @@ export function setAccessToken(c: Context, token: string) {
 export function deleteAccessToken(c: Context) {
   deleteCookie(c, name, { ...cookieSettings })
 }
-export const accessTokenTime = 3600 // 1 hour
+export const accessTokenTime = 3600 * 24 // 24 hour

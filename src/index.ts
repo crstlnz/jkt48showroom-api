@@ -5,6 +5,7 @@ import { FetchError } from 'ofetch'
 import pkg from '../package.json'
 import { ApiError } from './utils/errorResponse'
 import api from './routes'
+import webhook from './webhooks'
 
 const app = new Hono()
 
@@ -19,6 +20,7 @@ app.get('/', c => c.json({
 }))
 
 app.route('/api', api)
+app.route('/webhook', webhook)
 
 app.notFound((c) => {
   return c.json({

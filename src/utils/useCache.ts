@@ -9,6 +9,7 @@ dayjs.extend(duration)
 
 export function useCache(cacheOpts?: ((c: Context) => CacheOptions | Utils.DurationUnits) | CacheOptions | Utils.DurationUnits) {
   return createMiddleware(async (c, next) => {
+    if (process.env.NODE_ENV === 'development') return await next()
     const cc = cacheOpts ?? { seconds: 0 }
 
     const opts = typeof cc === 'function' ? cc(c) : cc
@@ -26,7 +27,6 @@ export function useCache(cacheOpts?: ((c: Context) => CacheOptions | Utils.Durat
 
     if (ms === 0) return await next()
 
-    console.log('CACHE NAME ', cacheName)
     const res = await cache.get(cacheName)
     if (res) {
       return c.json(res)

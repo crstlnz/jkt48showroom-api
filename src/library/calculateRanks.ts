@@ -1,6 +1,6 @@
 import { calculateFansPoints } from './fansPoints'
 
-export function calculateRanks(logs: Database.IShowroomLog[], stageListData: Database.IStageListItem[]): Stats.CalculatedRanks {
+export function calculateRanks(logs: Log.Showroom[], stageListData: Database.IStageListItem[]): Stats.CalculatedRanks {
   const memberRanks: Map<string | number, Stats.IStatMember> = new Map()
 
   for (const log of logs) {
@@ -8,13 +8,13 @@ export function calculateRanks(logs: Database.IShowroomLog[], stageListData: Dat
       const member = memberRanks.get(log.room_id)
       if (member) {
         const viewer = log.live_info?.viewers?.peak ?? 0
-        const duration = new Date(log?.live_info?.end_date).getTime() - new Date(log?.live_info?.start_date).getTime()
+        const duration = new Date(log?.live_info?.date?.end).getTime() - new Date(log?.live_info?.date?.start).getTime()
         member.live_count += 1
         member.total_viewer += log?.live_info?.viewers?.peak ?? 0
-        member.point += log.total_point
+        member.point += log.total_gifts
         member.most_viewer = viewer > member.most_viewer ? viewer : member.most_viewer
         member.duration = duration > member.duration ? duration : member.duration
-        member.most_point = log?.total_point > member.most_point ? log?.total_point : member.most_point
+        member.most_point = log?.total_gifts > member.most_point ? log?.total_gifts : member.most_point
       }
     }
     else {
@@ -28,24 +28,25 @@ export function calculateRanks(logs: Database.IShowroomLog[], stageListData: Dat
         url: log.room_info?.url ?? '',
         live_count: 1,
         total_viewer: log?.live_info?.viewers?.peak ?? 0,
-        duration: new Date(log?.live_info?.end_date).getTime() - new Date(log?.live_info?.start_date).getTime(),
-        point: log.total_point,
+        duration: new Date(log?.live_info?.date?.end).getTime() - new Date(log?.live_info?.date?.start).getTime(),
+        point: log.total_gifts,
         most_viewer: log.live_info?.viewers?.peak ?? 0,
-        most_point: log.total_point,
+        most_point: log.total_gifts,
       })
     }
   }
 
-  const users = logs.reduce<RecentDetails.IFansCompact[]>((a, b) => {
+  const users = logs.reduce<Log.ShowroomMiniUser[]>((a, b) => {
     for (const user of b.users) {
       a.push({
         name: user.name,
         avatar_id: user.avatar_id,
-        id: user.user_id,
+        comments: user.comments,
+        user_id: Number(user.user_id),
       })
     }
     return a
-  }, [] as RecentDetails.IFansCompact[])
+  }, [] as Log.ShowroomMiniUser[])
 
   const stageList = stageListData.reduce<Database.IStage[]>((a, b) => {
     a.push(...(b.stage_list ?? []))

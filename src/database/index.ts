@@ -21,8 +21,8 @@ class DB {
   jkt48: Connection
   jkt48Promise: Promise<Connection>
 
-  // live: Connection
-  // livePromise: Promise<Connection>
+  live: Connection
+  livePromise: Promise<Connection>
   private constructor() {
     const isDev = process.env.NODE_ENV === 'development'
     this.dc = isDev && global._clientDC ? global._clientDC : mongoose.connection
@@ -31,8 +31,8 @@ class DB {
     this.jkt48 = (isDev && global._clientJKT48) ? global._clientJKT48 : mongoose.createConnection(process.env.MONGODB_URI_JKT48_SHOWROOM || '')
     this.jkt48Promise = (isDev && global._promiseJKT48) ? global._promiseJKT48 : this.jkt48.asPromise()
 
-    // this.live = (isDev && global._clientLive) ? global._clientLive : mongoose.createConnection(process.env.MONGODB_URI_LIVE_DB || '')
-    // this.livePromise = (isDev && global._promiseLive) ? global._promiseLive : this.live.asPromise()
+    this.live = (isDev && global._clientLive) ? global._clientLive : mongoose.createConnection(process.env.MONGODB_URI_LIVE_DB || '')
+    this.livePromise = (isDev && global._promiseLive) ? global._promiseLive : this.live.asPromise()
 
     this.dc.on('open', () => {
       console.log('MongoDB connected!')
@@ -40,9 +40,9 @@ class DB {
     this.jkt48.on('open', () => {
       console.log('JKT48 ShowroomDB connected!')
     })
-    // this.live.on('open', () => {
-    //   console.log('LiveDB connected!')
-    // })
+    this.live.on('open', () => {
+      console.log('LiveDB connected!')
+    })
   }
 
   public static get instance() {
@@ -56,7 +56,7 @@ class DB {
 export const db = DB.instance
 export const dcDB = db.dc
 export const jkt48DB = db.jkt48
-// export const liveDB = db.live
+export const liveDB = db.live
 
 type DatabaseName = 'dcDB' | 'jkt48DB' | 'liveDB'
 export async function dbConnect(dbList: DatabaseName[] | DatabaseName | 'all') {
@@ -68,7 +68,7 @@ export async function dbConnect(dbList: DatabaseName[] | DatabaseName | 'all') {
   if (loadAll || dbList === 'jkt48DB' || dbList.includes('jkt48DB')) {
     await db.jkt48Promise
   }
-  // if (loadAll || dbList === 'liveDB' || dbList.includes('liveDB')) {
-  //   await db.livePromise
-  // }
+  if (loadAll || dbList === 'liveDB' || dbList.includes('liveDB')) {
+    await db.livePromise
+  }
 }

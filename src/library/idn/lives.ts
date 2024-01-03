@@ -2,7 +2,7 @@ import { ofetch } from 'ofetch'
 import Member from '@/database/schema/48group/Member'
 
 const idnUsernames = new Set<string>()
-const additionalUsernames = ['jkt48-official']
+const additionalUsernames = ['jkt48-official', 'ellery']
 export async function getAllIDNUsername(): Promise<Set<string>> {
   if (idnUsernames.size) return idnUsernames
   const data = (await Member.find({ idn_username: { $exists: true } }).lean()).map(i => i.idn_username) || []

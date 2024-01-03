@@ -26,7 +26,7 @@ export async function getMemberDetails(key: string): Promise<IMemberProfileAPI> 
         url: i.url,
         poster: i.setlist?.poster,
       }
-    })
+    }).sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
 
     upcomingTheater = next.map<ITheaterAPI>((i) => {
       return {
@@ -36,7 +36,7 @@ export async function getMemberDetails(key: string): Promise<IMemberProfileAPI> 
         url: i.url,
         poster: i.setlist?.poster,
       }
-    })
+    }).sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
   }
 
   return {

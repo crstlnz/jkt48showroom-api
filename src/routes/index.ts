@@ -9,7 +9,8 @@ import { getRecentDetails } from '@/library/recent/details'
 import { dbConnect } from '@/database'
 import { getMembers } from '@/library/member'
 import { getMemberDetails } from '@/library/member/profile'
-import { getStats } from '@/library/stats'
+
+// import { getStats } from '@/library/stats'
 import { getGifts } from '@/library/recent/gifts'
 import { getNowLive } from '@/library/nowLive'
 import { getNextLive } from '@/library/nextLive'
@@ -71,7 +72,7 @@ app.use('/*', async (c, next) => {
 })
 
 /// already use cache
-app.get('/stats', ...handler(c => getStats(c.req.query())))
+// app.get('/stats', ...handler(c => getStats(c.req.query())))
 ///
 app.get('/idn_lives', ...handler(getIDNLives, { seconds: 60 }))
 app.get('/recent', ...handler(getRecents))
