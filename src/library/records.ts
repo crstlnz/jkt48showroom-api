@@ -6,6 +6,7 @@ export async function getRecords(c: Context) {
   return await fetchData(c)
 }
 
+// TODO
 async function fetchData(c: Context): Promise<ShowroomRecord[]> {
   const populatePath = {
     path: 'room_info',

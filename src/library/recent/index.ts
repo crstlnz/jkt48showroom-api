@@ -11,7 +11,6 @@ export async function getRecents(c: Context): Promise<IApiRecents> {
   let type: string | undefined = qq.type || 'showroom'
   if (type === 'all') type = undefined
 
-  console.log('type', type)
   let page = 1
   const maxPerpage = 30
   const perpage = Math.min(Number(qq?.perpage || 10), maxPerpage)

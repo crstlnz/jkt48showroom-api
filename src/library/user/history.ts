@@ -96,6 +96,7 @@ export async function getUserHistory(qq: any = null, userId: string): Promise<IH
     }
   }
 
+  // TODO
   if (members.length || query.room_id) {
     logs = await ShowroomLog.find(options)
       .select({

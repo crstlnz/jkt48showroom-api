@@ -17,12 +17,12 @@ export function handler(fetch: (c: Context) => Promise<any>, opts?: ((c: Context
     if (config && 'duration' in config) {
       const durationUnits = (config as CacheOptions)?.duration
       ms = durationUnits ? dayjs.duration(durationUnits).asSeconds() : 0
-      if (ms === 0) return await next()
     }
     else if (opts) {
       ms = dayjs.duration(opts as Utils.DurationUnits).asSeconds()
     }
 
+    if (ms === 0) return await next()
     c.header('Cache-Control', `max-age=${ms}, must-revalidate`)
     return await next()
   }), useCache(opts), async (c) => {

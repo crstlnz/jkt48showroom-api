@@ -16,29 +16,35 @@ export async function getLike(query: any, userId: string): Promise <Database.IsL
 }
 
 export async function setLike(query: any, userId: string) {
+  console.log('set like')
   if (!userId) throw createError({ statusCode: 401, statusMessage: 'Unauthenticated!' })
   console.log(query)
   if (!query.liked_id || !query.type) throw createError({ statusCode: 400, statusMessage: 'Bad request!' })
-  await Liked.updateOne(
-    {
-      user_id: userId,
-      liked_id: query.liked_id,
-      type: query.type,
-    },
-    {
-      $set: {
-        user_id: query.user_id,
+  try {
+    await Liked.updateOne(
+      {
+        user_id: userId,
         liked_id: query.liked_id,
         type: query.type,
       },
-    },
-    {
-      upsert: true,
-      new: true,
-      setDefaultsOnInsert: true,
-      runValidators: true,
-    },
-  )
+      {
+        $set: {
+          user_id: query.user_id,
+          liked_id: query.liked_id,
+          type: query.type,
+        },
+      },
+      {
+        upsert: true,
+        new: true,
+        setDefaultsOnInsert: true,
+        runValidators: true,
+      },
+    )
+  }
+  catch (e) {
+    console.log(e)
+  }
   return {
     status: 200,
     message: 'Success!',

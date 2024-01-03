@@ -3,6 +3,7 @@ import type { Model } from 'mongoose'
 import ShowroomLog from '@schema/showroom/ShowroomLog'
 import Showroom from '@schema/showroom/Showroom'
 import config from '@/config'
+import LiveLog from '@/database/live/schema/LiveLog'
 
 interface ILikedModel extends Model<Database.ILiked> {
   getList(id: string | number): Promise<Database.LikeList>
@@ -45,19 +46,19 @@ LikedSchema.statics.getList = async function (user_id: string | number): Promise
 
   const rooms = await Showroom.find({ room_id: ids.room })
   result.room.push(...rooms)
-  const lives = await ShowroomLog.find({ data_id: ids.live })
+  const lives = await LiveLog.find({ data_id: ids.live })
     .select({
       live_info: {
         duration: 1,
         viewers: 1,
-        start_date: 1,
-        end_date: 1,
+        date: 1,
       },
       data_id: 1,
-      total_point: 1,
+      total_gifts: 1,
       created_at: 1,
       room_id: 1,
       room_info: 1,
+      type: 1,
     })
     .populate({
       path: 'room_info',
@@ -87,15 +88,16 @@ LikedSchema.statics.getList = async function (user_id: string | number): Promise
       viewers: {
         num: i.live_info.viewers?.peak ?? 0,
         active: i.live_info.viewers?.active ?? 0,
-        is_excitement: i.live_info.viewers?.is_excitement ?? false,
+        is_excitement: (i as any).live_info.viewers?.is_excitement ?? false,
       },
       date: {
-        start: i.live_info.start_date.toISOString(),
-        end: i.live_info.end_date.toISOString(),
+        start: i.live_info.date.start.toISOString(),
+        end: i.live_info.date.end.toISOString(),
       },
     },
     room_id: i.room_id,
-    points: i.total_point,
+    points: i.total_gifts,
+    type: i.type,
   })).sort((a, b) => {
     return ids.live.indexOf(a.data_id) - ids.live.indexOf(b.data_id)
   })

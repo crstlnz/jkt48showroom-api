@@ -62,6 +62,7 @@ export function useCSRF() {
     const csrfToken = c.req.header('X-CSRF-TOKEN')
     const csrf = generateCSRF(c)
     if (csrfToken !== csrf) {
+      console.log('ERROR CSRF')
       throw createError({
         status: 403,
         message: 'Forbidden!',
