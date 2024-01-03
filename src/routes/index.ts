@@ -75,7 +75,9 @@ app.use('/*', async (c, next) => {
 // app.get('/stats', ...handler(c => getStats(c.req.query())))
 ///
 app.get('/idn_lives', ...handler(getIDNLives, { seconds: 60 }))
-app.get('/recent', ...handler(getRecents))
+
+// TODO fix pagination
+app.get('/recent', ...handler(getRecents, { minutes: 1 }))
 app.get('/recent/:id', ...handler(getRecentDetails, { hours: 1 }))
 app.get('/recent/:data_id/gifts', ...handler(getGifts, { hours: 1 }))
 app.get('/recent/:data_id/stagelist', ...handler(getStageList, { hours: 1 }))
