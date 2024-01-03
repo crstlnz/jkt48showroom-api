@@ -2,23 +2,26 @@ export function getDateRange(type: Stats.IDateRangeType): Stats.IDateRange {
   const date = new Date()
   date.setHours(0, 0, 0, -1)
 
-  let to: Date, from: Date
-  if (type === 'weekly') {
-    from = new Date(new Date(date).setDate(date.getDate() - 7))
-    to = new Date(date)
-  }
-  else if (type === 'monthly') {
-    to = new Date(date)
-    from = new Date(date.setMonth(to.getMonth() - 1))
-  }
-  else if (type === 'quarterly') {
-    to = new Date(date)
-    from = new Date(date.setMonth(to.getMonth() - 3))
-  }
-  else {
-    to = date
-    from = date
-  }
+  const from = new Date(new Date(date).setDate(date.getDate() - 7))
+  const to = new Date(date)
+  // TODO update this
+  // let to: Date, from: Date
+  // if (type === 'weekly') {
+  //   from = new Date(new Date(date).setDate(date.getDate() - 7))
+  //   to = new Date(date)
+  // }
+  // else if (type === 'monthly') {
+  //   to = new Date(date)
+  //   from = new Date(date.setMonth(to.getMonth() - 1))
+  // }
+  // else if (type === 'quarterly') {
+  //   to = new Date(date)
+  //   from = new Date(date.setMonth(to.getMonth() - 3))
+  // }
+  // else {
+  //   to = date
+  //   from = date
+  // }
 
   from.setHours(0, 0, 0, 0)
   return {
