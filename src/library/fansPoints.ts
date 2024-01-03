@@ -6,7 +6,7 @@ export function calculateFansPoints(usersData: Log.ShowroomMiniUser[], stageList
   for (const user of usersData) {
     users.set(user.user_id, {
       name: user.name,
-      avatar_id: user.avatar_id,
+      avatar_id: user.avatar_id || 1,
       id: user.user_id,
     })
   }
