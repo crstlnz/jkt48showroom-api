@@ -13,6 +13,7 @@ export async function getTheaterDetail(c: Context): Promise<IApiTheaterDetailLis
 
   const memberDetails = await Member.find({ jkt48id: { $in: memberList.map(i => i.id) } }).select({
     name: 1,
+    nicknames: 1,
     img: 1,
     showroom_id: 1,
     jkt48id: 1,
@@ -33,7 +34,7 @@ export async function getTheaterDetail(c: Context): Promise<IApiTheaterDetailLis
           })
           return {
             id: i.id,
-            name: i.name,
+            name: detailedMember?.nicknames?.[0] || i.name,
             img: detailedMember?.img ?? undefined,
             url_key: (detailedMember as any)?.showroom?.url,
           }
@@ -44,7 +45,7 @@ export async function getTheaterDetail(c: Context): Promise<IApiTheaterDetailLis
           })
           return {
             id: i.id,
-            name: i.name,
+            name: detailedMember?.nicknames?.[0] || i.name,
             img: detailedMember?.img ?? undefined,
             url_key: (detailedMember as any)?.showroom?.url,
           }
