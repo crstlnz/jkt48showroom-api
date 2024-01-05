@@ -110,7 +110,9 @@ app.get('/profile', useShowroomSession(), ...handler(getProfile, (c) => {
   const key = `${getSessId(c)}-profile-${c.req.query('room_id')}`
   return {
     name: key,
-    hours: 1,
+    duration: {
+      hours: 1,
+    },
   }
 }))
 
