@@ -36,7 +36,7 @@ import { passCookie } from '@/library/bot/passCookies'
 
 const app = new Hono()
 
-if (process.env.NODE_ENV === 'development') {
+if (process.env.LOG === 'true') {
   app.use('*', logger())
 }
 
@@ -77,10 +77,10 @@ app.use('/*', async (c, next) => {
 app.get('/idn_lives', ...handler(getIDNLives, { seconds: 60 }))
 
 // TODO fix pagination
-app.get('/recent', ...handler(getRecents, { minutes: 1 }))
+app.get('/recent', ...handler(getRecents, { minutes: 5 }))
 app.get('/recent/:id', ...handler(getRecentDetails, { hours: 1 }))
-app.get('/recent/:data_id/gifts', ...handler(getGifts, { hours: 1 }))
-app.get('/recent/:data_id/stagelist', ...handler(getStageList, { hours: 1 }))
+app.get('/recent/:data_id/gifts', ...handler(getGifts, { days: 1 }))
+app.get('/recent/:data_id/stagelist', ...handler(getStageList, { days: 1 }))
 app.get('/member', ...handler(getMembers, { hours: 12 }))
 app.get('/member/:id', ...handler(c => getMemberDetails(c.req.param('id')), { minutes: 30 }))
 app.get('/now_live', ...handler(getNowLive, (c) => {
@@ -96,7 +96,7 @@ app.get('/now_live', ...handler(getNowLive, (c) => {
 app.get('/next_live', ...handler(getNextLive, { hours: 1 }))
 app.get('/watch/:id', ...handler(getWatchData, { seconds: 15 }))
 app.get('/watch/:id/idn', ...handler(getIDNLive, { seconds: 10 }))
-app.get('/first_data', ...handler(getFirstData, { days: 1 }))
+app.get('/first_data', ...handler(getFirstData, { days: 30 }))
 app.get('/screenshots/:id', ...handler(getScreenshots, { hours: 12 }))
 app.get('/records', ...handler(getRecords, { hours: 12 }))
 app.get('/next_schedule', ...handler(getSchedule, { minutes: 1 }))
