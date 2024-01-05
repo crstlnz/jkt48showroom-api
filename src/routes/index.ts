@@ -33,6 +33,7 @@ import { getIDNLives } from '@/library/idn/lives'
 import { getIDNLive } from '@/library/watch/idn'
 import { getWatchData } from '@/library/watch'
 import { passCookie } from '@/library/bot/passCookies'
+import { getSessId } from '@/utils/security/cookies/sessId'
 
 const app = new Hono()
 
@@ -95,16 +96,22 @@ app.get('/now_live', ...handler(getNowLive, (c) => {
 }))
 app.get('/next_live', ...handler(getNextLive, { hours: 1 }))
 app.get('/watch/:id', ...handler(getWatchData, { seconds: 15 }))
-app.get('/watch/:id/idn', ...handler(getIDNLive, { seconds: 10 }))
+app.get('/watch/:id/idn', ...handler(getIDNLive, { seconds: 15 }))
 app.get('/first_data', ...handler(getFirstData, { days: 30 }))
 app.get('/screenshots/:id', ...handler(getScreenshots, { hours: 12 }))
 app.get('/records', ...handler(getRecords, { hours: 12 }))
-app.get('/next_schedule', ...handler(getSchedule, { minutes: 1 }))
+app.get('/next_schedule', ...handler(getSchedule, { hours: 3 }))
 app.get('/theater/:id', ...handler(getTheaterDetail, { minutes: 30 }))
-app.get('/news', ...handler(getNews, { minutes: 1 }))
+app.get('/news', ...handler(getNews, { minutes: 10 }))
 app.get('/news/:id', ...handler(c => getNewsDetail(c.req.param('id')), { days: 1 }))
 app.get('/birthday', ...handler(getMemberBirthdays)) // this already have cache
 app.get('/48/member', ...handler(getMember48List, { days: 1 }))
-app.get('/profile', useShowroomSession(), ...handler(getProfile))
+app.get('/profile', useShowroomSession(), ...handler(getProfile, (c) => {
+  const key = `${getSessId(c)}-profile-${c.req.query('room_id')}`
+  return {
+    name: key,
+    hours: 1,
+  }
+}))
 
 export default app
