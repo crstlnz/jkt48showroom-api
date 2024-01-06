@@ -142,7 +142,7 @@ export async function parseShowroom(data: Log.Showroom): Promise<LogDetail.Showr
     fans: fansRank,
     users: [...userMap.values()],
     live_info: {
-      stage_list: [stageList] || [],
+      stage_list: stageList ? [stageList] : [],
       gift: {
         log: (giftPagination.gifts as Log.ShowroomUserGifts[]).map((i) => {
           return {

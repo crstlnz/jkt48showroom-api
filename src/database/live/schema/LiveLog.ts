@@ -37,6 +37,9 @@ const liveLogSchema = new Schema<Log.Live, ILogLiveModel>({
     id: String,
     username: String,
     slug: String,
+    title: String,
+    image: String,
+    discountRate: Number,
   },
   live_id: {
     type: Schema.Types.Mixed, // showroom number, idn string
@@ -129,7 +132,10 @@ const liveLogSchema = new Schema<Log.Live, ILogLiveModel>({
             {
               _id: false,
               gift_id: Schema.Types.Mixed, // idn string, showroom number
-              num: Number, // showroom
+              num: {
+                type: Number,
+                default: 1,
+              }, // showroom & idn
               gold: Number, // idn
               point: Number, // idn
               date: Date,
@@ -141,6 +147,10 @@ const liveLogSchema = new Schema<Log.Live, ILogLiveModel>({
     },
   },
   total_gifts: {
+    type: Number,
+    default: 0,
+  },
+  c_gift: { // converted gift with giftrate
     type: Number,
     default: 0,
     index: true,
@@ -162,11 +172,11 @@ const liveLogSchema = new Schema<Log.Live, ILogLiveModel>({
     type: [
       {
         _id: false,
-        user_id: Number,
-        comments: Number,
-        avatar_id: Number,
-        avatar_url: String,
+        user_id: Schema.Types.Mixed, // showroom number , idn string
         name: String,
+        comments: Number,
+        avatar_id: Number, // showroom
+        avatar_url: String, // idn
       },
     ],
   },

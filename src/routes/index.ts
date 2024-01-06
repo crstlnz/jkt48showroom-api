@@ -104,7 +104,7 @@ app.get('/next_schedule', ...handler(getSchedule, { hours: 3 }))
 app.get('/theater/:id', ...handler(getTheaterDetail, { minutes: 30 }))
 app.get('/news', ...handler(getNews, { minutes: 10 }))
 app.get('/news/:id', ...handler(c => getNewsDetail(c.req.param('id')), { days: 1 }))
-app.get('/birthday', ...handler(getMemberBirthdays)) // this already have cache
+app.get('/birthday', ...handler(getMemberBirthdays, { hours: 1 })) // this already have cache
 app.get('/48/member', ...handler(getMember48List, { days: 1 }))
 app.get('/profile', useShowroomSession(), ...handler(getProfile, (c) => {
   const key = `${getSessId(c)}-profile-${c.req.query('room_id')}`

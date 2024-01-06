@@ -25,7 +25,7 @@ export async function getRecents(c: Context): Promise<IApiRecents> {
           case 'date':
             return 'live_info.date.end'
           case 'gift':
-            return 'total_point'
+            return 'c_gift'
           case 'views':
             return 'live_info.viewers.peak'
           case 'duration':

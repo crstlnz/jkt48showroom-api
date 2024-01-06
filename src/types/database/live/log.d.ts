@@ -5,6 +5,7 @@ declare namespace Log {
     live_id: string | number
     data_id: string
     room_id: number
+    c_gift: number
     total_gifts: number
     record_dates: Live.RecordDate[]
     gift_rate: number // gift rate showroom in jpy
@@ -92,7 +93,7 @@ declare namespace Log {
       slug: string
       title: string
       image: string
-      mirror_image?: string
+      discountRate?: number
     }
     gift_data: {
       gift_id_list: string[]
