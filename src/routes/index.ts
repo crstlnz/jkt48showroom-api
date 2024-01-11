@@ -101,7 +101,7 @@ app.get('/first_data', ...handler(getFirstData, { days: 30 }))
 app.get('/screenshots/:id', ...handler(getScreenshots, { hours: 12 }))
 app.get('/records', ...handler(getRecords, { hours: 12 }))
 app.get('/next_schedule', ...handler(getSchedule, { hours: 3 }))
-app.get('/theater/:id', ...handler(getTheaterDetail, { minutes: 30 }))
+app.get('/theater/:id', ...handler(getTheaterDetail, { minutes: 15 }))
 app.get('/news', ...handler(getNews, { minutes: 10 }))
 app.get('/news/:id', ...handler(c => getNewsDetail(c.req.param('id')), { days: 1 }))
 app.get('/birthday', ...handler(getMemberBirthdays, { hours: 1 })) // this already have cache

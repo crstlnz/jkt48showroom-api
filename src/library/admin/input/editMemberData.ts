@@ -11,13 +11,13 @@ export async function editMemberData(c: Context) {
     name: query.name.toString(),
     img,
     banner,
-    stage48: query.stage48.toString(),
-    jikosokai: query.jikosokai.toString(),
-    group: query.group.toString(),
-    generation: query.generation.toString(),
+    stage48: query.stage48?.toString(),
+    jikosokai: query.jikosokai?.toString(),
+    group: query.group?.toString(),
+    generation: query.generation?.toString(),
     jkt48id: query['jkt48id[]'] as any,
     nicknames: query['nicknames[]'] as any,
-    idn_username: query.idn_username.toString(),
+    idn_username: query.idn_username?.toString(),
   }
 
   const rawSocials = query['socials[]'] as any[]
