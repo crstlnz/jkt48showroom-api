@@ -75,10 +75,10 @@ app.use('/*', async (c, next) => {
 /// already use cache
 // app.get('/stats', ...handler(c => getStats(c.req.query())))
 ///
-app.get('/idn_lives', ...handler(getIDNLives, { seconds: 60 }))
+app.get('/idn_lives', ...handler(getIDNLives, { seconds: 45 }))
 
 // TODO fix pagination
-app.get('/recent', ...handler(getRecents, { minutes: 5 }))
+app.get('/recent', ...handler(getRecents, { minutes: 4 }))
 app.get('/recent/:id', ...handler(getRecentDetails, { hours: 1 }))
 app.get('/recent/:data_id/gifts', ...handler(getGifts, { days: 1 }))
 app.get('/recent/:data_id/stagelist', ...handler(getStageList, { days: 1 }))
@@ -95,8 +95,8 @@ app.get('/now_live', ...handler(getNowLive, (c) => {
   }
 }))
 app.get('/next_live', ...handler(getNextLive, { hours: 1 }))
-app.get('/watch/:id', ...handler(getWatchData, { seconds: 15 }))
-app.get('/watch/:id/idn', ...handler(getIDNLive, { seconds: 15 }))
+app.get('/watch/:id', ...handler(getWatchData, { seconds: 13 }))
+app.get('/watch/:id/idn', ...handler(getIDNLive, { seconds: 13 }))
 app.get('/first_data', ...handler(getFirstData, { days: 30 }))
 app.get('/screenshots/:id', ...handler(getScreenshots, { hours: 12 }))
 app.get('/records', ...handler(getRecords, { hours: 12 }))
