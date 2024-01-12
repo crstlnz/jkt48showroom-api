@@ -2,8 +2,9 @@ import { getNextLive as fetchNextLive, getAllFollows } from '@utils/showroomAPI'
 import type { Context } from 'hono'
 import { getMembers } from './member'
 
+/// 318247 is umega room
 export async function getNextLive(c: Context): Promise<INextLive[]> {
-  return await getFromCookies(null, c)
+  return (await getFromCookies(null, c)).filter(i => i.room_id !== 318247)
 }
 
 async function getFromCookies(membersData: IMember[] | null = null, c: Context): Promise<INextLive[]> {
