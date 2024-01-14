@@ -64,6 +64,7 @@ export async function getTheaterDetail(id: string, retry = 1, headers: HeadersIn
           id: extractTeamId(team) ?? '',
           img: team,
         },
+        graduationIds: [],
         date: date.toDate(),
         memberIds: Array.from(members.values()).map(i => i.id),
         seitansaiIds: seitansai.map(i => i.id ?? '0'),
