@@ -5,9 +5,16 @@ import { createError } from '@/utils/errorResponse'
 
 export async function getTheaterDetail(c: Context): Promise<IApiTheaterDetailList> {
   const id = c.req.param('id')
-  const data = await Theater.find({ id: new RegExp(`^${id}`) }).populate<{ members: JKT48.Member[] }>('members').populate<{ setlist: JKT48.Setlist }>('setlist').populate<{ seitansai: JKT48.Member[] }>('seitansai').lean()
+  const data = await Theater.find({ id: new RegExp(`^${id}`) })
+    .populate<{ members: JKT48.Member[] }>('members')
+    .populate<{ setlist: JKT48.Setlist }>('setlist')
+    .populate<{ seitansai: JKT48.Member[] }>('seitansai')
+    .populate<{ graduation: JKT48.Member[] }>('graduation')
+    .lean()
   const memberList = data.reduce<JKT48.Member[]>((a, b) => {
     a.push(...b.members)
+    a.push(...b.graduation)
+    a.push(...b.seitansai)
     return a
   }, [])
 
@@ -40,6 +47,17 @@ export async function getTheaterDetail(c: Context): Promise<IApiTheaterDetailLis
           }
         }),
         seitansai: i.seitansai.map((i) => {
+          const detailedMember = memberDetails.find((m) => {
+            return m.jkt48id?.includes(i.id)
+          })
+          return {
+            id: i.id,
+            name: detailedMember?.nicknames?.[0] || i.name,
+            img: detailedMember?.img ?? undefined,
+            url_key: (detailedMember as any)?.showroom?.url,
+          }
+        }),
+        graduation: i.graduation.map((i) => {
           const detailedMember = memberDetails.find((m) => {
             return m.jkt48id?.includes(i.id)
           })

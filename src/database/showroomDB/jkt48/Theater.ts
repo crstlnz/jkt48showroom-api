@@ -26,6 +26,10 @@ const theaterSchema = new Schema<JKT48.Theater>({
     type: [Number],
     default: [],
   },
+  graduationIds: {
+    type: [Number],
+    default: [],
+  },
   date: {
     type: Date,
     required: true,
@@ -52,6 +56,12 @@ theaterSchema.virtual('setlist', {
 theaterSchema.virtual('seitansai', {
   ref: Member,
   localField: 'seitansaiIds',
+  foreignField: 'id',
+})
+
+theaterSchema.virtual('graduation', {
+  ref: Member,
+  localField: 'graduationIds',
   foreignField: 'id',
 })
 
