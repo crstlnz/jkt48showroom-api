@@ -21,7 +21,7 @@ import { getTheaterDetail } from '@/library/jkt48/theater/details'
 import { getNewsDetail } from '@/library/jkt48/news/details'
 import { getNews } from '@/library/jkt48/news'
 import { getSchedule } from '@/library/jkt48/nextSchedule'
-import { getMemberBirthdays } from '@/library/stage48/birthday'
+import { getMemberBirthdays, nextBirthDay } from '@/library/stage48/birthday'
 import { getMember48List } from '@/library/stage48/memberList'
 import { generateCSRF, useCSRF, useSessionID } from '@/utils/security'
 import { getStageList } from '@/library/recent/stageList'
@@ -105,6 +105,7 @@ app.get('/theater/:id', ...handler(getTheaterDetail, { minutes: 15 }))
 app.get('/news', ...handler(getNews, { minutes: 10 }))
 app.get('/news/:id', ...handler(c => getNewsDetail(c.req.param('id')), { days: 1 }))
 app.get('/birthday', ...handler(getMemberBirthdays, { hours: 1 })) // this already have cache
+app.get('/next_birthday', ...handler(nextBirthDay, { minutes: 30 })) // this already have cache
 app.get('/48/member', ...handler(getMember48List, { days: 1 }))
 app.get('/profile', useShowroomSession(), ...handler(getProfile, (c) => {
   const key = `${getSessId(c)}-profile-${c.req.query('room_id')}`
