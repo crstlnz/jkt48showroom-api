@@ -4,18 +4,21 @@ import cache from '@/utils/cache'
 import Member from '@/database/schema/48group/Member'
 import { createError } from '@/utils/errorResponse'
 
-const promises = new Map()
+const promises = new Map<string, Promise<IDNLivesDetail>>()
 export async function getIDNLive(c: Context): Promise<IDNLivesDetail> {
   const username = c.req.param('id')
-  if (!promises.has(username)) {
-    promises.set(username, new Promise((resolve, reject) => {
+  let promise = promises.get(username)
+  if (!promise) {
+    promise = new Promise((resolve, reject) => {
       fetch(c).then((r) => {
         resolve(r)
         promises.delete(username)
       }).catch(reject)
-    }))
+    })
+
+    promises.set(username, promise)
   }
-  return await promises.get(username)
+  return await promise
 }
 
 export async function fetch(c: Context): Promise<IDNLivesDetail> {
