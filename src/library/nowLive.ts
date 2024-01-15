@@ -2,8 +2,17 @@ import type { Context } from 'hono'
 import { getMembers } from './member'
 import { getAllFollows, getIsLive, getOnlives, getRoomStatus, getStreamingURL } from '@/utils/showroomAPI'
 
+let promise: Promise<INowLive[]> | null = null
 export async function getNowLive(c: Context) {
-  return await getNowLiveCookies(null, c)
+  if (!promise) {
+    promise = new Promise((resolve, reject) => {
+      getNowLiveCookies(null, c).then((r) => {
+        resolve(r)
+        promise = null
+      }).catch(reject)
+    })
+  }
+  return await promise
 }
 
 async function getNowLiveDirect(

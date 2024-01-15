@@ -258,4 +258,5 @@ interface IDNLivesDetail {
 interface CacheOptions {
   name?: string
   duration?: Utils.DurationUnits
+  useRateLimit?: boolean
 }
