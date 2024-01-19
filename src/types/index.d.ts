@@ -72,6 +72,13 @@ interface IApiRecents {
   total_count: number
 }
 
+interface IBookmarks {
+  bookmarks: IRecent[]
+  page: number
+  perpage: number
+  total_count: number
+}
+
 interface IRecentDetail {
   data_id: string
   live_id?: number

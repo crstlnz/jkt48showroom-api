@@ -17,7 +17,7 @@ app.use('*', useCORS('self'))
 app.use('*', checkToken())
 app.get('/', (c: Context) => c.json(c.get('user')))
 app.get('/history', ...handler(c => getUserHistory(c.req.query(), c.get('user')?.id)))
-app.get('/likes', ...handler(c => getLikes(c.get('user')?.id)))
+app.get('/likes', ...handler(getLikes))
 
 app.put('/like', ...handler(c => setLike(c.req.query(), c.get('user')?.id)))
 app.get('/like', ...handler(c => getLike(c.req.query(), c.get('user')?.id)))
