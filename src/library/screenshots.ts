@@ -8,8 +8,12 @@ export async function getScreenshots(c: Context) {
 
 async function fetchData(data_id: string): Promise<Live.Screenshots> {
   const data = await LiveLog.findOne({ data_id }).select({ 'live_info.screenshots': 1 }).lean()
-  if (!data?.live_info?.screenshots) {
-    throw createError({ statusCode: 404, message: 'Not found!' })
-  }
-  return data?.live_info?.screenshots
+
+  // TODO temporary disabled
+  throw createError({ statusCode: 404, message: 'Not found!' })
+
+  // if (!data?.live_info?.screenshots) {
+  //   throw createError({ statusCode: 404, message: 'Not found!' })
+  // }
+  // return data?.live_info?.screenshots
 }
