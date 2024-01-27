@@ -8,15 +8,23 @@ import { useCORS } from '@/utils/cors'
 
 const showroomURL = process.env.SHOWROOM_API || ''
 const app = new Hono()
+
 async function showroomRequest(c: Context, url: string, ms = 60000, unique = false) {
   const query = c.req.query()
   const href = c.req.url
   const user = c.get('user')
-  const res = await cache.fetch(`${href}${unique ? user?.id || 0 : ''}`, async () => {
+  const fetch = async () => {
     return await ofetch(`${showroomURL}${url}`, { params: query, headers: {
       Cookie: user?.sr_id ? `sr_id=${user.sr_id}` : '',
     } })
-  }, ms)
+  }
+
+  if (process.env.NODE_ENV === 'development') {
+    return c.json(await fetch())
+  }
+
+  c.header('Cache-Control', `max-age=${ms}, must-revalidate`)
+  const res = await cache.fetch(`${href}${unique ? user?.id || 0 : ''}`, fetch, ms)
   return c.json(res)
 }
 

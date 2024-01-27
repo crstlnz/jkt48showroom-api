@@ -174,8 +174,7 @@ export async function parseShowroom(data: Log.Showroom): Promise<LogDetail.Showr
       },
       comments: data.live_info.comments,
       background_image: data.live_info.background_image,
-      // TODO temporary disabled
-      // screenshot: data.live_info.screenshots,
+      screenshot: process.env.ENABLE_SCREENSHOTS !== 'false' ? data.live_info.screenshots : undefined,
       duration: data.live_info.duration,
       date: {
         start: data.live_info.date.start.toISOString(),
@@ -282,8 +281,7 @@ export async function parseIDN(data: Log.IDN): Promise<LogDetail.IDN> {
         is_excitement: false,
       },
       comments: data.live_info.comments,
-      // TODO temporary disabled
-      // screenshot: data.live_info.screenshots
+      screenshot: process.env.ENABLE_SCREENSHOTS !== 'false' ? data.live_info.screenshots : undefined,
       date: {
         start: data.live_info.date.start.toISOString(),
         end: data.live_info.date.end.toISOString(),

@@ -4,11 +4,12 @@ import { parseCookieString } from '@/utils'
 import RefreshToken from '@/database/schema/auth/RefreshToken'
 import { createError } from '@/utils/errorResponse'
 import { clearToken, createToken } from '@/utils/security/token'
-import { getRefreshToken } from '@/utils/security/cookies/refreshToken'
+import { deleteRefreshToken, getRefreshToken } from '@/utils/security/cookies/refreshToken'
 import { getShowroomSession } from '@/utils/showroomSession'
 import { createHandlers } from '@/utils/factory'
 import { deleteShowroomSess } from '@/utils/security/cookies/showroomSess'
 import { deleteSessId } from '@/utils/security/cookies/sessId'
+import { deleteAccessToken } from '@/utils/security/cookies/accessToken'
 
 export function login() {
   return createHandlers(async (c) => {
@@ -33,11 +34,18 @@ export function login() {
       body: body.toString(),
       async onResponse({ response }) {
         const cookies = parseCookieString(response.headers.get('Set-Cookie') || '')
+        console.log('SR id', cookies.sr_id)
         sr_id = cookies.sr_id?.value
       },
     }).catch(e => e.data)
 
-    if (data?.error) return c.json(data, 401)
+    if (data?.error) {
+      deleteRefreshToken(c)
+      deleteShowroomSess(c)
+      deleteSessId(c)
+      deleteAccessToken(c)
+      return c.json(data, 401)
+    }
     if (sr_id) {
       if ((data as ShowroomLogin.Data)?.ok === 1) {
         const userData = data as ShowroomLogin.Data
