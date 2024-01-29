@@ -16,8 +16,8 @@ export async function getMemberDetails(key: string): Promise<IMemberProfileAPI> 
 
   if (data.group === 'jkt48') {
     console.log(data.member_data?.jkt48id)
-    const next = await Theater.find({ memberIds: { $in: data.member_data?.jkt48id }, date: { $gte: new Date() } }).populate<{ setlist: JKT48.Setlist }>('setlist').sort({ date: -1 }).limit(5)
-    const theater = await Theater.find({ memberIds: { $in: data.member_data?.jkt48id }, date: { $lte: new Date() } }).populate<{ setlist: JKT48.Setlist }>('setlist').sort({ date: -1 }).limit(5)
+    const next = await Theater.find({ memberIds: { $in: data.member_data?.jkt48id }, date: { $gte: new Date() } }).populate<{ setlist: JKT48.Setlist }>('setlist').sort({ date: -1 }).limit(4)
+    const theater = await Theater.find({ memberIds: { $in: data.member_data?.jkt48id }, date: { $lte: new Date() } }).populate<{ setlist: JKT48.Setlist }>('setlist').sort({ date: -1 }).limit(4)
     recentTheater = theater.map<ITheaterAPI>((i) => {
       return {
         id: i.id,
@@ -26,7 +26,7 @@ export async function getMemberDetails(key: string): Promise<IMemberProfileAPI> 
         url: i.url,
         poster: i.setlist?.poster,
       }
-    }).sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+    }).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
 
     upcomingTheater = next.map<ITheaterAPI>((i) => {
       return {
