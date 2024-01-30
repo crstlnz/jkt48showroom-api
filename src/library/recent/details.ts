@@ -137,13 +137,6 @@ export async function parseShowroom(data: Log.Showroom): Promise<LogDetail.Showr
     }
   })
 
-  let screenshot: Live.Screenshots | undefined
-  if (process.env.DISABLE_SCREENSHOTS !== 'true' && data.live_info?.screenshots) {
-    screenshot = {
-      ...data.live_info.screenshots,
-      list: (process.env.HALF_SCREENSHOTS ? data.live_info?.screenshots?.list?.filter((_, idx) => idx % 2 === 0) : data.live_info?.screenshots?.list) || [],
-    }
-  }
   return {
     ...await parseBase(data),
     fans: fansRank,
@@ -181,7 +174,7 @@ export async function parseShowroom(data: Log.Showroom): Promise<LogDetail.Showr
       },
       comments: data.live_info.comments,
       background_image: data.live_info.background_image,
-      screenshot,
+      screenshot: process.env.ENABLE_SCREENSHOTS !== 'false' ? data.live_info.screenshots : undefined,
       duration: data.live_info.duration,
       date: {
         start: data.live_info.date.start.toISOString(),
@@ -253,14 +246,6 @@ export async function parseIDN(data: Log.IDN): Promise<LogDetail.IDN> {
     }
   })
 
-  let screenshot: Live.Screenshots | undefined
-  if (process.env.DISABLE_SCREENSHOTS !== 'true' && data.live_info?.screenshots) {
-    screenshot = {
-      ...data.live_info.screenshots,
-      list: (process.env.HALF_SCREENSHOTS ? data.live_info?.screenshots?.list?.filter((_, idx) => idx % 2 === 0) : data.live_info?.screenshots?.list) || [],
-    }
-  }
-
   return {
     ...await parseBase(data),
     idn: data.idn,
@@ -296,7 +281,7 @@ export async function parseIDN(data: Log.IDN): Promise<LogDetail.IDN> {
         is_excitement: false,
       },
       comments: data.live_info.comments,
-      screenshot,
+      screenshot: process.env.ENABLE_SCREENSHOTS !== 'false' ? data.live_info.screenshots : undefined,
       date: {
         start: data.live_info.date.start.toISOString(),
         end: data.live_info.date.end.toISOString(),

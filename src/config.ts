@@ -14,9 +14,8 @@ export default {
   getGroup(group: string | null) {
     return (group == null) ? 'jkt48' : ['jkt48', 'hinatazaka46'].includes(String(group)) ? String(group) : null
   },
-  isSort(s: string | undefined | null): s is SortType {
-    const sort: string[] = ['date', 'gift', 'views', 'duration']
-    if (!s) return false
+  isSort(s: any): s is SortType {
+    const sort: SortType[] = ['date', 'gift', 'views', 'duration']
     return sort.includes(s)
   },
   uploadFolder: 'uploads',

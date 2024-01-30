@@ -9,7 +9,7 @@ export async function getNextLive(c: Context): Promise<INextLive[]> {
 
 async function getFromCookies(membersData: IMember[] | null = null, c: Context): Promise<INextLive[]> {
   const members: IMember[] = membersData ?? await getMembers(c)
-  const rooms = await getAllFollows().catch(() => [])
+  const rooms = await getAllFollows().catch(_ => [])
   const roomMap = new Map<string, ShowroomAPI.RoomFollow>()
   const result: INextLive[] = []
   const missing = []

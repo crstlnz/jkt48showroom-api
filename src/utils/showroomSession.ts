@@ -31,17 +31,17 @@ export async function createShowroomSession(c: Context): Promise<ShowroomLogin.S
 }
 
 export async function getShowroomSession(c: Context): Promise<{ session: ShowroomLogin.Session, setCookie: boolean }> {
-  let sess = await verify(getShowroomSess(c) || '', process.env.SECRET!).catch(()=>null)
+  let sess = await verify(getShowroomSess(c) || '', process.env.SECRET!).catch(_ => null)
   let setCookie = false
   const user = c.get('user')
   if (((!sess?.sr_id || !sess?.csrf_token) && !c.get('showroom_session'))) {
-    sess = await createShowroomSession(c).catch(()=>null)
+    sess = await createShowroomSession(c).catch(_ => null)
     setCookie = true
   }
 
   const sr_id = sess?.sr_id || c.get('showroom_session')
   if (user?.sr_id && user.sr_id !== sr_id) {
-    sess = await createShowroomSession(c).catch(()=>null)
+    sess = await createShowroomSession(c).catch(_ => null)
     setCookie = true
   }
 
