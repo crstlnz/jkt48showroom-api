@@ -19,7 +19,6 @@ export async function passCookie(c: Context) {
         },
         {
           upsert: true,
-          new: true,
           setDefaultsOnInsert: true,
           runValidators: true,
         },
@@ -37,7 +36,6 @@ export async function passCookie(c: Context) {
         },
         {
           upsert: true,
-          new: true,
           setDefaultsOnInsert: true,
           runValidators: true,
         },
@@ -62,12 +60,12 @@ export async function fetchJKT48() {
     }, 10000)
 
     console.log('Fetching JKT48 Schedule data...')
-    await fetchScheduleJKT48().then(_ => console.log('Fetch Schedule JKT48 Success!')).catch((_) => {
+    await fetchScheduleJKT48().then(() => console.log('Fetch Schedule JKT48 Success!')).catch((_) => {
       console.log('Fetch Schedule JKT48 Failed')
     })
 
     console.log('Fetching JKT48 News data...')
-    await fetchNewsJKT48().then(_ => console.log('Fetch News JKT48 Success!')).catch((_) => {
+    await fetchNewsJKT48().then(() => console.log('Fetch News JKT48 Success!')).catch((_) => {
       console.log('Fetch News JKT48 Failed')
     })
   }

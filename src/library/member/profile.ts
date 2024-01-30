@@ -1,6 +1,7 @@
 import Showroom from '@schema/showroom/Showroom'
 import { createError } from '@/utils/errorResponse'
 import Theater from '@/database/showroomDB/jkt48/Theater'
+import LiveLog from '@/database/live/schema/LiveLog'
 
 export async function getMemberDetails(key: string): Promise<IMemberProfileAPI> {
   const data = await Showroom.findOne({ url: key })
@@ -41,6 +42,10 @@ export async function getMemberDetails(key: string): Promise<IMemberProfileAPI> 
 
   return {
     name: data.name,
+    stats: {
+      total_idn: await LiveLog.countDocuments({ room_id: data.room_id, type: 'idn', is_dev: false }).catch(() => 0),
+      total_showroom: await LiveLog.countDocuments({ room_id: data.room_id, type: 'showroom', is_dev: true }).catch(() => 0),
+    },
     nickname: data.member_data?.nicknames?.length ? data.member_data.nicknames[0] : undefined,
     fullname: data.member_data?.name ?? data.name ?? 'No name!',
     img: data.img,
