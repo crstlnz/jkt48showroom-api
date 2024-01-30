@@ -141,7 +141,7 @@ export async function parseShowroom(data: Log.Showroom): Promise<LogDetail.Showr
   if (process.env.DISABLE_SCREENSHOTS !== 'true' && data.live_info?.screenshots) {
     screenshot = {
       ...data.live_info.screenshots,
-      list: (process.env.HALF_SCREENSHOTS ? data.live_info?.screenshots?.list?.filter((_, idx) => idx % 2 === 0) : data.live_info?.screenshots?.list) || [],
+      list: (process.env.HALF_SCREENSHOTS === 'true' ? data.live_info?.screenshots?.list?.filter((_, idx) => idx % 2 === 0) : data.live_info?.screenshots?.list) || [],
     }
   }
   return {
@@ -257,7 +257,7 @@ export async function parseIDN(data: Log.IDN): Promise<LogDetail.IDN> {
   if (process.env.DISABLE_SCREENSHOTS !== 'true' && data.live_info?.screenshots) {
     screenshot = {
       ...data.live_info.screenshots,
-      list: (process.env.HALF_SCREENSHOTS ? data.live_info?.screenshots?.list?.filter((_, idx) => idx % 2 === 0) : data.live_info?.screenshots?.list) || [],
+      list: (process.env.HALF_SCREENSHOTS === 'true' ? data.live_info?.screenshots?.list?.filter((_, idx) => idx % 2 === 0) : data.live_info?.screenshots?.list) || [],
     }
   }
 
