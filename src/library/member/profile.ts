@@ -40,12 +40,37 @@ export async function getMemberDetails(key: string): Promise<IMemberProfileAPI> 
     }).sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
   }
 
+  const most_gift = await LiveLog.findOne({ room_id: data.room_id, is_dev: false }).select({
+    data_id: 1,
+    c_gift: 1,
+  }).sort({ c_gift: -1 }).catch(() => null)
+
+  const longest_live = await LiveLog.findOne({ room_id: data.room_id, is_dev: false }).select({
+    'data_id': 1,
+    'live_info.duration': 1,
+  }).sort({
+    'live_info.duration': -1,
+  }).catch(() => null)
   return {
     name: data.name,
-    // stats: {
-    //   total_idn: await LiveLog.countDocuments({ room_id: data.room_id, type: 'idn', is_dev: false }).catch(() => 0),
-    //   total_showroom: await LiveLog.countDocuments({ room_id: data.room_id, type: 'showroom', is_dev: true }).catch(() => 0),
-    // },
+    stats: {
+      total_live: {
+        showroom: await LiveLog.countDocuments({ room_id: data.room_id, type: 'showroom', is_dev: false }).catch(() => 0),
+        idn: await LiveLog.countDocuments({ room_id: data.room_id, type: 'idn', is_dev: false }).catch(() => 0),
+      },
+      most_gift: most_gift
+        ? {
+            id: most_gift.data_id,
+            gift: most_gift.c_gift,
+          }
+        : undefined,
+      longest_live: longest_live
+        ? {
+            id: longest_live.data_id,
+            duration: longest_live.live_info?.duration,
+          }
+        : undefined,
+    },
     nickname: data.member_data?.nicknames?.length ? data.member_data.nicknames[0] : undefined,
     fullname: data.member_data?.name ?? data.name ?? 'No name!',
     img: data.img,
