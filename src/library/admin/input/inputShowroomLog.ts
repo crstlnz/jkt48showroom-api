@@ -96,8 +96,7 @@ export async function inputShowroomLog(c: Context): Promise<{ data_id: string, s
       const endDate = dayjs(fields.dateEnd as unknown as string, 'D MMMM YYYY hh:mm:ss WIB').toDate()
 
       const jpnRate = (await Config.findOne({ configname: 'japan_rate' }).lean())?.value ?? 106.74
-      const dataId = `${Math.floor(startDate.getTime() / 1000)}${fields.roomId
-              }`
+      const dataId = `${Math.floor(startDate.getTime() / 1000)}${fields.roomId}`
       const result = {
         jpn_rate: jpnRate,
         created_at: endDate,
@@ -159,7 +158,6 @@ export async function inputShowroomLog(c: Context): Promise<{ data_id: string, s
         },
         {
           upsert: true,
-          new: true,
           setDefaultsOnInsert: true,
           runValidators: true,
         },

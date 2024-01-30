@@ -44,7 +44,6 @@ export async function addOrEditSetlist(c: Context) {
       },
       {
         upsert: true,
-        new: true,
         setDefaultsOnInsert: true,
         runValidators: true,
       },

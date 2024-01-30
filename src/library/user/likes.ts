@@ -106,7 +106,6 @@ export async function setLike(query: any, userId: string) {
       },
       {
         upsert: true,
-        new: true,
         setDefaultsOnInsert: true,
         runValidators: true,
       },

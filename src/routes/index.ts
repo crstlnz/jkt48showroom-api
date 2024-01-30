@@ -35,7 +35,8 @@ import { getIDNLive } from '@/library/watch/idn'
 import { getWatchData } from '@/library/watch'
 import { passCookie } from '@/library/bot/passCookies'
 import { getSessId } from '@/utils/security/cookies/sessId'
-import { stats } from '@/library/stats'
+
+// import { generateMonthly, stats } from '@/library/stats'
 
 const app = new Hono()
 
