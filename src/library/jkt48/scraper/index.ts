@@ -35,7 +35,6 @@ export async function fetchNewsJKT48() {
         },
         {
           upsert: true,
-          new: true,
           setDefaultsOnInsert: true,
           runValidators: true,
         },
@@ -48,6 +47,12 @@ export async function fetchScheduleJKT48() {
   const now = dayjs()
   const nextMonth = dayjs().add(1, 'month')
   const headers = await getJKT48Headers()
+
+  // console.log(JSON.stringify(headers, null, 4))
+  // const headers = {
+  //   'User-Agent': 'Mozilla/5.0 (Windows NT 5.1; rv:5.0) Gecko/20100101 Firefox/5.0',
+  // }
+
   const schedules = [
     ...await getCalendarEventsByUrl(`/calendar/list/y/${now.year()}/m/${now.month() + 1}/d/1`, 0, headers),
     ...await getCalendarEventsByUrl(`/calendar/list/y/${nextMonth.year()}/m/${nextMonth.month() + 1}/d/1`, 0, headers),
@@ -65,7 +70,6 @@ export async function fetchScheduleJKT48() {
       },
       {
         upsert: true,
-        new: true,
         setDefaultsOnInsert: true,
         runValidators: true,
       },
@@ -83,7 +87,6 @@ export async function fetchScheduleJKT48() {
           },
           {
             upsert: true,
-            new: true,
             setDefaultsOnInsert: true,
             runValidators: true,
           },
@@ -105,7 +108,6 @@ export async function fetchScheduleJKT48() {
           },
           {
             upsert: true,
-            new: true,
             setDefaultsOnInsert: true,
             runValidators: true,
           },
