@@ -8,7 +8,7 @@ const isDev = process.env.NODE_ENV === 'development'
 const cookieSettings: CookieOptions = {
   secure: !isDev,
   domain: isDev ? undefined : process.env.COOKIE_DOMAIN,
-  sameSite: 'None',
+  sameSite: isDev ? undefined : 'None',
   path: '/',
 }
 
@@ -17,11 +17,6 @@ export function getRefreshToken(c: Context) {
 }
 
 export function setRefreshToken(c: Context, token: string) {
-  console.log('REFRESH TOKEN SET', name)
-  console.log({
-    ...cookieSettings,
-    maxAge: ONE_MONTH,
-  })
   setCookie(c, name, token, {
     ...cookieSettings,
     maxAge: ONE_MONTH,

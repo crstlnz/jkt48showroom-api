@@ -87,7 +87,7 @@ class CacheManager {
     if (!key) throw new Error('No Key')
     key = this.getKey(key)
     if (this.cacheType === 'redis' || this.cacheType === 'auto') {
-      await this.redis.delete(key).catch(_ => null)
+      await this.redis.delete(key).catch(()=>null)
     }
     if (this.cacheType !== 'redis') this.cache.delete(key)
   }

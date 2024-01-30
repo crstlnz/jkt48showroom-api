@@ -14,6 +14,9 @@ dependencies:
   cloudinary:
     specifier: ^1.41.0
     version: 1.41.1
+  cron:
+    specifier: ^3.1.6
+    version: 3.1.6
   dayjs:
     specifier: ^1.11.10
     version: 1.11.10
@@ -24,8 +27,8 @@ dependencies:
     specifier: ^7.0.0
     version: 7.0.0
   hono:
-    specifier: ^3.11.12
-    version: 3.11.12
+    specifier: ^3.12.8
+    version: 3.12.8
   ioredis:
     specifier: ^5.3.2
     version: 5.3.2
@@ -38,6 +41,9 @@ dependencies:
   ofetch:
     specifier: ^1.3.3
     version: 1.3.3
+  uuid:
+    specifier: ^9.0.1
+    version: 9.0.1
 
 devDependencies:
   '@antfu/eslint-config':
@@ -49,6 +55,9 @@ devDependencies:
   '@types/node-ipc':
     specifier: ^9.2.3
     version: 9.2.3
+  '@types/uuid':
+    specifier: ^9.0.7
+    version: 9.0.7
   eslint:
     specifier: ^8.55.0
     version: 8.56.0
@@ -617,6 +626,10 @@ packages:
     resolution: {integrity: sha512-5+fP8P8MFNC+AyZCDxrB2pkZFPGzqQWUzpSeuuVLvm8VMcorNYavBqoFcxK8bQz4Qsbn4oUEEem4wDLfcysGHA==}
     dev: true
 
+  /@types/luxon@3.3.8:
+    resolution: {integrity: sha512-jYvz8UMLDgy3a5SkGJne8H7VA7zPV2Lwohjx0V8V31+SqAjNmurWMkk9cQhfvlcnXWudBpK9xPM1n4rljOcHYQ==}
+    dev: false
+
   /@types/mdast@3.0.15:
     resolution: {integrity: sha512-LnwD+mUEfxWMa1QpDraczIn6k0Ee3SMicuYSSzS6ZYl2gKS09EClnJYGd8Du6rfc5r/GZEk5o1mRb8TaTj03sQ==}
     dependencies:
@@ -644,6 +657,10 @@ packages:
 
   /@types/unist@2.0.10:
     resolution: {integrity: sha512-IfYcSBWE3hLpBg8+X2SEa8LVkJdJEkT2Ese2aaLs3ptGdVtABxndrMaxuFlQ1qdFf9Q5rDvDpxI3WwgvKFAsQA==}
+    dev: true
+
+  /@types/uuid@9.0.7:
+    resolution: {integrity: sha512-WUtIVRUZ9i5dYXefDEAI7sh9/O7jGvHg7Df/5O/gtH3Yabe5odI3UWopVR1qbPXQtvOxWu3mM4XxlYeZtMWF4g==}
     dev: true
 
   /@types/webidl-conversions@7.0.3:
@@ -1129,6 +1146,13 @@ packages:
   /core-js@3.34.0:
     resolution: {integrity: sha512-aDdvlDder8QmY91H88GzNi9EtQi2TjvQhpCX6B1v/dAZHU1AuLgHvRh54RiOerpEhEW46Tkf+vgAViB/CWC0ag==}
     requiresBuild: true
+    dev: false
+
+  /cron@3.1.6:
+    resolution: {integrity: sha512-cvFiQCeVzsA+QPM6fhjBtlKGij7tLLISnTSvFxVdnFGLdz+ZdXN37kNe0i2gefmdD17XuZA6n2uPVwzl4FxW/w==}
+    dependencies:
+      '@types/luxon': 3.3.8
+      luxon: 3.4.4
     dev: false
 
   /cross-spawn@7.0.3:
@@ -1969,8 +1993,8 @@ packages:
     hasBin: true
     dev: false
 
-  /hono@3.11.12:
-    resolution: {integrity: sha512-TrxH75bc0m2UbvrhaXkoo32A9OhkJtvICAYgYWtxqLDOxBjRqSikyp4K7HTbnWkPeg9Z+2Q3nv0dN4o8kL6yLg==}
+  /hono@3.12.8:
+    resolution: {integrity: sha512-vnOEIRdqsp4uHE/dkOBr9EYmTsR86sD/FyG2xhfAQzR9udDRglN1nuO7SGc/7U3HfSorc6PSCNGN6upnVtCmfg==}
     engines: {node: '>=16.0.0'}
     dev: false
 
@@ -2260,6 +2284,11 @@ packages:
     dependencies:
       yallist: 4.0.0
     dev: true
+
+  /luxon@3.4.4:
+    resolution: {integrity: sha512-zobTr7akeGHnv7eBOXcRgMeCP6+uyYsczwmeRCauvpvaAltgNyTbLH/+VaEAPUeWBT+1GuNmz4wC/6jtQzbbVA==}
+    engines: {node: '>=12'}
+    dev: false
 
   /magic-string@0.30.5:
     resolution: {integrity: sha512-7xlpfBaQaP/T6Vh8MO/EqXSW5En6INHEvEXQiuff7Gku0PWjU3uf6w/j9o7O+SpB5fOAkrI5HeoNgwjEO0pFsA==}
@@ -3113,6 +3142,11 @@ packages:
   /util-deprecate@1.0.2:
     resolution: {integrity: sha512-EPD5q1uXyFxJpCrLnCc1nHnq3gOa6DZBocAIiI2TaSCA7VCJ1UJDMagCzIkXNsUYfD1daK//LTEQ8xiIbrHtcw==}
     dev: true
+
+  /uuid@9.0.1:
+    resolution: {integrity: sha512-b+1eJOlsR9K8HJpow9Ok3fiWOWSIcIzXodvv0rQjVoOVNpWMpxf1wZNpt4y9h10odCNrqnYp1OBzRktckBe3sA==}
+    hasBin: true
+    dev: false
 
   /validate-npm-package-license@3.0.4:
     resolution: {integrity: sha512-DpKm2Ui/xN7/HQKCtpZxoRWBhZ9Z0kqtygG8XCgNQ8ZlDnxuQmWhj566j8fN4Cu3/JmbhsDo7fcAJq4s9h27Ew==}
