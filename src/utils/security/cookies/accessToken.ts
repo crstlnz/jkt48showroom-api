@@ -7,7 +7,7 @@ const isDev = process.env.NODE_ENV === 'development'
 const cookieSettings: CookieOptions = {
   secure: !isDev,
   domain: isDev ? undefined : process.env.COOKIE_DOMAIN,
-  sameSite: 'None',
+  sameSite: isDev ? undefined : 'None',
   path: '/',
 }
 
@@ -18,11 +18,6 @@ export function getAccessToken(c: Context) {
 }
 
 export function setAccessToken(c: Context, token: string) {
-  console.log('ACCESS TOKEN SET', name)
-  console.log({
-    ...cookieSettings,
-    maxAge: accessTokenTime,
-  })
   setCookie(c, name, token, {
     ...cookieSettings,
     maxAge: accessTokenTime,

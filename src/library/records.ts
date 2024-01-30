@@ -22,9 +22,9 @@ async function fetchData(c: Context): Promise<ShowroomRecord[]> {
   }
   if (members?.length) options.room_id = members.map(i => i.room_id)
 
-  const mostViewer = await ShowroomLog.findOne(options).sort({ 'live_info.viewers.peak': -1 }).populate(populatePath).catch(_ => null)
-  const longestDuration = await ShowroomLog.findOne(options).sort({ 'live_info.duration': -1 }).populate(populatePath).catch(_ => null)
-  const mostGift = await ShowroomLog.findOne(options).sort({ total_point: -1 }).populate(populatePath).catch(_ => null)
+  const mostViewer = await ShowroomLog.findOne(options).sort({ 'live_info.viewers.peak': -1 }).populate(populatePath).lean().catch(() => null)
+  const longestDuration = await ShowroomLog.findOne(options).sort({ 'live_info.duration': -1 }).populate(populatePath).lean().catch(() => null)
+  const mostGift = await ShowroomLog.findOne(options).sort({ total_point: -1 }).populate(populatePath).lean().catch(() => null)
 
   const records: ShowroomRecord[] = []
   if (mostViewer) {

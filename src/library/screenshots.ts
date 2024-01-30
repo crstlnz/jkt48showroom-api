@@ -7,7 +7,7 @@ export async function getScreenshots(c: Context) {
 }
 
 async function fetchData(data_id: string): Promise<Live.Screenshots> {
-  if (process.env.ENABLE_SCREENSHOTS === 'false') {
+  if (process.env.DISABLE_SCREENSHOTS === 'true') {
     throw createError({ statusCode: 404, message: 'Not found!' })
   }
 
@@ -15,5 +15,9 @@ async function fetchData(data_id: string): Promise<Live.Screenshots> {
   if (!data?.live_info?.screenshots) {
     throw createError({ statusCode: 404, message: 'Not found!' })
   }
-  return data?.live_info?.screenshots
+
+  return {
+    ...data.live_info.screenshots,
+    list: process.env.HALF_SCREENSHOTS ? data.live_info.screenshots.list.filter((_, idx) => idx % 2 === 0) : data.live_info.screenshots.list,
+  }
 }

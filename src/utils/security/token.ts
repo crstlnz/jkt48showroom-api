@@ -30,9 +30,9 @@ export function checkToken(mustAuth: boolean = true) {
     const token = cachedToken?.accessToken || getAccessToken(c)
     const refreshToken = cachedToken?.refreshToken || getRefreshToken(c)
     if (token) {
-      let decoded = await verify(token, process.env.AUTH_SECRET!).catch(_ => null)
+      let decoded = await verify(token, process.env.AUTH_SECRET!).catch(()=>null)
       if (!decoded && refreshToken) {
-        decoded = await getRefreshedToken(c, token, refreshToken).catch(_ => null)
+        decoded = await getRefreshedToken(c, token, refreshToken).catch(()=>null)
       }
       if (decoded) {
         c.set('user', decoded)
@@ -41,7 +41,8 @@ export function checkToken(mustAuth: boolean = true) {
     }
 
     if (token || refreshToken) {
-      if (token) logout(c).catch(_ => null)
+      if (token) logout(c).catch(()=>null)
+      console.log('Clearing token')
       clearToken(c)
     }
     if (mustAuth) {
@@ -52,7 +53,7 @@ export function checkToken(mustAuth: boolean = true) {
 }
 
 export async function getRefreshedToken(c: Context, accessToken: string, refreshToken: string) {
-  const decodedRefreshToken = await verify(refreshToken, process.env.AUTH_SECRET!).catch(_ => null)
+  const decodedRefreshToken = await verify(refreshToken, process.env.AUTH_SECRET!).catch(()=>null)
   const decodedToken = decode(accessToken)
   if (decodedRefreshToken.id === decodedToken.payload.id) {
     const tokenDoc = await RefreshToken.findOne({

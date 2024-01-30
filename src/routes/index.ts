@@ -1,5 +1,6 @@
 import { Hono } from 'hono'
 import { logger } from 'hono/logger'
+import { csrf } from 'hono/csrf'
 import showroom from './showroom'
 import auth from './auth'
 import user from './user'
@@ -23,7 +24,7 @@ import { getNews } from '@/library/jkt48/news'
 import { getSchedule } from '@/library/jkt48/nextSchedule'
 import { getMemberBirthdays, nextBirthDay } from '@/library/stage48/birthday'
 import { getMember48List } from '@/library/stage48/memberList'
-import { generateCSRF, useCSRF, useSessionID } from '@/utils/security'
+import { useSessionID } from '@/utils/security'
 import { getStageList } from '@/library/recent/stageList'
 import { getProfile } from '@/library/room/profile'
 import { useShowroomSession } from '@/utils/showroomSession'
@@ -34,6 +35,7 @@ import { getIDNLive } from '@/library/watch/idn'
 import { getWatchData } from '@/library/watch'
 import { passCookie } from '@/library/bot/passCookies'
 import { getSessId } from '@/utils/security/cookies/sessId'
+import { stats } from '@/library/stats'
 
 const app = new Hono()
 
@@ -41,23 +43,26 @@ if (process.env.LOG === 'true') {
   app.use('*', logger())
 }
 
+const origins = (process.env.ORIGINS ?? '').split(',').map(i => i.trim())
 // bot purpose
 app.post('/pass', useCORS('all'), ...handler(passCookie))
-
 // CSRF //
-app.post('*', useCSRF())
-app.delete('*', useCSRF())
-app.put('*', useCSRF())
+app.use('*', csrf({
+  origin: origins,
+}))
+// app.post('*', useCSRF())
+// app.delete('*', useCSRF())
+// app.put('*', useCSRF())
 // CSRF //
 
 app.use('*', useSessionID())
 
-app.get('/csrf_token', useCORS('self'), async (c) => {
-  const token = generateCSRF(c)
-  return c.json({
-    csrf_token: token,
-  })
-})
+// app.get('/csrf_token', useCORS('self'), async (c) => {
+//   const token = generateCSRF(c)
+//   return c.json({
+//     csrf_token: token,
+//   })
+// })
 
 app.route('/admin', admin)
 app.route('/auth', auth)
@@ -72,8 +77,14 @@ app.use('/*', async (c, next) => {
   await next()
 })
 
+// app.get('/generate', (c) => {
+//   generateMonthly()
+//   return c.json({ ok: 1 })
+// })
 /// already use cache
 // app.get('/stats', ...handler(c => getStats(c.req.query())))
+
+// app.get('/stats', ...handler(stats))
 ///
 app.get('/idn_lives', ...handler(getIDNLives, { seconds: 45 }))
 
