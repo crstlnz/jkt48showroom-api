@@ -45,6 +45,12 @@ export async function getMemberDetails(key: string): Promise<IMemberProfileAPI> 
     c_gift: 1,
   }).sort({ c_gift: -1 }).catch(() => null)
 
+  const last_live = await LiveLog.findOne({ room_id: data.room_id, is_dev: false }).select({
+    'data_id': 1,
+    'live_info.date': 1,
+    'created_at': 1,
+  }).sort({ created_at: -1 }).catch(() => null)
+
   const longest_live = await LiveLog.findOne({ room_id: data.room_id, is_dev: false }).select({
     'data_id': 1,
     'live_info.duration': 1,
@@ -68,6 +74,15 @@ export async function getMemberDetails(key: string): Promise<IMemberProfileAPI> 
         ? {
             id: longest_live.data_id,
             duration: longest_live.live_info?.duration,
+          }
+        : undefined,
+      last_live: last_live
+        ? {
+            id: last_live.data_id,
+            date: {
+              start: last_live.live_info?.date?.start?.toISOString() || '',
+              end: last_live.live_info?.date?.end?.toISOString() || '',
+            },
           }
         : undefined,
     },
