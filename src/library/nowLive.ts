@@ -9,7 +9,16 @@ export async function getNowLive(c: Context) {
       getNowLiveCookies(null, c).then((r) => {
         resolve(r)
         promise = null
-      }).catch(reject)
+      }).catch(() => {
+        console.log('ERROR change to backup')
+        return getNowLiveIndirect(null, c).then((r) => {
+          resolve(r)
+          promise = null
+        }).catch((e) => {
+          promise = null
+          reject(e)
+        })
+      })
     })
   }
   return await promise
@@ -59,7 +68,7 @@ async function newOnlivesCookies() {
 
 async function getNowLiveCookies(membersData: IMember[] | null = null, c: Context): Promise<INowLive[]> {
   const members: IMember[] = membersData ?? await getMembers(c)
-  const rooms = await getAllFollows().catch(()=>[])
+  const rooms = await getAllFollows().catch(() => [])
   const roomMap = new Map<string, ShowroomAPI.RoomFollow>()
   const result: Promise<INowLive>[] = []
   const missing = []
@@ -81,7 +90,7 @@ async function getNowLiveCookies(membersData: IMember[] | null = null, c: Contex
             }
           })
           const RoomStatus = await getRoomStatus({ room_url_key: room.room_url_key }).catch((e: any) => {
-            if (e.data.errors && e.data.errors[0]?.redirect_url) {
+            if (e.data?.errors && e.data?.errors[0]?.redirect_url) {
               isPremium = true
             }
           })
