@@ -7,7 +7,7 @@ export async function getMemberDetails(key: string): Promise<IMemberProfileAPI> 
   const data = await Showroom.findOne({ url: key })
     .populate({
       path: 'member_data',
-      select: 'img isGraduate banner jikosokai socials birthdate name nicknames height bloodType jkt48id',
+      select: 'img isGraduate banner jikosokai socials birthdate name nicknames height bloodType jkt48id live_data',
     })
     .lean()
 
@@ -60,6 +60,10 @@ export async function getMemberDetails(key: string): Promise<IMemberProfileAPI> 
   return {
     name: data.name,
     stats: {
+      missing: {
+        showroom: data.member_data?.live_data?.missing?.showroom || 0,
+        idn: data.member_data?.live_data?.missing?.idn || 0,
+      },
       total_live: {
         showroom: await LiveLog.countDocuments({ room_id: data.room_id, type: 'showroom', is_dev: false }).catch(() => 0),
         idn: await LiveLog.countDocuments({ room_id: data.room_id, type: 'idn', is_dev: false }).catch(() => 0),

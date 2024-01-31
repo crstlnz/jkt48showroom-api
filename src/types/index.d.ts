@@ -206,6 +206,10 @@ interface ITheaterAPI extends Database.ITheater {
 }
 
 interface MemberStats {
+  missing: {
+    showroom: number
+    idn: number
+  }
   total_live: {
     idn: number
     showroom: number

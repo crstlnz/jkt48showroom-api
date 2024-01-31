@@ -50,6 +50,12 @@ const memberSchema = new Schema<Database.I48Member>({
   height: String,
   showroom_id: Number,
   idn_username: String,
+  live_data: {
+    missing: {
+      showroom: Number,
+      idn: Number,
+    },
+  },
 })
 
 memberSchema.virtual('showroom', {

@@ -5,6 +5,7 @@ import { uploadImageBuffer } from '@/utils/cloudinary'
 
 export async function editMemberData(c: Context) {
   const query = await c.req.parseBody()
+  console.log(query)
   const banner = query.banner instanceof File ? await uploadImageBuffer(await (query.banner as File).arrayBuffer()) : query.banner
   const img = query.img instanceof File ? await uploadImageBuffer(await (query.img as File).arrayBuffer()) : query.img
   const data: Partial<Database.I48Member> = {
@@ -18,6 +19,17 @@ export async function editMemberData(c: Context) {
     jkt48id: query['jkt48id[]'] as any,
     nicknames: query['nicknames[]'] as any,
     idn_username: query.idn_username?.toString(),
+  }
+
+  const missingSR = query['live_data.missing.showroom']
+  const missingIDN = query['live_data.missing.idn']
+  if (missingSR || missingIDN) {
+    data.live_data = {
+      missing: {
+        showroom: Number(missingSR) || 0,
+        idn: Number(missingIDN) || 0,
+      },
+    }
   }
 
   const rawSocials = query['socials[]'] as any[]
