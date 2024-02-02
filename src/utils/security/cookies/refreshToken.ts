@@ -7,6 +7,7 @@ const name = '_rt'
 const isDev = process.env.NODE_ENV === 'development'
 const cookieSettings: CookieOptions = {
   secure: !isDev,
+  httpOnly: true,
   domain: isDev ? undefined : process.env.COOKIE_DOMAIN,
   sameSite: isDev ? undefined : 'None',
   path: '/',
