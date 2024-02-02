@@ -40,8 +40,12 @@ export function checkToken(mustAuth: boolean = true) {
       }
     }
 
-    if (token) logout(c).catch(() => null)
-    clearToken(c)
+    if (token || refreshToken) {
+      if (token) {
+        logout(c).catch(() => null)
+      }
+      clearToken(c)
+    }
     if (mustAuth) {
       throw createError({ status: 401, message: 'Unauthorized!' })
     }
@@ -134,5 +138,4 @@ export async function createToken(c: Context, user_id: string, sr_id: string) {
 export function clearToken(c: Context) {
   deleteAccessToken(c)
   deleteRefreshToken(c)
-  deleteShowroomSess(c)
 }

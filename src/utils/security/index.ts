@@ -1,11 +1,6 @@
 import crypto from 'crypto'
 import { Buffer } from 'buffer'
-import dayjs from 'dayjs'
-import type { Context } from 'hono'
 import { createMiddleware } from 'hono/factory'
-import { decode } from 'hono/jwt'
-import { createError } from '../errorResponse'
-import { getAccessToken } from './cookies/accessToken'
 import { getSessId, setSessId } from './cookies/sessId'
 
 function generateIV(): Buffer {

@@ -9,7 +9,6 @@ import { getShowroomSession } from '@/utils/showroomSession'
 import { createHandlers } from '@/utils/factory'
 import { deleteShowroomSess } from '@/utils/security/cookies/showroomSess'
 import { deleteSessId } from '@/utils/security/cookies/sessId'
-import { deleteAccessToken } from '@/utils/security/cookies/accessToken'
 
 export function login() {
   return createHandlers(async (c) => {
@@ -40,10 +39,8 @@ export function login() {
     }).catch(e => e.data)
 
     if (data?.error) {
-      deleteRefreshToken(c)
-      deleteShowroomSess(c)
+      clearToken(c)
       deleteSessId(c)
-      deleteAccessToken(c)
       return c.json(data, 401)
     }
     if (sr_id) {
