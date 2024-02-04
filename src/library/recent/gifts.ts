@@ -77,10 +77,8 @@ function parseGift(c: Context, data: Log.Showroom | Log.IDN): IApiShowroomGift |
       threshold: 0.45,
     })
     const searched = fuse.search(search)
-    console.log('Hasil', searched.length)
     const giftLogsSearch = searched.map((i) => {
       const giftData = raw.find(g => String(g.user_id) === String(i.item.user_id))
-      console.log('gift data', giftData, i)
       if (!giftData) return null
       return {
         ...giftData,

@@ -37,7 +37,6 @@ export function handler(fetch: (c: Context) => Promise<any>, opts?: ((c: Context
     let uuid
     const useRateLimit = c.get('useRateLimit')
     if (useRateLimit) {
-      console.log('Use rate limit', rateLimit.size)
       uuid = crypto.randomUUID()
       if (rateLimit.size > maxConcurrentProcess) {
         throw createError({ statusCode: 429, statusMessage: 'Rate limit!' })

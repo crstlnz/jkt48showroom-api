@@ -6,7 +6,6 @@ import { parseCookieString } from '..'
 import { createError } from '../errorResponse'
 import { accessTokenTime, deleteAccessToken, getAccessToken, setAccessToken } from './cookies/accessToken'
 import { deleteRefreshToken, getRefreshToken, refreshTokenTime, setRefreshToken } from './cookies/refreshToken'
-import { deleteShowroomSess } from './cookies/showroomSess'
 import { getSessId } from './cookies/sessId'
 import { isAdmin } from '.'
 import RefreshToken from '@/database/schema/auth/RefreshToken'
@@ -29,23 +28,30 @@ export function checkToken(mustAuth: boolean = true) {
     const cachedToken = sessId ? tokenCaches.get(sessId) : null
     const token = cachedToken?.accessToken || getAccessToken(c)
     const refreshToken = cachedToken?.refreshToken || getRefreshToken(c)
-    if (token) {
-      let decoded = await verify(token, process.env.AUTH_SECRET!).catch(() => null)
-      if (!decoded && refreshToken) {
-        decoded = await getRefreshedToken(c, token, refreshToken).catch(() => null)
+    if (token || refreshToken) {
+      let decodedToken = token ? await verify(token, process.env.AUTH_SECRET!).catch(() => null) : null
+      if (!decodedToken && refreshToken) {
+        decodedToken = await getRefreshedToken(c, refreshToken).catch(() => null)
       }
-      if (decoded) {
-        c.set('user', decoded)
+
+      if (decodedToken) {
+        c.set('user', decodedToken)
         return await next()
       }
-    }
 
-    if (token || refreshToken) {
-      if (token) {
+      if (!token && refreshToken) {
+        const token = decode(refreshToken)
+        if (token.payload.srId) {
+          logout(c, token.payload.srId)
+        }
+      }
+      else if (token) {
         logout(c).catch(() => null)
       }
+
       clearToken(c)
     }
+
     if (mustAuth) {
       throw createError({ status: 401, message: 'Unauthorized!' })
     }
@@ -53,22 +59,25 @@ export function checkToken(mustAuth: boolean = true) {
   })
 }
 
-export async function getRefreshedToken(c: Context, accessToken: string, refreshToken: string) {
+export async function getRefreshedToken(c: Context, refreshToken: string) {
   const decodedRefreshToken = await verify(refreshToken, process.env.AUTH_SECRET!).catch(() => null)
-  const decodedToken = decode(accessToken)
-  if (decodedRefreshToken.id === decodedToken.payload.id) {
-    const tokenDoc = await RefreshToken.findOne({
-      userId: decodedRefreshToken.id,
-      token: refreshToken,
-    })
+  const tokenDoc = await RefreshToken.findOne({
+    userId: decodedRefreshToken.id,
+    token: refreshToken,
+  }).catch((e) => {
+    console.log(e)
+    throw e
+  })
 
-    if (tokenDoc && !tokenDoc.isUsed) {
-      tokenDoc.isUsed = true
-      await tokenDoc.save()
-      const { sessionData } = await createToken(c, decodedToken.payload.id, decodedToken.payload.sr_id)
+  if (tokenDoc && !tokenDoc.isUsed) {
+    tokenDoc.isUsed = true
+    await tokenDoc.save()
+    if (decodedRefreshToken.id && decodedRefreshToken.srId) {
+      const { sessionData } = await createToken(c, decodedRefreshToken.id, decodedRefreshToken.srId)
       return sessionData
     }
   }
+
   throw new Error('Failed to refresh token!')
 }
 
@@ -103,7 +112,8 @@ export async function createToken(c: Context, user_id: string, sr_id: string) {
 
   const refreshToken = await sign({
     id: user_id,
-    exp: currentTime + refreshTokenTime, // 1 month
+    srId: sr_id,
+    exp: currentTime + refreshTokenTime,
   }, process.env.AUTH_SECRET!)
 
   await new RefreshToken({

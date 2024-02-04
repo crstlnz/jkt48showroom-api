@@ -4,7 +4,7 @@ import { parseCookieString } from '@/utils'
 import RefreshToken from '@/database/schema/auth/RefreshToken'
 import { createError } from '@/utils/errorResponse'
 import { clearToken, createToken } from '@/utils/security/token'
-import { deleteRefreshToken, getRefreshToken } from '@/utils/security/cookies/refreshToken'
+import { getRefreshToken } from '@/utils/security/cookies/refreshToken'
 import { getShowroomSession } from '@/utils/showroomSession'
 import { createHandlers } from '@/utils/factory'
 import { deleteShowroomSess } from '@/utils/security/cookies/showroomSess'
@@ -33,7 +33,6 @@ export function login() {
       body: body.toString(),
       async onResponse({ response }) {
         const cookies = parseCookieString(response.headers.get('Set-Cookie') || '')
-        console.log('SR id', cookies.sr_id)
         sr_id = cookies.sr_id?.value
       },
     }).catch(e => e.data)
@@ -62,7 +61,7 @@ export function login() {
   })
 }
 
-export async function logoutHandler(c: Context) {
+export async function logoutHandler(c: Context, sr_id?: string) {
   try {
     const sess = c.get('showroom_session') || (await getShowroomSession(c))?.session
     if (!sess) throw createError({ status: 401, message: 'Unauthorized!' })
@@ -70,7 +69,7 @@ export async function logoutHandler(c: Context) {
     body.append('csrf_token', sess.csrf_token || '')
     await ofetch(`${process.env.SHOWROOM_API}/user/logout_api`, {
       headers: {
-        'Cookie': `sr_id=${sess.sr_id};`,
+        'Cookie': `sr_id=${sr_id || sess.sr_id};`,
         'Content-Type': 'application/x-www-form-urlencoded',
       },
       method: 'POST',
