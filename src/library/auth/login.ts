@@ -45,16 +45,15 @@ export function login() {
       }
       return c.json(data, 401)
     }
-    if (sr_id) {
-      if ((data as ShowroomLogin.Data)?.ok === 1) {
-        const userData = data as ShowroomLogin.Data
-        const { sessionData } = await createToken(c, String(userData.user_id), sr_id)
-        return c.json({
-          id: sessionData.id,
-          name: sessionData.name,
-          account_id: sessionData.account_id,
-        })
-      }
+
+    if (sr_id && (data as ShowroomLogin.Data)?.ok === 1) {
+      const userData = data as ShowroomLogin.Data
+      const { sessionData } = await createToken(c, String(userData.user_id), sr_id)
+      return c.json({
+        id: sessionData.id,
+        name: sessionData.name,
+        account_id: sessionData.account_id,
+      })
     }
 
     clearToken(c)
@@ -85,6 +84,8 @@ export async function logoutHandler(c: Context, sr_id?: string) {
     }
 
     clearToken(c)
+    deleteShowroomSess(c)
+    deleteSessId(c)
     return c.json({ success: true })
   }
   catch (e) {
