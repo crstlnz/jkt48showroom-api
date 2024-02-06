@@ -40,6 +40,9 @@ export function login() {
     if (data?.error) {
       clearToken(c)
       deleteSessId(c)
+      if (data?.error === 'Already logged in.') {
+        deleteShowroomSess(c)
+      }
       return c.json(data, 401)
     }
     if (sr_id) {
