@@ -13,7 +13,6 @@ export async function getTheaterDetail(c: Context): Promise<IApiTheaterDetailLis
     .populate<{ graduation: JKT48.Member[] }>('graduation')
     .lean()
 
-  console.log(data)
   const memberList = data.reduce<JKT48.Member[]>((a, b) => {
     a.push(...b.members)
     a.push(...b.graduation)
