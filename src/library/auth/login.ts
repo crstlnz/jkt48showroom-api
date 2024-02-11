@@ -47,6 +47,7 @@ export function login() {
     }
 
     if (sr_id && (data as ShowroomLogin.Data)?.ok === 1) {
+      deleteShowroomSess(c)
       const userData = data as ShowroomLogin.Data
       const { sessionData } = await createToken(c, String(userData.user_id), sr_id)
       return c.json({
