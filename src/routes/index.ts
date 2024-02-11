@@ -36,8 +36,6 @@ import { getWatchData } from '@/library/watch'
 import { passCookie } from '@/library/bot/passCookies'
 import { getSessId } from '@/utils/security/cookies/sessId'
 
-// import { generateMonthly, stats } from '@/library/stats'
-
 const app = new Hono()
 
 if (process.env.LOG === 'true') {
@@ -78,10 +76,6 @@ app.use('/*', async (c, next) => {
   await next()
 })
 
-// app.get('/generate', (c) => {
-//   generateMonthly()
-//   return c.json({ ok: 1 })
-// })
 /// already use cache
 // app.get('/stats', ...handler(c => getStats(c.req.query())))
 
@@ -113,8 +107,8 @@ app.get('/first_data', ...handler(getFirstData, { days: 30 }))
 app.get('/screenshots/:id', ...handler(getScreenshots, { hours: 12 }))
 app.get('/records', ...handler(getRecords, { hours: 12 }))
 app.get('/next_schedule', ...handler(getSchedule, { hours: 1 }))
-app.get('/theater/:id', ...handler(getTheaterDetail, { minutes: 15 }))
-app.get('/news', ...handler(getNews, { minutes: 10 }))
+app.get('/theater/:id', ...handler(getTheaterDetail, { minutes: 5 }))
+app.get('/news', ...handler(getNews, { minutes: 5 }))
 app.get('/news/:id', ...handler(c => getNewsDetail(c.req.param('id')), { days: 1 }))
 app.get('/birthday', ...handler(getMemberBirthdays, { hours: 1 })) // this already have cache
 app.get('/next_birthday', ...handler(nextBirthDay, { minutes: 30 })) // this already have cache
