@@ -1,20 +1,67 @@
-import { getCommentLog, getGiftList, getGiftLog, getRoomStatus, getStreamingURL } from '@utils/showroomAPI'
+import { getCommentLog, getGiftList, getGiftLog, getLiveInfo, getRoomStatus, getStreamingURL } from '@utils/showroomAPI'
 import type { Context } from 'hono'
 import { createError } from '@/utils/errorResponse'
 
-export async function getWatchData(c: Context) {
-  const srId = c.get('user')?.sr_id
-  return await getData({ room_url_key: c.req.param('id') }, `sr_id=${srId};`)
+interface WatchCache {
+  data: Watch.WatchData
+  is_error: false
 }
 
-async function getData(params: object, cookies?: string | undefined): Promise<Watch.WatchData> {
+interface WatchError {
+  error: any
+  is_premium: boolean
+  is_error: true
+}
+
+export const cache = new Map<string, WatchCache | WatchError >()
+
+function setClearCache(room_url_key: string) {
+  setTimeout(() => {
+    cache.delete(room_url_key)
+  }, 10000)
+}
+
+export async function getWatchData(c: Context) {
+  const data = await queuedFetch(c)
+  if (!data.is_error) {
+    if (data.data.premium_room_type !== 0) throw createError({ status: 404, message: 'Live is premium!' })
+    return data.data
+  }
+  else {
+    throw data.error
+  }
+}
+
+const promises = new Map<string, Promise<WatchCache | WatchError>>()
+async function queuedFetch(c: Context): Promise<WatchCache | WatchError> {
+  const id = c.req.param('id')
+  if (!id) throw createError({ status: 400, message: 'Bad request!' })
+  let promise = promises.get(id)
+  if (!promise) {
+    promise = new Promise((resolve, reject) => {
+      getData(c).then((r) => {
+        resolve(r)
+        promises.delete(id)
+      }).catch(reject)
+    })
+    promises.set(id, promise)
+  }
+  return await promise
+}
+
+async function getData(c: Context): Promise<WatchCache | WatchError> {
+  const room_url_key = c.req.param('id')
+  const srId = c.get('user')?.sr_id
   try {
-    const data = await getRoomStatus(params, cookies)
+    const cookies = `sr_id=${srId};`
+    const data = await getRoomStatus({ room_url_key }, cookies)
+    const liveInfo = data.is_live ? (await getLiveInfo({ room_id: data.room_id }, cookies)) : null
     const streamUrl = data.is_live ? (await getStreamingURL({ room_id: data.room_id }, cookies)).streaming_url_list : []
+    // const streamUrl = data.is_live ? (await getLive({ room_id: data.room_id }, cookies)).streaming_url_list : []
     const comments = (data.is_live ? (await getCommentLog(data.room_id, cookies)).comment_log : []).filter(i => !(!Number.isNaN(i.comment) && Number.parseInt(i.comment) <= 50))
     const giftLog = (data.is_live ? (await getGiftLog(data.room_id, cookies)).gift_log : [])
     const giftList = (data.is_live ? (await getGiftList(data.room_id, cookies)).normal : [])
-    return {
+    const watchData = {
       name: data.room_name,
       started_at: data.started_at,
       can_comment: data.can_comment,
@@ -29,6 +76,7 @@ async function getData(params: object, cookies?: string | undefined): Promise<Wa
       is_live: data.is_live,
       gift_log: giftLog,
       gift_list: giftList,
+      premium_room_type: liveInfo?.premium_room_type ?? 0,
       comments: comments.map((i) => {
         return <Watch.Comment>{
           id: i.user_id.toString() + i.created_at.toString(),
@@ -40,11 +88,27 @@ async function getData(params: object, cookies?: string | undefined): Promise<Wa
         }
       }),
     }
+
+    const res: WatchCache = {
+      data: watchData,
+      is_error: false,
+    }
+    cache.set(room_url_key, res)
+    setClearCache(room_url_key)
+    return res
   }
   catch (e) {
-    if ((e as any)?.data?.errors?.[0]?.redirect_url) {
-      throw createError({ status: 404, message: 'Live is premium!' })
+    const is_premium = (e as any)?.data?.errors?.[0]?.redirect_url != null
+    const data: WatchError = {
+      error: is_premium ? createError({ status: 404, message: 'Live is premium!' }) : e,
+      is_error: true,
+      is_premium,
     }
-    throw e
+
+    if (is_premium) {
+      cache.set(room_url_key, data)
+      setClearCache(room_url_key)
+    }
+    return data
   }
 }

@@ -53,6 +53,10 @@ export function getRoomStatus(query: object, cookies: string | null = null): Pro
   return ofetch('https://www.showroom-live.com/api/room/status', { query, headers: { cookie: cookies || '' } })
 }
 
+export function getLiveInfo(query: object, cookies: string | null = null): Promise<ShowroomAPI.LiveInfo> {
+  return ofetch('https://www.showroom-live.com/api/live/live_info', { query, headers: { cookie: cookies || '' } })
+}
+
 export function getGiftList(roomId: number, cookies: string | null = null): Promise<{ normal: ShowroomAPI.Gift[] }> {
   return ofetch(`https://www.showroom-live.com/api/live/gift_list?room_id=${roomId}&_=${new Date().getTime()}`, { headers: { cookie: cookies || '' } })
 }

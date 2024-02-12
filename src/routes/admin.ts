@@ -1,4 +1,5 @@
 import { Hono } from 'hono'
+import { cache as wCache } from '../library/watch/index'
 import { checkToken } from '@/utils/security/token'
 import getMissingJikosoukai from '@/library/admin/missingJikosoukai'
 import { checkAdmin } from '@/utils/security'
@@ -36,6 +37,11 @@ app.get('/jkt48member', ...handler(getJKT48Members))
 app.get('/member', ...handler(getMembers))
 app.get('/fans_list', ...handler(getFansList))
 app.get('/member/data', ...handler(getMemberDataForEdits))
+app.get('/watch/sr_cache', (c) => {
+  return c.json({
+    w: [...wCache.entries()],
+  })
+})
 
 app.post('/set_graduate', ...handler(setGraduate))
 app.post('/edit_showroom', ...handler(editShowroom))
