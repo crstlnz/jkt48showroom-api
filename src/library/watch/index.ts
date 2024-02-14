@@ -24,10 +24,12 @@ function setClearCache(room_url_key: string) {
 export async function getWatchData(c: Context) {
   const room_url_key = c.req.param('id')
   const cacheData = cache.get(room_url_key)
-  if (cacheData) return cacheData
-  const data = await queuedFetch(c)
-  setClearCache(room_url_key)
-  cache.set(room_url_key, data)
+  const data = cacheData || await queuedFetch(c)
+  if (!cacheData) {
+    setClearCache(room_url_key)
+    cache.set(room_url_key, data)
+  }
+
   if (!data.is_error) {
     if (data.data.premium_room_type !== 0) throw createError({ status: 404, message: 'Live is premium!' })
     return data.data
