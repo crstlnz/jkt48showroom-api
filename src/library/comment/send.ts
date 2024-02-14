@@ -1,5 +1,5 @@
-import { sendComment as commentAPI } from '@utils/showroomAPI'
 import type { Context } from 'hono'
+import { sendComment as commentAPI } from '@/utils/api/showroom'
 import { createError } from '@/utils/errorResponse'
 
 // Watch.CommentResponse
