@@ -1,4 +1,4 @@
-import { getNextLive as fetchNextLive, getAllFollows } from '@utils/showroomAPI'
+import { getNextLive as fetchNextLive, getAllFollows } from '@/utils/api/showroom'
 import type { Context } from 'hono'
 import { getMembers } from './member'
 
