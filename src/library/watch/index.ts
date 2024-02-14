@@ -18,11 +18,16 @@ export const cache = new Map<string, WatchCache | WatchError >()
 function setClearCache(room_url_key: string) {
   setTimeout(() => {
     cache.delete(room_url_key)
-  }, 10000)
+  }, 9000)
 }
 
 export async function getWatchData(c: Context) {
+  const room_url_key = c.req.param('id')
+  const cacheData = cache.get(room_url_key)
+  if (cacheData) return cacheData
   const data = await queuedFetch(c)
+  setClearCache(room_url_key)
+  cache.set(room_url_key, data)
   if (!data.is_error) {
     if (data.data.premium_room_type !== 0) throw createError({ status: 404, message: 'Live is premium!' })
     return data.data
@@ -51,10 +56,6 @@ async function queuedFetch(c: Context): Promise<WatchCache | WatchError> {
 
 async function getData(c: Context): Promise<WatchCache | WatchError> {
   const room_url_key = c.req.param('id')
-  const cacheData = cache.get(room_url_key)
-  if (cacheData) {
-    return cacheData
-  }
   const srId = c.get('user')?.sr_id
   try {
     const cookies = `sr_id=${srId};`
@@ -97,9 +98,6 @@ async function getData(c: Context): Promise<WatchCache | WatchError> {
       data: watchData,
       is_error: false,
     }
-    cache.set(room_url_key, res)
-    console.log('SETTING CACHE')
-    setClearCache(room_url_key)
     return res
   }
   catch (e) {
@@ -108,11 +106,6 @@ async function getData(c: Context): Promise<WatchCache | WatchError> {
       error: is_premium ? createError({ status: 404, message: 'Live is premium!' }) : e,
       is_error: true,
       is_premium,
-    }
-
-    if (is_premium) {
-      cache.set(room_url_key, data)
-      setClearCache(room_url_key)
     }
     return data
   }

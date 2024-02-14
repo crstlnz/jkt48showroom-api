@@ -5,7 +5,6 @@ import { createError } from '@/utils/errorResponse'
 
 export async function getTheaterDetail(c: Context): Promise<IApiTheaterDetailList> {
   const id = c.req.param('id')
-  console.log(new RegExp(`^(${id}|^${id}(?:-\/d+))$`))
   const data = await Theater.find({ id: { $regex: new RegExp(`^(${id}|^${id}(?:-\\d+))$`) } })
     .populate<{ members: JKT48.Member[] }>('members')
     .populate<{ setlist: JKT48.Setlist }>('setlist')
