@@ -1,5 +1,5 @@
-import { getCommentLog, getGiftList, getGiftLog, getLiveInfo, getRoomStatus, getStreamingURL } from '@utils/showroomAPI'
 import type { Context } from 'hono'
+import { getCommentLog, getGiftList, getGiftLog, getLiveInfo, getRoomStatus, getStreamingURL } from '@/utils/api/showroom'
 import { createError } from '@/utils/errorResponse'
 
 interface WatchCache {
@@ -51,6 +51,10 @@ async function queuedFetch(c: Context): Promise<WatchCache | WatchError> {
 
 async function getData(c: Context): Promise<WatchCache | WatchError> {
   const room_url_key = c.req.param('id')
+  const cacheData = cache.get(room_url_key)
+  if (cacheData) {
+    return cacheData
+  }
   const srId = c.get('user')?.sr_id
   try {
     const cookies = `sr_id=${srId};`
@@ -94,6 +98,7 @@ async function getData(c: Context): Promise<WatchCache | WatchError> {
       is_error: false,
     }
     cache.set(room_url_key, res)
+    console.log('SETTING CACHE')
     setClearCache(room_url_key)
     return res
   }
