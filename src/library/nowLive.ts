@@ -1,6 +1,6 @@
 import type { Context } from 'hono'
 import { getMembers } from './member'
-import { getAllFollows, getIsLive, getOnlives, getRoomStatus, getStreamingURL } from '@/utils/showroomAPI'
+import { getAllFollows, getIsLive, getOnlives, getRoomStatus, getStreamingURL } from '@/utils/api/showroom'
 
 let promise: Promise<INowLive[]> | null = null
 export async function getNowLive(c: Context) {
