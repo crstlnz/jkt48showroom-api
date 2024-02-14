@@ -62,7 +62,7 @@ app.get('/live_info', async (c) => {
 })
 
 app.get('/telop', async (c) => {
-  return showroomRequest(c, '/api/live/telop')
+  return showroomRequest(c, '/api/live/telop', 60000)
 })
 
 app.get('/greeting', async (c) => {
