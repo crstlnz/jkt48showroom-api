@@ -19,6 +19,7 @@ export async function editMemberData(c: Context) {
     jkt48id: query['jkt48id[]'] as any,
     nicknames: query['nicknames[]'] as any,
     idn_username: query.idn_username?.toString(),
+    birthdate: query.birthdate ? new Date(query.birthdate.toString()) : undefined,
   }
 
   const missingSR = query['live_data.missing.showroom']

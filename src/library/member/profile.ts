@@ -16,7 +16,6 @@ export async function getMemberDetails(key: string): Promise<IMemberProfileAPI> 
   let upcomingTheater: ITheaterAPI[] = []
 
   if (data.group === 'jkt48') {
-    console.log(data.member_data?.jkt48id)
     const next = await Theater.find({ memberIds: { $in: data.member_data?.jkt48id }, date: { $gte: new Date() } }).populate<{ setlist: JKT48.Setlist }>('setlist').sort({ date: -1 }).limit(4)
     const theater = await Theater.find({ memberIds: { $in: data.member_data?.jkt48id }, date: { $lte: new Date() } }).populate<{ setlist: JKT48.Setlist }>('setlist').sort({ date: -1 }).limit(4)
     recentTheater = theater.map<ITheaterAPI>((i) => {

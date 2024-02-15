@@ -59,8 +59,8 @@ async function birthDayThisMonth(group: string | null = null): Promise<BirthdayD
 export async function nextBirthDay(c: Context) {
   const group = c.req.query('group')
   const today = dayjs()
-  const month = today.month() + 1
-  const membersData = await Member.find({ group, isGraduate: false }).lean()
+  const month = today.month()
+  const membersData = await Member.find({ group, isGraduate: false, name: { $ne: 'JKT48' } }).lean()
   const members = membersData.map((i) => {
     return {
       ...i,
@@ -71,19 +71,27 @@ export async function nextBirthDay(c: Context) {
       return a.birthdate.date() - b.birthdate.date()
     }
     else {
-      return Math.abs((a.birthdate.month() + 1) - month) - Math.abs((b.birthdate.month() + 1) - month)
+      return Math.abs(a.birthdate.month() - month) - Math.abs(b.birthdate.month() - month)
     }
   })
 
-  const lewat = members.filter(i => i.birthdate.month() + 1 === month && i.birthdate.date() < today.date())
+  const lewat = members.filter((i) => {
+    if (i.birthdate.month() === month) {
+      return i.birthdate.date() < today.date()
+    }
+    else {
+      return i.birthdate.month() < month
+    }
+  })
   const next = members.filter((i) => {
-    if (i.birthdate.month() + 1 === month) {
+    if (i.birthdate.month() === month) {
       return i.birthdate.date() >= today.date()
     }
     else {
-      return true
+      return i.birthdate.month() > month
     }
   })
+
   const birthdays = [...next, ...lewat].slice(0, 6)
 
   const result = []

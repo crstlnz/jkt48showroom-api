@@ -1,12 +1,6 @@
 export function getTheaterId(url: string) {
-  const pattern = /\/(\d+)\?/
-  const match = url.match(pattern)
-  if (match) {
-    return match[1]
-  }
-  else {
-    return null // URL tidak sesuai pola yang diharapkan
-  }
+  const match = url.match(/\/(\d+)\?/)
+  return match ? match[1] : null
 }
 
 export function extractDateTime(input: string) {
