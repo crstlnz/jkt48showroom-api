@@ -1,7 +1,7 @@
 import type { Context } from 'hono'
-import Member from '@/database/schema/48group/Member'
 import Theater from '@/database/showroomDB/jkt48/Theater'
 import { createError } from '@/utils/errorResponse'
+import IdolMember from '@/database/schema/48group/IdolMember'
 
 export async function getTheaterDetail(c: Context): Promise<IApiTheaterDetailList> {
   const id = c.req.param('id')
@@ -19,10 +19,13 @@ export async function getTheaterDetail(c: Context): Promise<IApiTheaterDetailLis
     return a
   }, [])
 
-  const memberDetails = await Member.find({ jkt48id: { $in: memberList.map(i => i.id) } }).select({
+  const memberDetails = await IdolMember.find({ jkt48id: { $in: memberList.map(i => i.id) } }).select({
     name: 1,
-    nicknames: 1,
-    img: 1,
+    info: {
+      nicknames: 1,
+      img: 1,
+    },
+    slug: 1,
     showroom_id: 1,
     jkt48id: 1,
   }).populate('showroom')
@@ -42,9 +45,9 @@ export async function getTheaterDetail(c: Context): Promise<IApiTheaterDetailLis
           })
           return {
             id: i.id,
-            name: detailedMember?.nicknames?.[0] || i.name,
-            img: detailedMember?.img ?? undefined,
-            url_key: (detailedMember as any)?.showroom?.url,
+            name: detailedMember?.info?.nicknames?.[0] || i.name,
+            img: detailedMember?.info?.img ?? undefined,
+            url_key: detailedMember?.slug,
           }
         }),
         seitansai: i.seitansai.map((i) => {
@@ -53,9 +56,9 @@ export async function getTheaterDetail(c: Context): Promise<IApiTheaterDetailLis
           })
           return {
             id: i.id,
-            name: detailedMember?.nicknames?.[0] || i.name,
-            img: detailedMember?.img ?? undefined,
-            url_key: (detailedMember as any)?.showroom?.url,
+            name: detailedMember?.info?.nicknames?.[0] || i.name,
+            img: detailedMember?.info?.img ?? undefined,
+            url_key: detailedMember?.slug,
           }
         }),
         graduation: i.graduation.map((i) => {
@@ -64,9 +67,9 @@ export async function getTheaterDetail(c: Context): Promise<IApiTheaterDetailLis
           })
           return {
             id: i.id,
-            name: detailedMember?.nicknames?.[0] || i.name,
-            img: detailedMember?.img ?? undefined,
-            url_key: (detailedMember as any)?.showroom?.url,
+            name: detailedMember?.info?.nicknames?.[0] || i.name,
+            img: detailedMember?.info?.img ?? undefined,
+            url_key: detailedMember?.slug,
           }
         }),
         date: i.date,

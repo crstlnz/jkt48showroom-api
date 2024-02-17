@@ -1,14 +1,14 @@
 import type { Context } from 'hono'
-import Member from '@/database/schema/48group/Member'
 import { createError } from '@/utils/errorResponse'
+import IdolMember from '@/database/schema/48group/IdolMember'
 
 export async function editJikosoukai(c: Context) {
   const query = c.req.query()
-  const member = await Member.findOneAndUpdate(
+  const member = await IdolMember.findOneAndUpdate(
     { _id: query._id },
     {
       $set: {
-        jikosokai: query.jiko,
+        'info.jikosokai': query.jiko,
       },
     },
     {

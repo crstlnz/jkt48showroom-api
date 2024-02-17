@@ -1,11 +1,11 @@
 import { ofetch } from 'ofetch'
-import Member from '@/database/schema/48group/Member'
+import IdolMember from '@/database/schema/48group/IdolMember'
 
 const idnUsernames = new Set<string>()
 const additionalUsernames = ['jkt48-official']
 export async function getAllIDNUsername(): Promise<Set<string>> {
   if (idnUsernames.size) return idnUsernames
-  const data = (await Member.find({ idn_username: { $exists: true } }).lean()).map(i => i.idn_username) || []
+  const data = (await IdolMember.find({ 'idn.username': { $exists: true } }).lean()).map(i => i.idn?.username) || []
   if (data.length) {
     const usernames = [...data.filter(i => i != null) as string[], ...additionalUsernames]
     for (const username of usernames) {

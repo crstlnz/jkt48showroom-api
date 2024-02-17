@@ -14,15 +14,15 @@ export async function parseBase(data: Log.Live): Promise<LogDetail.Base> {
     room_id: data.room_id,
     room_info: {
       name: data.room_info?.name ?? 'Member not found!',
-      nickname: (data as any).custom?.title ?? (data as any).custom?.theater?.title ?? data.room_info?.member_data?.nicknames?.[0],
+      nickname: (data as any).custom?.title ?? (data as any).custom?.theater?.title ?? data.room_info?.member_data?.info?.nicknames?.[0],
       fullname: data.room_info?.member_data?.name,
       img: (data as any).custom?.img ?? data.room_info?.img ?? config.errorPicture,
-      img_alt: (data as any).custom?.img ?? data.room_info?.member_data?.img ?? data.room_info?.img_square,
-      url: data.room_info?.url ?? '',
-      is_graduate: data.room_info?.member_data?.isGraduate ?? data.room_info?.is_group ?? false,
+      img_alt: (data as any).custom?.img ?? data.room_info?.member_data?.info?.img ?? data.room_info?.img_square,
+      url: data.room_info?.member_data?.slug ?? data.room_info?.url ?? '',
+      is_graduate: data.room_info?.member_data?.info?.is_graduate ?? data.room_info?.is_group ?? false,
       is_group: data.room_info?.is_group ?? false,
-      banner: data.room_info?.member_data?.banner ?? '',
-      jikosokai: data.room_info?.member_data?.jikosokai ?? '',
+      banner: data.room_info?.member_data?.info?.banner ?? '',
+      jikosokai: data.room_info?.member_data?.info?.jikosokai ?? '',
       generation: data.room_info?.generation ?? '',
       group: data.room_info?.group ?? '',
     },
@@ -309,16 +309,17 @@ export async function parseIDN(data: Log.IDN): Promise<LogDetail.IDN> {
 
 export async function getRecentDetails(c: Context): Promise<LogDetail.Showroom | LogDetail.IDN> {
   const id = c.req.param('id')
-  const data = await LiveLog.findOne({ data_id: id }).populate({
-    path: 'room_info',
-    options: {
-      select: '-_id name img url -room_id member_data is_group generation group img_square',
-      populate: {
-        path: 'member_data',
-        select: 'img isGraduate banner jikosokai name nicknames',
+  const data = await LiveLog.findOne({ data_id: id })
+    .populate({
+      path: 'room_info',
+      options: {
+        select: '-_id name img url -room_id member_data is_group generation group img_square',
+        populate: {
+          path: 'member_data',
+          select: 'info name slug',
+        },
       },
-    },
-  }).lean()
+    }).lean()
   if (!data) throw createError({ statusMessage: 'Data not found!', statusCode: 404 })
   if (data.type === 'showroom') {
     return parseShowroom(data as Log.Showroom)

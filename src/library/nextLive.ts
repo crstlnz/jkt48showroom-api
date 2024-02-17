@@ -1,6 +1,6 @@
-import { getNextLive as fetchNextLive, getAllFollows } from '@/utils/api/showroom'
 import type { Context } from 'hono'
 import { getMembers } from './member'
+import { getNextLive as fetchNextLive, getAllFollows } from '@/utils/api/showroom'
 
 /// 318247 is umega room
 export async function getNextLive(c: Context): Promise<INextLive[]> {
@@ -32,13 +32,13 @@ async function getFromCookies(membersData: IMember[] | null = null, c: Context):
           url: room.room_url_key,
           room_id: Number(room.room_id),
           is_graduate: member.is_graduate,
-          is_group: member.is_group,
-          room_exists: member.room_exists,
+          is_group: member.group !== 'official',
+          room_exists: member.sr_exists,
           date: date.toISOString(),
         })
       }
     }
-    else if (member.room_exists) {
+    else if (member.sr_exists) {
       missing.push(member)
     }
   }
@@ -53,22 +53,24 @@ async function getFromCookies(membersData: IMember[] | null = null, c: Context):
 
 async function getDirectNextLive(membersData: IMember[] | null = null, c: Context): Promise<INextLive[]> {
   try {
-    const members: IMember[] = (membersData ?? (await getMembers(c))).filter(i => i.room_exists)
+    const members: IMember[] = (membersData ?? (await getMembers(c))).filter(i => i.sr_exists)
     const promises: Promise<INextLive | null>[] = []
     for (const member of members) {
+      if (!member.room_id) continue
+      const room_id = member.room_id
       promises.push(
         (async (): Promise<INextLive | null> => {
           try {
-            const data = await fetchNextLive(member.room_id)
+            const data = await fetchNextLive(room_id)
             if (!data.epoch) return null
             return {
               img: member.img,
               url: member.url,
               name: member.name,
-              room_id: member.room_id,
+              room_id,
               is_graduate: member.is_graduate,
-              is_group: member.is_group,
-              room_exists: member.room_exists,
+              is_group: member.group !== 'official',
+              room_exists: member.sr_exists,
               date: new Date(new Date(data.epoch * 1000).toLocaleString('en-US', { timeZone: 'Asia/Tokyo' })).toISOString(),
             }
           }

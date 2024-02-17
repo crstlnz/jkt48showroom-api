@@ -4,6 +4,7 @@ import Member from '@/database/schema/48group/Member'
 import cache from '@/utils/cache'
 import { createError } from '@/utils/errorResponse'
 import Showroom from '@/database/schema/showroom/Showroom'
+import IdolMember from '@/database/schema/48group/IdolMember'
 
 export async function getMemberBirthdays(c: Context) {
   const group = c.req.query('group')
@@ -60,11 +61,11 @@ export async function nextBirthDay(c: Context) {
   const group = c.req.query('group')
   const today = dayjs()
   const month = today.month()
-  const membersData = await Member.find({ group, isGraduate: false, name: { $ne: 'JKT48' } }).lean()
+  const membersData = await IdolMember.find({ 'info.is_graduate': false, '$and': [{ group: { $ne: 'official' } }, { group }] }).lean()
   const members = membersData.map((i) => {
     return {
       ...i,
-      birthdate: dayjs(i.birthdate),
+      birthdate: dayjs(i.info.birthdate),
     }
   }).sort((a, b) => {
     if (a.birthdate.month() === b.birthdate.month()) {
@@ -96,13 +97,13 @@ export async function nextBirthDay(c: Context) {
 
   const result = []
   for (const member of birthdays) {
-    const showroom = member.showroom_id ? await Showroom.findOne({ room_id: member.showroom_id }) : null
+    // const showroom = member.showroom_id ? await Showroom.findOne({ room_id: member.showroom_id }) : null
     result.push({
-      name: member.nicknames?.length ? member.nicknames[0] : member.name,
+      name: member.info?.nicknames?.length ? member.info.nicknames[0] : member.name,
       birthdate: member.birthdate,
-      img: member.img,
+      img: member.info?.img,
       room_id: member.showroom_id,
-      url_key: showroom?.url,
+      url_key: member?.slug,
     })
   }
 

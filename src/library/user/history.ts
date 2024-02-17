@@ -74,7 +74,7 @@ export async function getUserHistory(qq: any = null, userId: string): Promise<IH
       })
     }
 
-    if (members?.length) options.room_id = members.map(i => i.room_id)
+    if (members?.length) options.room_id = members.map(i => i.room_id).filter((i): i is number => i != null)
 
     if (query.date) {
       try {

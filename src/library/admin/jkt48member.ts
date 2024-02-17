@@ -1,8 +1,8 @@
-import Member from '@/database/showroomDB/jkt48/Member'
+import JKT48Member from '@/database/showroomDB/jkt48/Member'
 
 export async function getJKT48Members(): Promise<JKT48.Member[]> {
   try {
-    const members = await Member.find({})
+    const members = await JKT48Member.find({})
       .lean()
 
     return (members as unknown as JKT48.Member[])

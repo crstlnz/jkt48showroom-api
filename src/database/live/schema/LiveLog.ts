@@ -1,15 +1,8 @@
 import type { Model } from 'mongoose'
 import { Schema } from 'mongoose'
 
-// import config from '../../../../config'
-import { StageList } from '../../showroomDB/StageList'
 import { liveDB } from '../../'
 import Showroom from '../../schema/showroom/Showroom'
-import config from '@/config'
-
-// import Showroom from './Showroom'
-// import ShowroomGift from './ShowroomGift'
-// import ShowroomUser from './ShowroomUser'
 
 interface ILogLiveModel extends Model<Log.Live> {
   getDetails(id: string | number): Promise<Database.IShowroomLogDetail>

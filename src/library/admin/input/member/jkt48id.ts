@@ -1,11 +1,12 @@
 import type { Context } from 'hono'
 import Member from '@/database/schema/48group/Member'
 import { createError } from '@/utils/errorResponse'
+import IdolMember from '@/database/schema/48group/IdolMember'
 
 export async function editJKT48ID(c: Context) {
   const query = await c.req.parseBody()
   const jkt48ids = query['jkt48id[]']
-  const member = await Member.findOneAndUpdate(
+  const member = await IdolMember.findOneAndUpdate(
     { _id: query._id },
     {
       $set: {

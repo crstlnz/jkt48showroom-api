@@ -22,7 +22,7 @@ export function calculateRanks(logs: Log.Showroom[], stageListData: Database.ISt
         room_id: log.room_id,
         name: log.room_info?.name ?? 'Member not Found!',
         img:
-            log.room_info?.member_data?.img
+            log.room_info?.member_data?.info?.img
             || log.room_info?.img
             || 'https://image.showroom-cdn.com/showroom-prod/assets/img/v3/img-err-404.jpg?t=1602821561',
         url: log.room_info?.url ?? '',

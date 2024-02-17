@@ -7,6 +7,16 @@
 // import { StageList } from '@/database/showroomDB/StageList'
 // import config from '@/config'
 
+import dayjs from 'dayjs'
+import LiveLog from '@/database/live/schema/LiveLog'
+import Member from '@/database/schema/48group/Member'
+import Showroom from '@/database/schema/showroom/Showroom'
+import Theater from '@/database/showroomDB/jkt48/Theater'
+import Stats from '@/database/live/schema/Stats'
+import { createError } from '@/utils/errorResponse'
+import { getMembers } from '@/library/member'
+import IdolMember from '@/database/schema/48group/IdolMember'
+
 // const time = 43200000 // 12 hours
 
 // function isIDateRangeType(value: string): value is Stats.IDateRangeType {
@@ -264,3 +274,251 @@
 //     ,
 //   }
 // }
+
+export async function stats() {
+  const res = await Stats.findOne({ id: 'monthly' })
+  if (!res) throw createError({ status: 404, message: 'Not found!' })
+  return res
+}
+
+async function save(id: string, data: any) {
+  try {
+    await Stats.updateOne(
+      { id },
+      {
+        $set: {
+          ...data,
+          id,
+        },
+      },
+      {
+        upsert: true,
+        setDefaultsOnInsert: true,
+        runValidators: true,
+      },
+    )
+    console.log('Finish')
+  }
+  catch (e) {
+    console.error(e)
+  }
+}
+
+export async function generateMonthly() {
+  console.log('Generating stats...')
+  const data = await getMonthly()
+  await save('monthly', data)
+  await save(data.id, data)
+  console.log('Finishing...')
+}
+
+export async function getMonthly(date?: string | number | Date | dayjs.Dayjs | null | undefined) {
+  const month = dayjs(date).subtract(1, 'month').startOf('month')
+  // const filePath = '../../data-1bulan.json'
+  // const exists = fs.existsSync(filePath)
+  const dateRange = {
+    $gte: month.toDate(),
+    $lte: month.endOf('month').toDate(),
+  }
+  const membersList = await getMembers('jkt48')
+  const data: Log.Live[] = await LiveLog.find({
+    'is_dev': false,
+    'live_info.date.start': dateRange,
+    'room_id': membersList.map(i => i.room_id),
+  }).populate({
+    path: 'room_info',
+    select: '_id name img url room_id member_data',
+    populate: {
+      path: 'member_data',
+      select: '-_id name img nicknames jkt48id',
+    },
+  }).lean()
+  console.log(data.length)
+  // if (exists) {
+  //   console.log('EXISTS')
+  //   const raw = fs.readFileSync(filePath)
+  //   const decoder = new TextDecoder('utf-8')
+  //   data = JSON.parse(decoder.decode(raw))
+  // }
+  // else {
+  // data = await LiveLog.find({
+  //   'is_dev': false,
+  //   'live_info.date.start': dateRange,
+  // }).lean()
+  //   fs.writeFileSync(filePath, JSON.stringify(data, null, 4), 'utf8')
+  // }
+  const members = new Map()
+  const Rupiah = new Intl.NumberFormat('id-ID', {
+    style: 'currency',
+    currency: 'IDR',
+  })
+
+  const fansMap = new Map()
+
+  for (const d of data) {
+    for (const fans of d.gift_data.gift_log) {
+      const f = fansMap.get(fans.user_id)
+      const fansInfo = d.users.find(i => i.user_id === fans.user_id)
+      if (f) {
+        f.total_gift += fans.total * d.gift_rate
+        f.total_live += 1
+
+        if (fansInfo?.name) f.name = fansInfo.name
+        if (fansInfo?.avatar_url) f.avatar_url = fansInfo.avatar_url
+        if (fansInfo?.avatar_id) f.avatar_id = fansInfo.avatar_id
+      }
+      else {
+        fansMap.set(fans.user_id, {
+          total_gift: fans.total * d.gift_rate,
+          user_id: fans.user_id,
+          name: fansInfo?.name,
+          avatar_url: fansInfo?.avatar_url,
+          avatar_id: fansInfo?.avatar_id,
+          total_live: 1,
+        })
+      }
+    }
+
+    const member = members.get(d.room_id)
+    if (member) {
+      // member.total_live += 1
+      member.total_gift += d.c_gift
+      member.history.push(d)
+
+      member.longest_live = Math.max(dayjs(d.live_info?.date?.start).diff(dayjs(d.live_info?.date?.end), 'milliseconds'), member.longest_live)
+    }
+    else {
+      // const memberInfo = await Showroom.findOne({ room_id: d.room_id }).lean()
+      members.set(d.room_id, {
+        // total_live: 1,
+        total_gift: d.c_gift,
+        history: [d],
+        longest_live: dayjs(d.live_info?.date?.end).diff(dayjs(d.live_info?.date?.start), 'milliseconds'),
+        member_data: {
+          id: d.room_info?.room_id,
+          is_graduate: d.room_info?.member_data?.info?.is_graduate ?? false,
+          name: d.room_info?.member_data?.info?.nicknames?.[0] || d.room_info?.member_data?.name || d.room_info?.name || '',
+          img: d.room_info?.img || '',
+          img_alt: d.room_info?.member_data?.info?.img || '',
+        },
+      })
+    }
+  }
+
+  const memberStats = [...members.values()].map((i) => {
+    const history = (i.history || []) as Log.Live[]
+    const lives = [...history.sort((a, b) => new Date(a.live_info?.date?.start).getTime() - new Date(b.live_info?.date?.start).getTime()) as Log.Live[]]
+    // calculate live streak (live tiap hari tanpa putus)
+    let lastLive: dayjs.Dayjs | null = null
+    let longestStreak = 0
+    let streak = 0
+    let trimmedTotalLive = 0
+    let trimmedIdn = 0
+    let trimmedShowroom = 0
+    for (const live of lives) {
+      const currentDate = dayjs(live.live_info?.date?.start)
+      if (lastLive) {
+        const hourRange = currentDate.diff(lastLive, 'hour')
+        if (hourRange >= 1) {
+          trimmedTotalLive += 1
+          if (live.type === 'idn') {
+            trimmedIdn += 1
+          }
+          else {
+            trimmedShowroom += 1
+          }
+        }
+
+        const dateRange = currentDate.startOf('day').diff(lastLive.startOf('day'), 'day')
+        if (dateRange === 1) {
+          streak += 1
+        }
+        else if (dateRange > 1) {
+          streak += 0
+        }
+      }
+      else {
+        trimmedTotalLive += 1
+        streak += 1
+        if (live.type === 'idn') {
+          trimmedIdn += 1
+        }
+        else {
+          trimmedShowroom += 1
+        }
+      }
+
+      lastLive = currentDate
+      longestStreak = Math.max(streak, longestStreak)
+    }
+
+    const last = lives.pop()
+    return {
+      ...i,
+      live_info: {
+        total: {
+          all: history.length,
+          idn: history.filter(i => i.type === 'idn')?.length,
+          showroom: history.filter(i => i.type === 'showroom')?.length,
+        },
+        total_trimmed: {
+          all: trimmedTotalLive,
+          idn: trimmedIdn,
+          showroom: trimmedShowroom,
+        },
+        avg_duration: Math.floor(history.reduce((a: number, b: Log.Live) => a + (b.live_info?.duration || 0), 0) / history.length),
+      },
+      live_streak: longestStreak,
+      total_gift: Rupiah.format(i.total_gift),
+      last_live: last
+        ? {
+            id: last.data_id,
+            date: last.live_info?.date?.start,
+          }
+        : undefined,
+      history: undefined,
+    }
+  })
+
+  const theaterList = await Theater.find({
+    date: dateRange,
+  }).lean()
+
+  for (const member of memberStats) {
+    const memberData = await IdolMember.findOne({ _id: member.member_data?.member_data }).select({ jkt48id: 1 })
+    let theaterCount = 0
+    const ids = memberData?.jkt48id || []
+    if (memberData?.jkt48id?.length) {
+      theaterCount = theaterList.filter(i => ids.some(id => i.memberIds.map(a => String(a)).includes(String(id)))).length
+    }
+    member.theater_count = theaterCount
+    // member.theater_count = 0
+  }
+
+  return {
+    id: `monthly-${dayjs(dateRange.$gte).format('DDMMYY')}`,
+    live_info: {
+      total: {
+        all: data.length,
+        idn: data.filter(i => i.type === 'idn')?.length,
+        showroom: data.filter(i => i.type === 'showroom')?.length,
+      },
+      total_trimmed: {
+        all: memberStats.reduce((a, i) => a + i.live_info?.total_trimmed?.all, 0),
+        idn: memberStats.reduce((a, i) => a + i.live_info?.total_trimmed?.idn, 0),
+        showroom: memberStats.reduce((a, i) => a + i.live_info?.total_trimmed?.showroom, 0),
+      },
+    },
+    top_gifter: [...fansMap.values()].sort((a, b) => b.total_gift - a.total_gift).slice(0, 50).map((i) => {
+      return {
+        ...i,
+        gift_string: Rupiah.format(i.total_gift),
+      }
+    }),
+    data: memberStats,
+    date: {
+      from: dateRange.$gte,
+      to: dateRange.$lte,
+    },
+  }
+}

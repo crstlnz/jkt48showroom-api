@@ -1,8 +1,8 @@
-import Member from '@/database/schema/48group/Member'
+import IdolMember from '@/database/schema/48group/IdolMember'
 
-export async function getStage48(group: string | null = null): Promise<Admin.I48Member[]> {
+export async function getStage48(group: string | null = null): Promise<IdolMember[]> {
   try {
-    const members: Admin.I48Member[] = await Member.find(group ? { group } : {})
+    const members: IdolMember[] = await IdolMember.find(group ? { group } : {})
       .lean()
     return members
       .sort((a, b) => a.name.localeCompare(b.name))

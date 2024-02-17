@@ -75,10 +75,10 @@ LikedSchema.statics.getList = async function (user_id: string | number): Promise
     data_id: i.data_id,
     member: {
       name: i.room_info?.name ?? 'Member not Found!',
-      img_alt: i.room_info?.member_data?.img ?? i.room_info?.img ?? config.errorPicture,
+      img_alt: i.room_info?.member_data?.info?.img ?? i.room_info?.img ?? config.errorPicture,
       img: i.room_info?.img ?? config.errorPicture,
       url: i.room_info?.url ?? '',
-      is_graduate: i.room_info?.is_group ? false : (i.room_info?.member_data?.isGraduate ?? i.room_id === 332503),
+      is_graduate: i.room_info?.is_group ? false : (i.room_info?.member_data?.info?.is_graduate ?? i.room_id === 332503),
       is_official: i.room_info?.is_group ?? false,
     },
     created_at: i.created_at.toISOString(),

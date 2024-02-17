@@ -31,10 +31,12 @@ async function getNowLiveDirect(
   const members: IMember[] = membersData ?? await getMembers(c)
   const promises: Promise<INowLive | null>[] = []
   for (const member of members) {
+    if (!member.room_id) continue
+    const room_id = member.room_id
     promises.push(
       (async (): Promise<INowLive | null> => {
         try {
-          const data = await getIsLive(member.room_id)
+          const data = await getIsLive(room_id)
           if (!data.ok) return null // if 'ok',this room is on live
           const status = await getRoomStatus({ room_url_key: member.url.startsWith('/') ? member.url.slice(1) : member.url })
           const streamURLS = await getStreamingURL({ room_id: member.room_id })
@@ -43,10 +45,10 @@ async function getNowLiveDirect(
             img: member.img,
             img_alt: member.img_alt,
             url: member.url,
-            room_id: member.room_id,
+            room_id,
             is_graduate: member.is_graduate,
-            is_group: member.is_group,
-            room_exists: member.room_exists,
+            is_group: member.group !== 'official',
+            room_exists: member.sr_exists,
             started_at: (status.started_at ?? 0) * 1000,
             streaming_url_list: streamURLS.streaming_url_list ?? [],
           }
@@ -78,6 +80,7 @@ async function getNowLiveCookies(membersData: IMember[] | null = null, c: Contex
   }
 
   for (const member of members) {
+    if (!member.room_id) continue
     const room = roomMap.get(String(member.room_id))
     if (room) {
       if (room.is_online) {
@@ -102,15 +105,15 @@ async function getNowLiveCookies(membersData: IMember[] | null = null, c: Contex
             room_id: Number(room.room_id),
             started_at: (RoomStatus?.started_at ?? 0) * 1000,
             is_graduate: member.is_graduate,
-            is_group: member.is_group,
-            room_exists: member.room_exists,
+            is_group: member.group !== 'official',
+            room_exists: member.sr_exists,
             streaming_url_list: streamURLS.streaming_url_list ?? [],
             is_premium: isPremium,
           }
         })())
       }
     }
-    else if (member.room_exists) {
+    else if (member.sr_exists) {
       missing.push(member)
     }
   }
@@ -127,6 +130,7 @@ export async function getNowLiveIndirect(membersData: IMember[] | null = null, c
   const members: IMember[] = membersData ?? await getMembers(c)
   const memberMap = new Map<string | number, IMember>()
   for (const member of members) {
+    if (!member.room_id) continue
     memberMap.set(member.room_id, member)
   }
 
@@ -148,8 +152,8 @@ export async function getNowLiveIndirect(membersData: IMember[] | null = null, c
         room_id: room.room_id,
         started_at: (room.started_at ?? 0) * 1000,
         is_graduate: member.is_graduate,
-        is_group: member.is_group,
-        room_exists: member.room_exists,
+        is_group: member.group === 'official',
+        room_exists: member.sr_exists,
         streaming_url_list: room.streaming_url_list ?? [],
       })
     }

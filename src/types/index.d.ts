@@ -23,17 +23,15 @@ interface RecentsQuery {
 interface IMember {
   name: string
   nicknames: string[]
-  bloodType?: string
-  height?: string
   img: string
   img_alt?: string
   url: string
   description?: string
-  group?: string
-  room_id: number
-  room_exists: boolean
+  group?: GroupType
+  room_id?: number
+  sr_exists: boolean
+  socials?: SocialNetwork[]
   is_graduate: boolean
-  is_group: boolean
   generation?: string
   idn_username?: string
 }
@@ -242,7 +240,7 @@ interface IMemberProfileAPI extends IMemberBasicData {
   banner: string
   group: string
   url: string
-  room_id: number
+  showroom_id?: number
   showroom_exists: boolean
   jikosokai?: string
   is_graduate: boolean

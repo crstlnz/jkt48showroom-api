@@ -33,7 +33,7 @@ declare namespace Admin {
 
   interface ApiMemberEditData {
     member: IShowroomMember
-    stage48members: Database.I48Member[]
+    stage48members: IdolMember[]
     jkt48members: JKT48.Member[]
   }
 }

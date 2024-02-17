@@ -1,25 +1,29 @@
 import type { Context } from 'hono'
-import Member from '@/database/schema/48group/Member'
 import { createError } from '@/utils/errorResponse'
 import { uploadImageBuffer } from '@/utils/cloudinary'
+import IdolMember from '@/database/schema/48group/IdolMember'
 
 export async function editMemberData(c: Context) {
   const query = await c.req.parseBody()
   console.log(query)
   const banner = query.banner instanceof File ? await uploadImageBuffer(await (query.banner as File).arrayBuffer()) : query.banner
   const img = query.img instanceof File ? await uploadImageBuffer(await (query.img as File).arrayBuffer()) : query.img
-  const data: Partial<Database.I48Member> = {
+  const data: Partial<IdolMember> = {
     name: query.name.toString(),
-    img,
-    banner,
+    info: {
+      img,
+      banner,
+      jikosokai: query.jikosokai?.toString(),
+      generation: query.generation?.toString(),
+      nicknames: query['nicknames[]'] as any,
+      birthdate: query.birthdate ? new Date(query.birthdate.toString()) : undefined,
+    },
     stage48: query.stage48?.toString(),
-    jikosokai: query.jikosokai?.toString(),
-    group: query.group?.toString(),
-    generation: query.generation?.toString(),
+    group: query.group?.toString() as GroupType,
     jkt48id: query['jkt48id[]'] as any,
-    nicknames: query['nicknames[]'] as any,
-    idn_username: query.idn_username?.toString(),
-    birthdate: query.birthdate ? new Date(query.birthdate.toString()) : undefined,
+    idn: {
+      username: query.idn_username?.toString(),
+    },
   }
 
   const missingSR = query['live_data.missing.showroom']
@@ -46,10 +50,10 @@ export async function editMemberData(c: Context) {
     }
 
     if (socials[0] && (!('url' in socials[0]) || !('title' in socials[0]))) throw createError({ status: 400, message: 'Data is wrong!' })
-    data.socials = socials
+    data.info!.socials = socials
   }
 
-  const member = await Member.findOneAndUpdate(
+  const member = await IdolMember.findOneAndUpdate(
     { _id: query._id },
     {
       $set: data,

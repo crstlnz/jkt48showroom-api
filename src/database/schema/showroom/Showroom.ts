@@ -1,5 +1,5 @@
 import { Schema, model } from 'mongoose'
-import Member from '../48group/Member'
+import IdolMember from '../48group/IdolMember'
 
 const ShowroomSchema = new Schema<Database.IShowroomMember>({
   name: {
@@ -45,7 +45,7 @@ const ShowroomSchema = new Schema<Database.IShowroomMember>({
   },
   member_data: {
     type: Schema.Types.ObjectId,
-    ref: Member,
+    ref: IdolMember,
   },
 })
 
