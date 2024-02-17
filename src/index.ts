@@ -6,10 +6,11 @@ import pkg from '../package.json'
 import { ApiError } from './utils/errorResponse'
 import api from './routes'
 import webhook from './webhooks'
-import { startCron } from './cron'
+
+// import { startCron } from './cron'
 const app = new Hono()
 /// start Cron
-startCron()
+// startCron()
 
 if (!process.env.SECRET) throw new Error('No Secret Environtment!')
 if (!process.env.AUTH_SECRET) throw new Error('No Auth Secret Environtment!')

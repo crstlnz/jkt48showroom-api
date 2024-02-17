@@ -1,5 +1,4 @@
 import { Schema, model } from 'mongoose'
-import Showroom from '../showroom/Showroom'
 
 const memberSchema = new Schema<IdolMember>({
   name: String,
