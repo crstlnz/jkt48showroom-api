@@ -129,7 +129,7 @@ export async function getUserHistory(qq: any = null, userId: string): Promise<IH
         select: '-_id name img url -room_id member_data img_square is_group',
         populate: {
           path: 'member_data',
-          select: '-_id isGraduate img nicknames',
+          select: '-_id info.is_graduate info.img info.nicknames',
         },
       })
       .lean()
@@ -180,11 +180,11 @@ export async function getUserHistory(qq: any = null, userId: string): Promise<IH
         data_id: i.data_id,
         member: {
           name: i.room_info?.name ?? 'Member not Found!',
-          nickname: i.custom ? (i.custom.title ?? i.custom.theater?.title) : i.room_info?.member_data?.nicknames[0] || undefined,
-          img_alt: i.custom?.img ?? i.room_info?.member_data?.img ?? i.room_info?.img_square ?? i.room_info?.img ?? config.errorPicture,
+          nickname: i.custom ? (i.custom.title ?? i.custom.theater?.title) : i.room_info?.member_data?.info?.nicknames[0] || undefined,
+          img_alt: i.custom?.img ?? i.room_info?.member_data?.info?.img ?? i.room_info?.img_square ?? i.room_info?.img ?? config.errorPicture,
           img: i.custom?.img ?? i.room_info?.img ?? config.errorPicture,
           url: i.room_info?.url ?? '',
-          is_graduate: i.room_info?.is_group ? false : (i.room_info?.member_data?.isGraduate ?? i.room_id === 332503),
+          is_graduate: i.room_info?.is_group ? false : (i.room_info?.member_data?.info?.is_graduate ?? i.room_id === 332503),
           is_official: i.room_info?.is_group ?? false,
         },
         created_at: i.created_at.toISOString(),

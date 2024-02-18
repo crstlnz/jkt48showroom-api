@@ -3,7 +3,6 @@ import config from '@/config'
 import cache from '@/utils/cache'
 import IdolMember from '@/database/schema/48group/IdolMember'
 
-const jkt48officialId = 332503
 export async function getMembers(group?: string | null): Promise<IMember[]>
 export async function getMembers(c?: Context): Promise<IMember[]>
 export async function getMembers(c?: Context | string | null): Promise<IMember[]> {
@@ -24,7 +23,6 @@ async function fetch(group: string | null = null): Promise<IMember[]> {
 
     return members
       .map((member) => {
-        console.log(member.name, member.info?.is_graduate)
         return {
           _id: member._id,
           name: member.name,
