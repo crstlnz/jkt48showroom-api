@@ -24,6 +24,7 @@ export async function editMemberData(c: Context) {
     idn: {
       username: query.idn_username?.toString(),
     },
+    slug: query.slug?.toString(),
   }
 
   const missingSR = query['live_data.missing.showroom']

@@ -24,6 +24,7 @@ async function fetch(group: string | null = null): Promise<IMember[]> {
 
     return members
       .map((member) => {
+        console.log(member.name, member.info?.is_graduate)
         return {
           _id: member._id,
           name: member.name,
@@ -36,7 +37,8 @@ async function fetch(group: string | null = null): Promise<IMember[]> {
           socials: member?.info?.socials,
           room_id: member.showroom_id,
           sr_exists: member?.showroom?.room_exists ?? false,
-          is_graduate: member.info?.is_graduate ?? jkt48officialId !== member.showroom_id,
+          wew: `${member.info?.is_graduate}`,
+          is_graduate: member.info?.is_graduate != null ? member.info.is_graduate : member.group !== 'official',
           // is_group: jkt48officialId === member.showroom_id,
           generation: member.info?.generation,
           // bloodType: member.info?.blood_type,
