@@ -37,7 +37,6 @@ async function fetch(group: string | null = null): Promise<IMember[]> {
           socials: member?.info?.socials,
           room_id: member.showroom_id,
           sr_exists: member?.showroom?.room_exists ?? false,
-          wew: `${member.info?.is_graduate}`,
           is_graduate: member.info?.is_graduate != null ? member.info.is_graduate : member.group !== 'official',
           // is_group: jkt48officialId === member.showroom_id,
           generation: member.info?.generation,
