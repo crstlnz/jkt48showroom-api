@@ -39,7 +39,7 @@ async function getNowLiveDirect(
           const data = await getIsLive(room_id)
           if (!data.ok) return null // if 'ok',this room is on live
           const status = await getRoomStatus({ room_url_key: member.url.startsWith('/') ? member.url.slice(1) : member.url })
-          const streamURLS = await getStreamingURL({ room_id: member.room_id })
+          const streamURLS = await getStreamingURL({ room_id: member.room_id }).catch(() => null)
           return {
             name: member.name,
             img: member.img,
@@ -50,7 +50,7 @@ async function getNowLiveDirect(
             is_group: member.group !== 'official',
             room_exists: member.sr_exists,
             started_at: (status.started_at ?? 0) * 1000,
-            streaming_url_list: streamURLS.streaming_url_list ?? [],
+            streaming_url_list: streamURLS?.streaming_url_list ?? [],
           }
         }
         catch (e) {
