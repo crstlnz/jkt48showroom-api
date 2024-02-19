@@ -74,6 +74,7 @@ async function newOnlivesCookies() {
 
 async function getNowLiveCookies(membersData: IMember[] | null = null, c: Context): Promise<INowLive[]> {
   const members: IMember[] = membersData ?? await getMembers(c)
+  console.log(members)
   const rooms = await getAllFollows().catch(() => [])
   const roomMap = new Map<string, ShowroomAPI.RoomFollow>()
   const result: Promise<INowLive>[] = []
