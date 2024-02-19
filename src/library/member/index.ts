@@ -8,13 +8,15 @@ export async function getMembers(c?: Context): Promise<IMember[]>
 export async function getMembers(c?: Context | string | null): Promise<IMember[]> {
   const group = c == null ? '' : typeof c === 'string' ? c : c.req.query('group')
   if (process.env.NODE_ENV === 'development') return await fetch(group)
-  return await cache.fetch(group ? `${group}-members` : 'members', () => fetch(group), 86400000)
+  return await cache.fetch(group ? `${group}-membersv1` : 'membersv1', () => fetch(group), 86400000)
 }
 
 async function fetch(group: string | null = null): Promise<IMember[]> {
   try {
     const options = {} as any
-    if (group) options.group = group
+    options.group = []
+    if (group === 'jkt48') options.group.push('official')
+    if (group) options.group.push(group)
     // if (roomId) options.room_id = roomId
     const members = await IdolMember.find(options)
       // .select('name description img url room_id member_data room_exists generation')
