@@ -79,6 +79,7 @@ async function getNowLiveCookies(membersData: IMember[] | null = null, c: Contex
   const result: Promise<INowLive>[] = []
   const missing = []
 
+  console.log(rooms.length)
   for (const room of rooms) {
     roomMap.set(room.room_id, room)
   }
