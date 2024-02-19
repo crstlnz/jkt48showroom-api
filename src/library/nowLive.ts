@@ -7,14 +7,18 @@ export async function getNowLive(c: Context) {
   if (!promise) {
     promise = new Promise((resolve, reject) => {
       getNowLiveCookies(null, c).then((r) => {
+        console.log('now live cookies', r)
         resolve(r)
         promise = null
       }).catch(() => {
+        console.error(new Error('ERROR CHANGE TO BACKUP'))
         console.log('ERROR change to backup')
         return getNowLiveIndirect(null, c).then((r) => {
           resolve(r)
+          console.log('now live indirect', r)
           promise = null
         }).catch((e) => {
+          console.error(e)
           promise = null
           reject(e)
         })
