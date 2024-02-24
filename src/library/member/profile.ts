@@ -52,7 +52,6 @@ export async function getMemberDetails(slug: string): Promise<IMemberProfileAPI>
     'live_info.duration': -1,
   }).catch(() => null)
 
-  console.log(data.info?.jikosokai)
   return {
     name: data.name,
     stats: {
@@ -117,7 +116,7 @@ export async function oldGetMemberDetails(key: string): Promise<IMemberProfileAP
     })
     .lean()
 
-  if (!data) throw createError({ statusMessage: 'Data not found!', statusCode: 404 })
+  if (!data) throw createError({ statusMessage: `Data not found!`, statusCode: 404 })
   let recentTheater: ITheaterAPI[] = []
   let upcomingTheater: ITheaterAPI[] = []
 

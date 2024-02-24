@@ -7,7 +7,6 @@ export async function getNowLive(c: Context) {
   if (!promise) {
     promise = new Promise((resolve, reject) => {
       getNowLiveCookies(null, c).then((r) => {
-        console.log('now live cookies', r)
         resolve(r)
         promise = null
       }).catch(() => {
@@ -51,7 +50,7 @@ async function getNowLiveDirect(
             url: member.url,
             room_id,
             is_graduate: member.is_graduate,
-            is_group: member.group !== 'official',
+            is_group: member.group === 'official',
             room_exists: member.sr_exists,
             started_at: (status.started_at ?? 0) * 1000,
             streaming_url_list: streamURLS?.streaming_url_list ?? [],
@@ -109,7 +108,7 @@ async function getNowLiveCookies(membersData: IMember[] | null = null, c: Contex
             room_id: Number(room.room_id),
             started_at: (RoomStatus?.started_at ?? 0) * 1000,
             is_graduate: member.is_graduate,
-            is_group: member.group !== 'official',
+            is_group: member.group === 'official',
             room_exists: member.sr_exists,
             streaming_url_list: streamURLS.streaming_url_list ?? [],
             is_premium: isPremium,
