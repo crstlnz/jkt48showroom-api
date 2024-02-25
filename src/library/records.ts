@@ -13,7 +13,7 @@ async function fetchData(c: Context): Promise<ShowroomRecord[]> {
     select: '-_id name img url -room_id member_data',
     populate: {
       path: 'member_data',
-      select: '-_id name img',
+      select: '-_id name info.img slug',
     },
   }
   const members = await getMembers(c)
