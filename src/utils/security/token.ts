@@ -61,22 +61,26 @@ export function checkToken(mustAuth: boolean = true) {
 
 export async function getRefreshedToken(c: Context, refreshToken: string) {
   const decodedRefreshToken = await verify(refreshToken, process.env.AUTH_SECRET!).catch(() => null)
-  const tokenDoc = await RefreshToken.findOne({
-    userId: decodedRefreshToken.id,
-    token: refreshToken,
-  }).catch((e) => {
-    console.log(e)
-    throw e
-  })
-
-  if (tokenDoc && !tokenDoc.isUsed) {
-    tokenDoc.isUsed = true
-    await tokenDoc.save()
-    if (decodedRefreshToken.id && decodedRefreshToken.srId) {
-      const { sessionData } = await createToken(c, decodedRefreshToken.id, decodedRefreshToken.srId)
-      return sessionData
-    }
+  if (decodedRefreshToken.id && decodedRefreshToken.srId) {
+    const { sessionData } = await createToken(c, decodedRefreshToken.id, decodedRefreshToken.srId)
+    return sessionData
   }
+  // const tokenDoc = await RefreshToken.findOne({
+  //   userId: decodedRefreshToken.id,
+  //   token: refreshToken,
+  // }).catch((e) => {
+  //   console.log(e)
+  //   throw e
+  // })
+
+  // if (tokenDoc && !tokenDoc.isUsed) {
+  //   tokenDoc.isUsed = true
+  //   await tokenDoc.save()
+  //   if (decodedRefreshToken.id && decodedRefreshToken.srId) {
+  //     const { sessionData } = await createToken(c, decodedRefreshToken.id, decodedRefreshToken.srId)
+  //     return sessionData
+  //   }
+  // }
 
   throw new Error('Failed to refresh token!')
 }
