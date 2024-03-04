@@ -46,6 +46,7 @@ app.get('/watch/sr_cache', (c) => {
 app.post('/set_graduate', ...handler(setGraduate))
 app.post('/edit_showroom', ...handler(editShowroom))
 app.post('/edit_memberdata', ...handler(editMemberData))
+app.post('/edit/announcement', ...handler(editMemberData))
 app.post('/setlist', ...handler(addOrEditSetlist))
 
 app.post('/member/jikosokai', ...handler(editJikosoukai))

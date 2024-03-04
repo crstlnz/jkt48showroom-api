@@ -74,6 +74,7 @@ export async function getTheaterDetail(c: Context): Promise<IApiTheaterDetailLis
         }),
         date: i.date,
         team: i.team,
+        showroomTheater: i.showroomTheater,
       }
     }),
     date: new Date(data[0]?.date).toISOString(),

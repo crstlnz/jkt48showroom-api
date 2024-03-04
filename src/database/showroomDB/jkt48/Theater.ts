@@ -38,6 +38,18 @@ const theaterSchema = new Schema<JKT48.Theater>({
     id: String,
     img: String,
   },
+  showroomTheater: {
+    entrance_url: String,
+    room_url: String,
+    image: String,
+    premium_live_type: Number,
+    is_onlive: Boolean,
+    title: String,
+    paid_live_id: Number,
+    room_id: Number,
+    room_name: String,
+    start_at: Number,
+  },
 })
 
 theaterSchema.virtual('members', {
