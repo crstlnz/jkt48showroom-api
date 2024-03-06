@@ -5,7 +5,7 @@ import { createError } from '@/utils/errorResponse'
 // Watch.CommentResponse
 const cooldown = new Set()
 const request = new Set()
-const CD_TIME = !Number.isNaN(Number(process.env.COMMENT_COOLDOWN)) ? Number(process.env.COMMENT_COOLDOWN) : 3000
+const CD_TIME = !Number.isNaN(Number(process.env.COMMENT_COOLDOWN)) ? Number(process.env.COMMENT_COOLDOWN) : 2000
 const MAX_REQUEST = !Number.isNaN(Number(process.env.COMMENT_MAX_REQUEST)) ? Number(process.env.COMMENT_MAX_REQUEST) : 10
 export async function sendComment(c: Context): Promise<Response> {
   const body = await c.req.parseBody()
@@ -38,8 +38,10 @@ export async function sendComment(c: Context): Promise<Response> {
     },
     body: params.toString(),
   }).catch((e) => {
-    if (e.data?.errors?.length && e.data.errors[0].code === 1005) {
-      throw createError({ statusCode: 400, statusMessage: 'SMS not authenticated!' })
+    request.delete(uuid)
+    if (e.data?.errors?.length) {
+      console.log(e.response)
+      throw createError({ statusCode: e?.response?.status ?? 400, statusMessage: e?.data?.error ?? 'An error occured' })
     }
     throw createError({ statusCode: 500, statusMessage: 'An error occured!' })
   })

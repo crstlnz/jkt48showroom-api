@@ -31,7 +31,7 @@ export async function getIDNLives(): Promise<IDNLives[]> {
     return data
   }
   catch (e) {
-    if (idnLivesCache.length) {
+    if (idnLivesCache?.length) {
       return idnLivesCache
     }
     throw e
