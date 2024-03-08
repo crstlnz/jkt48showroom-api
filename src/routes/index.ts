@@ -35,6 +35,8 @@ import { getIDNLive } from '@/library/watch/idn'
 import { getWatchData } from '@/library/watch'
 import { passCookie } from '@/library/bot/passCookies'
 import { getSessId } from '@/utils/security/cookies/sessId'
+import { getTheater } from '@/library/jkt48/theater'
+import getEvents from '@/library/jkt48/event'
 
 const app = new Hono()
 
@@ -107,6 +109,8 @@ app.get('/first_data', ...handler(getFirstData, { days: 30 }))
 app.get('/screenshots/:id', ...handler(getScreenshots, { hours: 12 }))
 app.get('/records', ...handler(getRecords, { hours: 12 }))
 app.get('/next_schedule', ...handler(getSchedule, { minutes: 15 }))
+app.get('/event', ...handler(getEvents, { minutes: 5 }))
+app.get('/theater', ...handler(getTheater, { minutes: 5 }))
 app.get('/theater/:id', ...handler(getTheaterDetail, { minutes: 5 }))
 app.get('/news', ...handler(getNews, { minutes: 5 }))
 app.get('/news/:id', ...handler(c => getNewsDetail(c.req.param('id')), { days: 1 }))

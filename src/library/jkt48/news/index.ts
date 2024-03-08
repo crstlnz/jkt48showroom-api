@@ -10,7 +10,7 @@ export async function getNews(c: Context): Promise<IApiNews> {
   const maxPage = Math.ceil(total / perpage)
   if (page < 1) page = 1
   if (page > maxPage) page = maxPage
-  const news = await News.find({}).limit(10).skip((page - 1) * perpage).sort('-date').select('title date label id').lean()
+  const news = await News.find({}).limit(perpage).skip((page - 1) * perpage).sort('-date').select('title date label id').lean()
   return {
     news,
     page,

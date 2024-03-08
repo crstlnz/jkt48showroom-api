@@ -32,7 +32,7 @@ export async function addOrEditSetlist(c: Context) {
     if (banner) {
       const img = await uploadImageBuffer(await banner.arrayBuffer())
       const secure_url = img?.secure_url
-      dataJson.poster = secure_url
+      dataJson.banner = secure_url
     }
 
     await Setlist.updateOne(

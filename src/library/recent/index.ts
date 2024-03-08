@@ -143,7 +143,7 @@ export async function getRecents(c: Context): Promise<IApiRecents> {
         name: i.room_info?.name ?? 'Member not Found!',
         nickname: i.custom ? (i.custom.title ?? i.custom.theater?.title) : i.room_info?.member_data?.info?.nicknames?.[0] || undefined,
         img_alt: i.custom?.img ?? i.room_info?.member_data?.info?.img ?? i.room_info?.img_square ?? i.room_info?.img ?? config.errorPicture,
-        img: i.custom?.img ?? i.room_info?.img ?? config.errorPicture,
+        img: i.custom?.banner ?? i.custom?.img ?? i.room_info?.img ?? i.room_info?.member_data?.info?.img ?? config.errorPicture,
         url: i.room_info?.member_data?.slug ?? i.room_info?.url ?? '',
         is_graduate: i.room_info?.is_group ? false : (i.room_info?.member_data?.info?.is_graduate ?? i.room_id === 332503),
         is_official: i.room_info?.is_group ?? false,
