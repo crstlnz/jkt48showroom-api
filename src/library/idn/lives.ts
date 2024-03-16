@@ -24,7 +24,7 @@ export async function getAllIDNUsername(): Promise<Set<string>> {
 }
 
 let idnLivesCache: IDNLives[] = []
-export async function getIDNLives(): Promise<IDNLives[]> {
+export async function fetchIDN(): Promise<IDNLives[]> {
   try {
     const data = await fetch()
     idnLivesCache = data
@@ -36,6 +36,22 @@ export async function getIDNLives(): Promise<IDNLives[]> {
     }
     throw e
   }
+}
+let promise: Promise<IDNLives[]> | null = null
+export async function getIDNLives(): Promise<IDNLives[]> {
+  if (!promise) {
+    promise = new Promise((resolve, reject) => {
+      fetchIDN().then((r) => {
+        resolve(r)
+        promise = null
+      }).catch((e) => {
+        console.error(e)
+        promise = null
+        reject(e)
+      })
+    })
+  }
+  return await promise
 }
 
 export async function fetch(): Promise<IDNLives[]> {
