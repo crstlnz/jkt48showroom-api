@@ -3,7 +3,7 @@ import RedisManager from './RedisManager'
 
 type cacheType = 'redis' | 'local' | 'auto'
 
-interface CacheOptions {
+interface ICacheOptions {
   cacheType?: cacheType
   key?: string
 }
@@ -15,11 +15,11 @@ class CacheManager {
   private key?: string
   initType: cacheType
   /**
-   * @param {CacheOptions} [opts] - options for cache
-   * @param {CacheOptions} [opts.cacheType] - cacheType is type of the cache
-   * @param {CacheOptions} [opts.key] - key is additional string before the given key (for multiple cache purpose)
+   * @param {ICacheOptions} [opts] - options for cache
+   * @param {ICacheOptions} [opts.cacheType] - cacheType is type of the cache
+   * @param {ICacheOptions} [opts.key] - key is additional string before the given key (for multiple cache purpose)
    */
-  constructor(opts?: CacheOptions) {
+  constructor(opts?: ICacheOptions) {
     this.cache = new LocalCacheManager()
     this.redis = new RedisManager()
     this.cacheType = opts?.cacheType ?? 'auto'
@@ -87,7 +87,7 @@ class CacheManager {
     if (!key) throw new Error('No Key')
     key = this.getKey(key)
     if (this.cacheType === 'redis' || this.cacheType === 'auto') {
-      await this.redis.delete(key).catch(()=>null)
+      await this.redis.delete(key).catch(() => null)
     }
     if (this.cacheType !== 'redis') this.cache.delete(key)
   }

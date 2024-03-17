@@ -102,18 +102,39 @@ interface IApiGift<T, B> {
 type IApiShowroomGift = IApiGift<LogDetail.GiftLog, LogDetail.ShowroomUser>
 type IApiIDNGift = IApiGift<LogDetail.GiftLog, LogDetail.IDNUser>
 
+// interface INowLive {
+//   name: string
+//   img: string
+//   img_alt?: string
+//   url: string
+//   room_id: number
+//   is_graduate: boolean
+//   is_group: boolean
+//   room_exists: boolean
+//   started_at: string | number
+//   streaming_url_list: ShowroomAPI.StreamingURL[]
+//   is_premium?: boolean
+// }
+
+interface StreamingURL {
+  label: string
+  quality: number
+  url: string
+}
+
 interface INowLive {
   name: string
   img: string
   img_alt?: string
-  url: string
+  url_key?: string
+  slug?: string
   room_id: number
   is_graduate: boolean
   is_group: boolean
-  room_exists: boolean
   started_at: string | number
-  streaming_url_list: ShowroomAPI.StreamingURL[]
+  streaming_url_list: StreamingURL[]
   is_premium?: boolean
+  type: 'idn' | 'showroom'
 }
 
 interface INextLive {

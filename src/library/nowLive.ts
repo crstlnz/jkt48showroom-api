@@ -27,7 +27,7 @@ export async function getNowLive(c: Context) {
   return await promise
 }
 
-async function getNowLiveDirect(
+export async function getNowLiveDirect(
   membersData: IMember[] | null = null,
   c: Context,
 ): Promise<INowLive[]> {
@@ -47,13 +47,19 @@ async function getNowLiveDirect(
             name: member.name,
             img: member.img,
             img_alt: member.img_alt,
-            url: member.url,
+            url_key: member.url,
             room_id,
             is_graduate: member.is_graduate,
             is_group: member.group === 'official',
-            room_exists: member.sr_exists,
             started_at: (status.started_at ?? 0) * 1000,
-            streaming_url_list: streamURLS?.streaming_url_list ?? [],
+            type: 'showroom',
+            streaming_url_list: (streamURLS?.streaming_url_list ?? []).filter(i => i.type === 'hls').map((i) => {
+              return {
+                label: i.label,
+                quality: i.quality,
+                url: i.url,
+              }
+            }),
           }
         }
         catch (e) {
@@ -71,7 +77,7 @@ async function newOnlivesCookies() {
   // TODO
 }
 
-async function getNowLiveCookies(membersData: IMember[] | null = null, c: Context): Promise<INowLive[]> {
+export async function getNowLiveCookies(membersData: IMember[] | null = null, c: Context): Promise<INowLive[]> {
   const members: IMember[] = membersData ?? await getMembers(c)
   const rooms = await getAllFollows().catch(() => [])
   const roomMap = new Map<string, ShowroomAPI.RoomFollow>()
@@ -104,13 +110,19 @@ async function getNowLiveCookies(membersData: IMember[] | null = null, c: Contex
             name: room.room_name,
             img: room.image_l,
             img_alt: member.img_alt,
-            url: room.room_url_key,
+            url_key: room.room_url_key,
             room_id: Number(room.room_id),
             started_at: (RoomStatus?.started_at ?? 0) * 1000,
             is_graduate: member.is_graduate,
             is_group: member.group === 'official',
-            room_exists: member.sr_exists,
-            streaming_url_list: streamURLS.streaming_url_list ?? [],
+            type: 'showroom',
+            streaming_url_list: (streamURLS.streaming_url_list ?? []).filter(i => i.type === 'hls').map((i) => {
+              return {
+                label: i.label,
+                quality: i.quality,
+                url: i.url,
+              }
+            }),
             is_premium: isPremium,
           }
         })())
@@ -151,13 +163,19 @@ export async function getNowLiveIndirect(membersData: IMember[] | null = null, c
         name: room.main_name,
         img: room.image,
         img_alt: member.img_alt,
-        url: room.room_url_key,
+        url_key: room.room_url_key,
         room_id: room.room_id,
         started_at: (room.started_at ?? 0) * 1000,
         is_graduate: member.is_graduate,
         is_group: member.group === 'official',
-        room_exists: member.sr_exists,
-        streaming_url_list: room.streaming_url_list ?? [],
+        type: 'showroom',
+        streaming_url_list: (room.streaming_url_list ?? []).filter(i => i.type === 'hls').map((i) => {
+          return {
+            label: i.label,
+            quality: i.quality,
+            url: i.url,
+          }
+        }),
       })
     }
   }
