@@ -3,6 +3,7 @@ import type { JSONValue } from 'hono/utils/types'
 import duration from 'dayjs/plugin/duration'
 import dayjs from 'dayjs'
 import type { Context } from 'hono'
+import type { StatusCode } from 'hono/utils/http-status'
 import cache from './cache'
 
 dayjs.extend(duration)
@@ -33,7 +34,7 @@ export function useCache(cacheOpts?: ((c: Context) => CacheOptions | Utils.Durat
     }
     else {
       const oldJson = c.json
-      const newJson = (object: JSONValue, status?: number | undefined, headers?: any | undefined) => {
+      const newJson = (object: JSONValue, status?: StatusCode | undefined, headers?: any | undefined) => {
         if (status === undefined || status === 200) {
           cache.set(cacheName, object as object, ms)
         }

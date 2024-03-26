@@ -2,6 +2,7 @@ import 'dotenv/config'
 import { serve } from '@hono/node-server'
 import { Hono } from 'hono'
 import { FetchError } from 'ofetch'
+import type { StatusCode } from 'hono/utils/http-status'
 import pkg from '../package.json'
 import { ApiError } from './utils/errorResponse'
 import api from './routes'
@@ -41,14 +42,14 @@ app.onError((err, c) => {
     return c.json({
       ...errJson,
       path,
-    }, errJson.status || 500)
+    }, (errJson.status || 500) as StatusCode)
   }
   else if (err instanceof FetchError) {
     return c.json({
       status: (err as FetchError).status,
       message: (err as FetchError).message,
       path,
-    }, (err as FetchError).status || 500)
+    }, ((err as FetchError).status || 500) as StatusCode)
   }
 
   return c.json({

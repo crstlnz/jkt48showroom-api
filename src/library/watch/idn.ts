@@ -22,7 +22,6 @@ export async function getIDNLive(c: Context): Promise<IDNLivesDetail> {
 }
 
 export async function fetch(c: Context): Promise<IDNLivesDetail> {
-  console.log('wew')
   const lives = await cache.fetch('idnlivess', () => getIDNLives(), 7000)
   const username = c.req.param('id')
   const roomData = await IdolMember.findOne({ 'idn.username': username }).populate<{ showroom: Database.IShowroomMember }>('showroom').catch(() => null)
