@@ -1,4 +1,5 @@
 import type { Context } from 'hono'
+import type { AnyKeys, AnyObject } from 'mongoose'
 import { createError } from '@/utils/errorResponse'
 import { uploadImageBuffer } from '@/utils/cloudinary'
 import IdolMember from '@/database/schema/48group/IdolMember'
@@ -8,16 +9,17 @@ export async function editMemberData(c: Context) {
   console.log(query)
   const banner = query.banner instanceof File ? await uploadImageBuffer(await (query.banner as File).arrayBuffer()) : query.banner
   const img = query.img instanceof File ? await uploadImageBuffer(await (query.img as File).arrayBuffer()) : query.img
-  const data: Partial<IdolMember> = {
+  const infoData: Partial<IdolMember['info']> = {
+    img,
+    banner,
+    jikosokai: query.jikosokai?.toString(),
+    generation: query.generation?.toString(),
+    nicknames: query['nicknames[]'] as any,
+    birthdate: query.birthdate ? new Date(query.birthdate.toString()) : undefined,
+  }
+
+  const data: AnyKeys<IdolMember> & AnyObject = {
     name: query.name.toString(),
-    info: {
-      img,
-      banner,
-      jikosokai: query.jikosokai?.toString(),
-      generation: query.generation?.toString(),
-      nicknames: query['nicknames[]'] as any,
-      birthdate: query.birthdate ? new Date(query.birthdate.toString()) : undefined,
-    },
     stage48: query.stage48?.toString(),
     group: query.group?.toString() as GroupType,
     jkt48id: query['jkt48id[]'] as any,
@@ -51,7 +53,12 @@ export async function editMemberData(c: Context) {
     }
 
     if (socials[0] && (!('url' in socials[0]) || !('title' in socials[0]))) throw createError({ status: 400, message: 'Data is wrong!' })
-    data.info!.socials = socials
+    data['info.socials'] = socials as IdolMember['info']['socials']
+  }
+
+  // because if nested object not using string key like "info.generation" , update query will update the nested object entirely (in case if you want update some field only)
+  for (const key of Object.keys(infoData)) {
+    data[`info.${key}`] = infoData[key as keyof IdolMember['info']]
   }
 
   const member = await IdolMember.findOneAndUpdate(
