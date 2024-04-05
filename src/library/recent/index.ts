@@ -6,6 +6,7 @@ import { getMembers } from '@/library/member'
 import LiveLog from '@/database/live/schema/LiveLog'
 
 export async function getRecents(c: Context): Promise<IApiRecents> {
+  console.log('GET RECENT')
   const qq = c.req.query()
   let type: string | undefined = qq.type || 'showroom'
   if (type === 'all') type = undefined
@@ -40,11 +41,11 @@ export async function getRecents(c: Context): Promise<IApiRecents> {
   let members = []
 
   interface Options {
-    room_id?: number[] | number
-    is_dev?: boolean
+    'room_id'?: number[] | number
+    'is_dev'?: boolean
     'live_info.viewers.peak'?: object
     'live_info.date.end'?: object
-    type?: string
+    'type'?: string
   }
 
   const options: Options = {}

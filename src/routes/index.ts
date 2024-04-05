@@ -13,7 +13,6 @@ import { getMemberDetails } from '@/library/member/profile'
 
 // import { getStats } from '@/library/stats'
 import { getGifts } from '@/library/recent/gifts'
-import { getNowLive } from '@/library/nowLive'
 import { getNextLive } from '@/library/nextLive'
 import { getFirstData } from '@/library/firstData'
 import { getScreenshots } from '@/library/screenshots'
@@ -87,12 +86,12 @@ app.use('/*', async (c, next) => {
 app.get('/idn_lives', ...handler(getIDNLives, { seconds: 45 }))
 
 // TODO fix pagination
-app.get('/recent', ...handler(getRecents, { minutes: 4 }, true))
-app.get('/recent/:id', ...handler(getRecentDetails, { hours: 1 }, true))
+app.get('/recent', ...handler(getRecents, { minutes: 4, useRateLimit: true }))
+app.get('/recent/:id', ...handler(getRecentDetails, { hours: 1, useRateLimit: true }))
 app.get('/recent/:data_id/gifts', ...handler(getGifts, { days: 1 }))
 app.get('/recent/:data_id/stagelist', ...handler(getStageList, { days: 1 }))
 app.get('/member', ...handler(getMembers, { hours: 12 }))
-app.get('/member/:id', ...handler(c => getMemberDetails(c.req.param('id')), { minutes: 30 }, true))
+app.get('/member/:id', ...handler(c => getMemberDetails(c.req.param('id')), { minutes: 30, useRateLimit: true }))
 // app.get('/now_live', ...handler(getNowLive, (c) => {
 //   let group = c.req.query('group')
 //   group = group === 'hinatazaka46' ? 'hinatazaka46' : 'jkt48'

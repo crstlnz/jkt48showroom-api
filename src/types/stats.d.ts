@@ -13,9 +13,9 @@ declare namespace Stats {
   }
 
   interface StatsOptions {
-    room_id?: number | number[]
+    'room_id'?: number | number[]
     'live_info.end_date'?: object | undefined
-    is_dev?: null | boolean
+    'is_dev'?: null | boolean
   }
   interface IStatMember {
     room_id: number

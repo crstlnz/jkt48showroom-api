@@ -9,8 +9,6 @@
 
 import dayjs from 'dayjs'
 import LiveLog from '@/database/live/schema/LiveLog'
-import Member from '@/database/schema/48group/Member'
-import Showroom from '@/database/schema/showroom/Showroom'
 import Theater from '@/database/showroomDB/jkt48/Theater'
 import Stats from '@/database/live/schema/Stats'
 import { createError } from '@/utils/errorResponse'

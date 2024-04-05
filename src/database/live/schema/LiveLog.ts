@@ -5,7 +5,7 @@ import { liveDB } from '../../'
 import Showroom from '../../schema/showroom/Showroom'
 
 interface ILogLiveModel extends Model<Log.Live> {
-  getDetails(id: string | number): Promise<Database.IShowroomLogDetail>
+  getDetails: (id: string | number) => Promise<Database.IShowroomLogDetail>
 }
 
 const liveLogSchema = new Schema<Log.Live, ILogLiveModel>({

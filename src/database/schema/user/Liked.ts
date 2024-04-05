@@ -1,13 +1,12 @@
 import { Schema, model } from 'mongoose'
 import type { Model } from 'mongoose'
-import ShowroomLog from '@schema/showroom/ShowroomLog'
 import Showroom from '@schema/showroom/Showroom'
 import config from '@/config'
 import LiveLog from '@/database/live/schema/LiveLog'
 
 interface ILikedModel extends Model<Database.ILiked> {
-  getList(id: string | number): Promise<Database.LikeList>
-  isLiveLiked(user_id: string | number, id: string): Promise<boolean>
+  getList: (id: string | number) => Promise<Database.LikeList>
+  isLiveLiked: (user_id: string | number, id: string) => Promise<boolean>
 }
 
 const LikedSchema = new Schema<Database.ILiked, ILikedModel>({

@@ -1,8 +1,6 @@
 import type { Context } from 'hono'
-import { ofetch } from 'ofetch'
 import { getNowLiveCookies, getNowLiveIndirect } from './nowLive'
 import { fetchIDN } from './idn/lives'
-import { useSingleProcess } from '@/utils/useSingleProcess'
 import IdolMember from '@/database/schema/48group/IdolMember'
 import { getOnlives } from '@/utils/api/showroom'
 
@@ -10,9 +8,7 @@ import { getOnlives } from '@/utils/api/showroom'
 // let id = 0
 export async function getCombinedNowLive(c: Context) {
   const group = c.req.query('group') === 'hinatazaka46' ? 'hinatazaka46' : 'jkt48'
-  return await useSingleProcess(`combined-now-live-${group}`, async () => {
-    return await fetchCombined(c, group === 'jkt48')
-  })
+  return await fetchCombined(c, group === 'jkt48')
 }
 
 async function showroomNowlive(c: Context): Promise<INowLive[]> {

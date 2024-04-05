@@ -2,6 +2,7 @@ import { parse } from 'node-html-parser'
 import dayjs from 'dayjs'
 import { extractNewsId } from './utils'
 import { sleep } from '@/utils'
+
 const url = 'https://jkt48.com/news/list'
 // dayjs.extend(LocaleData)
 export async function getNewsPage(page = 1, news: JKT48.News[] = [], headers: HeadersInit): Promise<JKT48.News[]> {

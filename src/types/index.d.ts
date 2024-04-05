@@ -354,9 +354,3 @@ interface IDNLivesDetail {
     key?: string
   }
 }
-
-interface CacheOptions {
-  name?: string
-  duration?: Utils.DurationUnits
-  useRateLimit?: boolean
-}

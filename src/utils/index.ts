@@ -1,4 +1,4 @@
-export function getDateRange(type: Stats.IDateRangeType): Stats.IDateRange {
+export function getDateRange(_type: Stats.IDateRangeType): Stats.IDateRange {
   const date = new Date()
   date.setHours(0, 0, 0, -1)
 

@@ -39,8 +39,8 @@ export async function getUserHistory(qq: any = null, userId: string): Promise<IH
 
   interface Options {
     'users.user_id': string | string[]
-    room_id?: number[] | number
-    is_dev?: boolean
+    'room_id'?: number[] | number
+    'is_dev'?: boolean
     'live_info.viewers.peak'?: object
     'live_info.end_date'?: object
   }

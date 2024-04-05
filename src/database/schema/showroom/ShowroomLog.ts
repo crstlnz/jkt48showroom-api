@@ -7,7 +7,7 @@ import ShowroomUser from './ShowroomUser'
 import config from '@/config'
 
 interface IShowroomLogModel extends Model<Database.IShowroomLog> {
-  getDetails(id: string | number): Promise<Database.IShowroomLogDetail>
+  getDetails: (id: string | number) => Promise<Database.IShowroomLogDetail>
 }
 
 const showroomLogSchema = new Schema<Database.IShowroomLog, IShowroomLogModel>({

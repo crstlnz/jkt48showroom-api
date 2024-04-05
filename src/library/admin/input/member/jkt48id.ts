@@ -1,5 +1,4 @@
 import type { Context } from 'hono'
-import Member from '@/database/schema/48group/Member'
 import { createError } from '@/utils/errorResponse'
 import IdolMember from '@/database/schema/48group/IdolMember'
 

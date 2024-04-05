@@ -5,26 +5,17 @@ import dayjs from 'dayjs'
 import type { Context } from 'hono'
 import type { StatusCode } from 'hono/utils/http-status'
 import cache from './cache'
+import type { CacheOptions } from './factory'
 
 dayjs.extend(duration)
 
-export function useCache(cacheOpts?: ((c: Context) => CacheOptions | Utils.DurationUnits) | CacheOptions | Utils.DurationUnits) {
+export function useCache(cacheOpts?: ((c: Context) => CacheOptions) | CacheOptions) {
   return createMiddleware(async (c, next) => {
     if (process.env.NODE_ENV === 'development') return await next()
     const cc = cacheOpts ?? { seconds: 0 }
-
     const opts = typeof cc === 'function' ? cc(c) : cc
-    let cacheName = c.req.url
-    let ms = 0
-    if (opts && 'duration' in opts) {
-      const durationUnits = (opts as CacheOptions)?.duration
-      ms = durationUnits ? dayjs.duration(durationUnits).asMilliseconds() : 0
-      if (ms === 0) return await next()
-      cacheName = (opts as CacheOptions)?.name || c.req.url
-    }
-    else if (opts) {
-      ms = dayjs.duration(opts as Utils.DurationUnits).asMilliseconds()
-    }
+    const cacheName = opts.name ?? c.req.url
+    const ms = dayjs.duration(opts as Utils.DurationUnits).asMilliseconds()
 
     if (ms === 0) return await next()
 
