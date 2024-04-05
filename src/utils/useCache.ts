@@ -11,16 +11,19 @@ dayjs.extend(duration)
 
 const dayjsDurationUnits = ['milliseconds', 'seconds', 'minutes', 'hours', 'days', 'months', 'years', 'weeks']
 function getDurationObject(opts: CacheOptions) {
+  console.log(opts)
   const duration = {} as Record<string, number>
   for (const key of Object.keys(opts)) {
     if (dayjsDurationUnits.includes(key)) duration[key] = opts[key as keyof CacheOptions] as number
   }
+
+  console.log('Hasil', duration)
   return duration
 }
 
 export function useCache(cacheOpts?: ((c: Context) => CacheOptions) | CacheOptions) {
   return createMiddleware(async (c, next) => {
-    if (process.env.NODE_ENV === 'development') return await next()
+    // if (process.env.NODE_ENV === 'development') return await next()
     const cc = cacheOpts ?? { seconds: 0 }
     const opts = typeof cc === 'function' ? cc(c) : cc
     const cacheName = opts.name ?? c.req.url

@@ -97,9 +97,7 @@ app.get('/member/:id', ...handler(c => getMemberDetails(c.req.param('id')), { mi
 //   group = group === 'hinatazaka46' ? 'hinatazaka46' : 'jkt48'
 //   return {
 //     name: `${group}-nowlive`,
-//     duration: {
-//       seconds: 15,
-//     },
+//     seconds: 15,
 //   }
 // }))
 app.get('/now_live', ...handler(getCombinedNowLive, (c) => {
@@ -107,9 +105,7 @@ app.get('/now_live', ...handler(getCombinedNowLive, (c) => {
   group = group === 'hinatazaka46' ? 'hinatazaka46' : 'jkt48'
   return {
     name: `${group}-nowlive`,
-    duration: {
-      seconds: 15,
-    },
+    seconds: 15,
   }
 }))
 
@@ -132,9 +128,7 @@ app.get('/profile', useShowroomSession(), ...handler(getProfile, (c) => {
   const key = `${getSessId(c)}-profile-${c.req.query('room_id')}`
   return {
     name: key,
-    duration: {
-      hours: 1,
-    },
+    hours: 1,
   }
 }))
 
