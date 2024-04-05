@@ -58,10 +58,10 @@ async function queuedFetch(c: Context): Promise<WatchCache | WatchError> {
 
 async function getData(c: Context): Promise<WatchCache | WatchError> {
   const room_url_key = c.req.param('id')
-  // const srId = c.get('user')?.sr_id // disabled because singleprocesses feature
+  const srId = c.get('user')?.sr_id // disabled because singleprocesses feature
   try {
-    const cookies = ``
-    // const cookies = `sr_id=${srId};`
+    // const cookies = ``
+    const cookies = `sr_id=${srId};`
     const data = await getRoomStatus({ room_url_key }, cookies)
     const liveInfo = data.is_live ? (await getLiveInfo({ room_id: data.room_id }, cookies)) : null
     const streamUrl = data.is_live ? (await getStreamingURL({ room_id: data.room_id }, cookies)).streaming_url_list : []
