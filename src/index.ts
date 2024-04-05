@@ -7,6 +7,7 @@ import pkg from '../package.json'
 import { ApiError } from './utils/errorResponse'
 import api from './routes'
 import webhook from './webhooks'
+import { generateShowroomId } from './utils/api/showroom'
 
 // import { startCron } from './cron'
 const app = new Hono()
@@ -58,6 +59,8 @@ app.onError((err, c) => {
     path,
   }, 500)
 })
+
+generateShowroomId()
 
 serve({
   fetch: app.fetch,

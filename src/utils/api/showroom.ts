@@ -3,16 +3,24 @@ import { ofetch as fetchCustom } from 'ofetch'
 const cookies = `sr_id=${process.env.SR_ID};`
 type GiftSize = 'small' | 'medium'
 
+let randomSRId = ''
 const ofetch = fetchCustom.create({
   query: {
     _: new Date().getTime(),
   },
   headers: {
-    'Cookie': cookies,
+    'Cookie': `sr_id=${randomSRId}`,
     'Referer': 'https://www.showroom-live.com/',
     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Safari/537.36',
   },
+  onResponse(context) {
+    randomSRId = context.response.headers.getSetCookie().find(i => i.startsWith('sr_id='))?.split(' ')?.[0] ?? ''
+  },
 })
+
+export async function generateShowroomId() {
+  await ofetch('https://www.showroom-live.com/', { headers: { Cookie: '' } })
+}
 
 export function liveURL(key: string): string {
   return `https://www.showroom-live.com/r${key?.startsWith('/') ? '' : '/'}${key}`
