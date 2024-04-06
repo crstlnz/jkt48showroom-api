@@ -29,9 +29,10 @@ export function useCache(cacheOpts?: ((c: Context) => CacheOptions) | CacheOptio
     let ms = dayjs.duration(getDurationObject(opts)).asMilliseconds()
     if (Number.isNaN(ms)) ms = 0
     if (ms === 0) return await next()
-    const res = opts.useJson ? await cache.get(cacheName) : bodyCache.get(cacheName)
+    const useJson = c.get('useJson')
+    const res = useJson ? await cache.get(cacheName) : bodyCache.get(cacheName)
     if (res) {
-      if (opts.useJson) {
+      if (useJson) {
         return c.json(res)
       }
       else {
@@ -44,7 +45,7 @@ export function useCache(cacheOpts?: ((c: Context) => CacheOptions) | CacheOptio
       }
     }
     else {
-      if (opts.useJson) {
+      if (useJson) {
         const oldJson = c.json
         const newJson = (object: JSONValue, status?: StatusCode | undefined, headers?: any | undefined) => {
           if (status === undefined || status === 200) {
