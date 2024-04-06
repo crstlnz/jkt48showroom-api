@@ -37,6 +37,7 @@ import { getSessId } from '@/utils/security/cookies/sessId'
 import { getTheater } from '@/library/jkt48/theater'
 import getEvents from '@/library/jkt48/event'
 import { getCombinedNowLive } from '@/library/combinedNowLive'
+import getStream from '@/library/stream'
 
 const app = new Hono()
 
@@ -65,13 +66,13 @@ app.use('*', useSessionID())
 //   })
 // })
 
+app.get('/stream', ...handler(getStream, { seconds: 20, useJson: false }))
 app.route('/admin', admin)
 app.route('/auth', auth)
 app.route('/user', user)
+app.route('/showroom', showroom)
 
 app.use('*', useCORS('all'))
-
-app.route('/showroom', showroom)
 
 app.use('/*', async (c, next) => {
   await dbConnect('all')

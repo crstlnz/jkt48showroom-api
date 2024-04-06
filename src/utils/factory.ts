@@ -16,6 +16,7 @@ export interface CacheOptions extends Utils.DurationUnits {
   name?: string
   useRateLimit?: boolean
   useSingleProcess?: boolean
+  useJson?: boolean
 }
 
 const defaultConfig = {
@@ -28,6 +29,7 @@ export function handler(fetch: (c: Context) => Promise<any>, opts?: ((c: Context
     const config = defu(typeof opts === 'function' ? opts(c) : opts ?? {}, defaultConfig)
     c.set('useRateLimit', config.useRateLimit)
     c.set('useSingleProcess', config.useSingleProcess)
+    c.set('useJson', config.useJson)
 
     const ms = dayjs.duration(config ?? {}).asSeconds()
     if (ms !== 0 && process.env.NODE_ENV !== 'development') c.header('Cache-Control', `max-age=${ms}, must-revalidate`)

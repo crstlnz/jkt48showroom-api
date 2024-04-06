@@ -6,7 +6,6 @@ import { createError } from './errorResponse'
 const processes = new Map<string, Promise<any>>()
 export async function useSingleProcess<T>(id: string, process: () => Promise<T>): Promise<T> {
   let promise = processes.get(id)
-  console.log(id, promise)
   if (promise) {
     return await promise
   }
@@ -27,6 +26,7 @@ export function useRateLimitSingleProcess(fetch: (c: Context) => any) {
     const config = {
       useRateLimit: c.get('useRateLimit'),
       useSingleProcess: c.get('useSingleProcess'),
+      useJson: c.get('useJson') ?? true,
     }
 
     const rateLimitFetch = async () => {
@@ -45,10 +45,20 @@ export function useRateLimitSingleProcess(fetch: (c: Context) => any) {
     }
 
     if (config.useSingleProcess) {
-      return c.json(await useSingleProcess(c.req.url, fetchData))
+      if (config.useJson) {
+        return c.json(await useSingleProcess(c.req.url, fetchData))
+      }
+      else {
+        return c.body(await useSingleProcess(c.req.url, fetchData))
+      }
     }
     else {
-      return await fetchData()
+      if (config.useJson) {
+        return c.json(await fetchData())
+      }
+      else {
+        return c.body(await fetchData())
+      }
     }
   })
 }

@@ -11,15 +11,14 @@ dayjs.extend(duration)
 
 const dayjsDurationUnits = ['milliseconds', 'seconds', 'minutes', 'hours', 'days', 'months', 'years', 'weeks']
 function getDurationObject(opts: CacheOptions) {
-  console.log(opts)
   const duration = {} as Record<string, number>
   for (const key of Object.keys(opts)) {
     if (dayjsDurationUnits.includes(key)) duration[key] = opts[key as keyof CacheOptions] as number
   }
-
-  console.log('Hasil', duration)
   return duration
 }
+
+const bodyCache = new Map<string, any>()
 
 export function useCache(cacheOpts?: ((c: Context) => CacheOptions) | CacheOptions) {
   return createMiddleware(async (c, next) => {
@@ -29,22 +28,55 @@ export function useCache(cacheOpts?: ((c: Context) => CacheOptions) | CacheOptio
     const cacheName = opts.name ?? c.req.url
     let ms = dayjs.duration(getDurationObject(opts)).asMilliseconds()
     if (Number.isNaN(ms)) ms = 0
-    console.log(ms, opts)
     if (ms === 0) return await next()
-
-    const res = await cache.get(cacheName)
+    const res = opts.useJson ? await cache.get(cacheName) : bodyCache.get(cacheName)
     if (res) {
-      return c.json(res)
+      if (opts.useJson) {
+        return c.json(res)
+      }
+      else {
+        const headers = res.headers
+        for (const header of headers) {
+          c.header(header.key, header.value)
+        }
+        console.log(headers)
+        return c.body(res.data)
+      }
     }
     else {
-      const oldJson = c.json
-      const newJson = (object: JSONValue, status?: StatusCode | undefined, headers?: any | undefined) => {
-        if (status === undefined || status === 200) {
-          cache.set(cacheName, object as object, ms)
+      if (opts.useJson) {
+        const oldJson = c.json
+        const newJson = (object: JSONValue, status?: StatusCode | undefined, headers?: any | undefined) => {
+          if (status === undefined || status === 200) {
+            cache.set(cacheName, object as object, ms)
+          }
+          return oldJson(object as any, status, headers)
         }
-        return oldJson(object as any, status, headers)
+        c.json = newJson as any
       }
-      c.json = newJson as any
+      else {
+        const oldBody = c.body
+        const newBody = (data: any | null, status?: StatusCode | undefined, headers?: any | undefined) => {
+          if (status === undefined || status === 200) {
+            let headerArray = []
+            try {
+              headerArray = JSON.parse(c.get('custom_headers')) ?? []
+              for (const header of headerArray) {
+                c.header(header.key, header.value)
+              }
+            }
+            catch (e) {
+              console.log(e)
+            }
+            bodyCache.set(cacheName, {
+              headers: headerArray,
+              data,
+            })
+          }
+          return oldBody(data, status, headers)
+        }
+        c.body = newBody as any
+      }
       await next()
     }
   })
