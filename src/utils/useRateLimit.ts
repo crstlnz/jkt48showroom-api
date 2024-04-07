@@ -1,5 +1,5 @@
 const rateLimit = new Set()
-const maxConcurrentProcess = Number(process.env.MAX_CONCURRENT_PROCESS ?? 20)
+const maxConcurrentProcess = Number(process.env.MAX_CONCURRENT_PROCESS ?? 15)
 
 export interface RateLimitedResponse {
   limited: true

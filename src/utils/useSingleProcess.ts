@@ -32,9 +32,16 @@ export function useRateLimitSingleProcess(fetch: (c: Context) => any) {
     const rateLimitFetch = async () => {
       const limit = useRateLimit()
       if (limit.limited) throw createError({ statusCode: 429, statusMessage: 'Rate limit!' })
-      const data = await fetch(c)
-      if (limit && !limit.limited) limit?.clear()
-      return data
+      try {
+        const data = await fetch(c)
+        limit.clear()
+        return data
+      }
+      catch (e) {
+        console.error(e)
+        limit.clear()
+        throw e
+      }
     }
 
     const fetchData = async () => {
