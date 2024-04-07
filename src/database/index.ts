@@ -61,14 +61,18 @@ export const liveDB = db.live
 type DatabaseName = 'dcDB' | 'jkt48DB' | 'liveDB'
 export async function dbConnect(dbList: DatabaseName[] | DatabaseName | 'all') {
   const loadAll = dbList === 'all'
-
-  if (loadAll || dbList === 'dcDB' || dbList.includes('dcDB')) {
-    await db.dcPromise
+  try {
+    if (loadAll || dbList === 'dcDB' || dbList.includes('dcDB')) {
+      await db.dcPromise
+    }
+    if (loadAll || dbList === 'jkt48DB' || dbList.includes('jkt48DB')) {
+      await db.jkt48Promise
+    }
+    if (loadAll || dbList === 'liveDB' || dbList.includes('liveDB')) {
+      await db.livePromise
+    }
   }
-  if (loadAll || dbList === 'jkt48DB' || dbList.includes('jkt48DB')) {
-    await db.jkt48Promise
-  }
-  if (loadAll || dbList === 'liveDB' || dbList.includes('liveDB')) {
-    await db.livePromise
+  catch (e) {
+    console.error(e)
   }
 }
