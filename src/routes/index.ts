@@ -66,7 +66,7 @@ app.use('*', useSessionID())
 //   })
 // })
 
-app.get('/stream', ...handler(getStream, { seconds: 20, useJson: false }))
+app.get('/stream', useCORS('self'), ...handler(getStream, { seconds: 20, useJson: false }))
 app.route('/admin', admin)
 app.route('/auth', auth)
 app.route('/user', user)

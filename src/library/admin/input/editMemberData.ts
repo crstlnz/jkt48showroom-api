@@ -6,7 +6,6 @@ import IdolMember from '@/database/schema/48group/IdolMember'
 
 export async function editMemberData(c: Context) {
   const query = await c.req.parseBody()
-  console.log(query)
   const banner = query.banner instanceof File ? await uploadImageBuffer(await (query.banner as File).arrayBuffer()) : query.banner
   const img = query.img instanceof File ? await uploadImageBuffer(await (query.img as File).arrayBuffer()) : query.img
   const infoData: Partial<IdolMember['info']> = {
@@ -71,9 +70,7 @@ export async function editMemberData(c: Context) {
     },
   )
 
+  const newMember = await IdolMember.findOne({ _id: query._id })
   if (member == null) throw createError({ statusCode: 400, message: 'Bad request!' })
-  return {
-    code: 200,
-    message: 'Request success!',
-  }
+  return newMember
 }

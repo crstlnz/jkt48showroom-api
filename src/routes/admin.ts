@@ -22,6 +22,7 @@ import { useCORS } from '@/utils/cors'
 import getMissingJKT48ID from '@/library/admin/missingJKT48ID'
 import { editJKT48ID } from '@/library/admin/input/member/jkt48id'
 import { getMemberDataForEdits } from '@/library/admin/getMemberData'
+import { setMemberData } from '@/library/admin/input/setMemberData'
 
 const app = new Hono()
 app.use('*', useCORS('self'))
@@ -43,6 +44,7 @@ app.get('/watch/sr_cache', (c) => {
   })
 })
 
+app.post('/set_memberdata', ...handler(setMemberData))
 app.post('/set_graduate', ...handler(setGraduate))
 app.post('/edit_showroom', ...handler(editShowroom))
 app.post('/edit_memberdata', ...handler(editMemberData))
