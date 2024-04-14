@@ -4,7 +4,7 @@ import { createFactory } from 'hono/factory'
 // import { cache } from 'hono/cache'
 import dayjs from 'dayjs'
 import defu from 'defu'
-import { useCache } from './useCache'
+import { getDurationObject, useCache } from './useCache'
 import { useRateLimitSingleProcess } from './useSingleProcess'
 
 const factory = createFactory()
@@ -34,7 +34,7 @@ export function handler(fetch: (c: Context) => Promise<any>, opts?: ((c: Context
     c.set('useSingleProcess', config.useSingleProcess)
     c.set('useJson', config.useJson)
     c.set('cacheClientOnly', config.cacheClientOnly)
-    const ms = dayjs.duration(config ?? {}).asSeconds()
+    const ms = dayjs.duration(getDurationObject(config ?? {})).asSeconds()
     if (ms !== 0 && process.env.NODE_ENV !== 'development') c.header('Cache-Control', `max-age=${ms}, must-revalidate`)
     return await next()
   }), useCache(opts), useRateLimitSingleProcess(fetch))

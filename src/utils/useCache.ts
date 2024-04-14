@@ -10,7 +10,7 @@ import type { CacheOptions } from './factory'
 dayjs.extend(duration)
 
 const dayjsDurationUnits = ['milliseconds', 'seconds', 'minutes', 'hours', 'days', 'months', 'years', 'weeks']
-function getDurationObject(opts: CacheOptions) {
+export function getDurationObject(opts: CacheOptions) {
   const duration = {} as Record<string, number>
   for (const key of Object.keys(opts)) {
     if (dayjsDurationUnits.includes(key)) duration[key] = opts[key as keyof CacheOptions] as number
