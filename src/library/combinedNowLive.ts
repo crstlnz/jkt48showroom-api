@@ -1,4 +1,5 @@
 import type { Context } from 'hono'
+import dayjs from 'dayjs'
 import { getNowLiveCookies, getNowLiveIndirect } from './nowLive'
 import { fetchIDN } from './idn/lives'
 import IdolMember from '@/database/schema/48group/IdolMember'
@@ -40,7 +41,7 @@ async function showroomNowlive(c: Context): Promise<INowLive[]> {
             url: s.url,
           }
         }),
-        started_at: i.started_at * 1000,
+        started_at: dayjs(i.started_at * 1000).toISOString(),
       }
     })
   }
@@ -63,7 +64,7 @@ async function idnNowLive(): Promise<INowLive[]> {
       room_id: member?.showroom_id || 0,
       is_graduate: member?.info.is_graduate ?? false,
       is_group: member?.group === 'official',
-      started_at: i.live_at,
+      started_at: dayjs(i.live_at).toISOString(),
       streaming_url_list: [{
         label: 'original',
         quality: 1,

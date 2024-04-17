@@ -1,4 +1,5 @@
 import type { Context } from 'hono'
+import dayjs from 'dayjs'
 import { getMembers } from './member'
 import { getAllFollows, getIsLive, getOnlives, getRoomStatus, getStreamingURL } from '@/utils/api/showroom'
 
@@ -44,7 +45,7 @@ export async function getNowLiveDirect(
             room_id,
             is_graduate: member.is_graduate,
             is_group: member.group === 'official',
-            started_at: (status.started_at ?? 0) * 1000,
+            started_at: dayjs((status.started_at ?? 0) * 1000).toISOString(),
             type: 'showroom',
             streaming_url_list: (streamURLS?.streaming_url_list ?? []).filter(i => i.type === 'hls').map((i) => {
               return {
@@ -105,7 +106,7 @@ export async function getNowLiveCookies(membersData: IMember[] | null = null, c:
             img_alt: member.img_alt,
             url_key: room.room_url_key,
             room_id: Number(room.room_id),
-            started_at: (RoomStatus?.started_at ?? 0) * 1000,
+            started_at: dayjs((RoomStatus?.started_at ?? 0) * 1000).toISOString(),
             is_graduate: member.is_graduate,
             is_group: member.group === 'official',
             type: 'showroom',
@@ -158,7 +159,7 @@ export async function getNowLiveIndirect(membersData: IMember[] | null = null, c
         img_alt: member.img_alt,
         url_key: room.room_url_key,
         room_id: room.room_id,
-        started_at: (room.started_at ?? 0) * 1000,
+        started_at: dayjs((room.started_at ?? 0) * 1000).toISOString(),
         is_graduate: member.is_graduate,
         is_group: member.group === 'official',
         type: 'showroom',
