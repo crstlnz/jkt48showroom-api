@@ -1,4 +1,5 @@
 import { ofetch } from 'ofetch'
+import { sleep } from '@/utils'
 
 interface YoutubeThumbnail {
   url: string
@@ -25,6 +26,7 @@ export async function getJKT48VLive() {
     return (await searchYoutube()).filter(i => jkt48v_ids.includes(i.channelId))
   }
   catch (e) {
+    console.error(e)
     throw new Error('Youtube search failed!')
   }
 }
@@ -53,6 +55,9 @@ async function searchYoutube(result: JKT48VLiveResults[] = [], nextPageToken: st
     }
   }))
 
-  if (data.nextPageToken != null) return searchYoutube(result, data.nextPageToken)
+  if (data.nextPageToken != null) {
+    await sleep(100)
+    return searchYoutube(result, data.nextPageToken)
+  }
   return result
 }
