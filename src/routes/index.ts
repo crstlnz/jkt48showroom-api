@@ -39,6 +39,7 @@ import getEvents from '@/library/jkt48/event'
 import { getCombinedNowLive } from '@/library/combinedNowLive'
 import getStream from '@/library/stream'
 import { getLeaderboard } from '@/library/leaderboard'
+import { getJKT48VLive } from '@/library/jkt48v'
 
 const app = new Hono()
 
@@ -88,6 +89,7 @@ app.use('/*', async (c, next) => {
 // app.get('/stats', ...handler(stats))
 ///
 app.get('/idn_lives', ...handler(getIDNLives, { seconds: 45 }))
+app.get('/jkt48v_live', ...handler(getJKT48VLive, { seconds: 30 }))
 
 // TODO fix pagination
 app.get('/recent', ...handler(getRecents, { minutes: 4, useRateLimit: true }))
