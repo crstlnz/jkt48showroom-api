@@ -1,5 +1,4 @@
 import { ofetch } from 'ofetch'
-import IdolMember from '@/database/schema/48group/IdolMember'
 
 interface YoutubeThumbnail {
   url: string
@@ -36,7 +35,7 @@ async function searchYoutube(result: JKT48VLiveResults[] = [], nextPageToken: st
       part: 'snippet',
       eventType: 'live',
       type: 'video',
-      key: process.env.YOUTUBE_API ?? '',
+      key: process.env.YOUTUBE_KEY ?? '',
       q: 'JKT48V',
       pageToken: nextPageToken ?? undefined,
     },
