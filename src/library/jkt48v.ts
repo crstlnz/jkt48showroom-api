@@ -22,7 +22,12 @@ interface JKT48VLiveResults {
 
 const jkt48v_ids = (process.env.JKT48V_YT_IDS ?? '').split(',').map(i => i.trim())
 export async function getJKT48VLive() {
-  return (await searchYoutube()).filter(i => jkt48v_ids.includes(i.channelId))
+  try {
+    return (await searchYoutube()).filter(i => jkt48v_ids.includes(i.channelId))
+  }
+  catch (e) {
+    throw new Error('Youtube search failed!')
+  }
 }
 
 async function searchYoutube(result: JKT48VLiveResults[] = [], nextPageToken: string | null = null) {
