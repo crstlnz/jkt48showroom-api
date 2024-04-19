@@ -38,6 +38,7 @@ import { getTheater } from '@/library/jkt48/theater'
 import getEvents from '@/library/jkt48/event'
 import { getCombinedNowLive } from '@/library/combinedNowLive'
 import getStream from '@/library/stream'
+import { getLeaderboard } from '@/library/leaderboard'
 
 const app = new Hono()
 
@@ -71,6 +72,8 @@ app.route('/admin', admin)
 app.route('/auth', auth)
 app.route('/user', user)
 app.route('/showroom', showroom)
+
+app.get('/leaderboard', useCORS('self'), ...handler(getLeaderboard, { minutes: 10 }))
 
 app.use('*', useCORS('all'))
 

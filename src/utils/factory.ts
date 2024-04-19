@@ -35,7 +35,11 @@ export function handler(fetch: (c: Context) => Promise<any>, opts?: ((c: Context
     c.set('useJson', config.useJson)
     c.set('cacheClientOnly', config.cacheClientOnly)
     const ms = dayjs.duration(getDurationObject(config ?? {})).asSeconds()
-    if (ms !== 0 && process.env.NODE_ENV !== 'development') c.header('Cache-Control', `max-age=${ms}, must-revalidate`)
+
+    if (process.env.NODE_ENV !== 'development') return await next()
+    if (ms === 0) return await next()
+
+    c.header('Cache-Control', `max-age=${ms}, must-revalidate`)
     return await next()
   }), useCache(opts), useRateLimitSingleProcess(fetch))
 }
