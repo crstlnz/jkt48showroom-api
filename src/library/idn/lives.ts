@@ -24,9 +24,9 @@ export async function getAllIDNUsername(): Promise<Set<string>> {
 }
 
 let idnLivesCache: IDNLives[] = []
-export async function fetchIDN(): Promise<IDNLives[]> {
+export async function fetchIDN(debug: boolean = false): Promise<IDNLives[]> {
   try {
-    const data = await fetch()
+    const data = await fetch(debug)
     idnLivesCache = data
     return data
   }
@@ -54,7 +54,7 @@ export async function getIDNLives(): Promise<IDNLives[]> {
   return await promise
 }
 
-export async function fetch(): Promise<IDNLives[]> {
+export async function fetch(debug: boolean = false): Promise<IDNLives[]> {
   const res = await ofetch(`https://api.idn.app/graphql`, {
     headers: {
       'Content-Type': 'application/json',
@@ -75,7 +75,7 @@ export async function fetch(): Promise<IDNLives[]> {
       return usernames.has(i.creator?.username || '0')
     })
 
-    if (process.env.NODE_ENV === 'development') {
+    if (debug) {
       if (filtered.length) {
         result.push(...filtered)
       }

@@ -108,9 +108,10 @@ app.get('/member/:id', ...handler(c => getMemberDetails(c.req.param('id')), { mi
 // }))
 app.get('/now_live', ...handler(getCombinedNowLive, (c) => {
   let group = c.req.query('group')
+  const debug = c.req.query('debug')
   group = group === 'hinatazaka46' ? 'hinatazaka46' : 'jkt48'
   return {
-    name: `${group}-nowlive`,
+    name: `${group}-nowlive${debug ?? ''}`,
     seconds: 15,
   }
 }))

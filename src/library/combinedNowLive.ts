@@ -22,10 +22,11 @@ async function showroomNowlive(c: Context): Promise<INowLive[]> {
     res = await getNowLiveIndirect(null, c)
   }
 
-  if (process.env.NODE_ENV === 'development') {
-    if (res.length) return res
+  const isDebug = c.req.query('debug') === 'true'
+  if (isDebug) {
+    if (res.filter(i => !i.is_group).length) return res
     const data = await getOnlives()
-    return (data?.onlives[0]?.lives ?? []).splice(0, 4).map<INowLive>((i) => {
+    return [...res, ...(data?.onlives[0]?.lives ?? []).splice(0, 4).map<INowLive>((i) => {
       return {
         name: i.main_name ?? 'Test name',
         img: i.image ?? 'https://static.showroom-live.com/image/room/cover/ee38ccf437e220f7ce8149c1c8aac94d6dca66734334bdad84c94bf41e78d3e0_square_s.png?v=1670924861',
@@ -43,15 +44,15 @@ async function showroomNowlive(c: Context): Promise<INowLive[]> {
         }),
         started_at: dayjs(i.started_at * 1000).toISOString(),
       }
-    })
+    })]
   }
   else {
     return res
   }
 }
 
-async function idnNowLive(): Promise<INowLive[]> {
-  const idnLives = await fetchIDN()
+async function idnNowLive(debug: boolean = false): Promise<INowLive[]> {
+  const idnLives = await fetchIDN(debug)
   const members = await IdolMember.find({ 'idn.username': idnLives.map(i => i.user?.username || 'empty') }).lean()
   return idnLives.map((i) => {
     const member = members.find(m => m.idn?.username === i.user?.username)
@@ -79,7 +80,8 @@ async function fetchCombined(c: Context, idn: boolean): Promise<INowLive[]> {
   const sr = await showroomNowlive(c)
   const res = [...sr]
   if (idn) {
-    const idn = await idnNowLive()
+    const isDebug = c.req.query('debug')
+    const idn = await idnNowLive(isDebug === 'true')
     res.push(...idn)
   }
   return res

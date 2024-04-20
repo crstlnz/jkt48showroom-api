@@ -22,7 +22,7 @@ const bodyCache = new Map<string, any>()
 
 export function useCache(cacheOpts?: ((c: Context) => CacheOptions) | CacheOptions) {
   return createMiddleware(async (c, next) => {
-    // if (process.env.NODE_ENV === 'development') return await next()
+    if (process.env.NODE_ENV === 'development') return await next()
     if (c.get('cacheClientOnly')) return await next()
     const cc = cacheOpts ?? { seconds: 0 }
     const opts = typeof cc === 'function' ? cc(c) : cc
