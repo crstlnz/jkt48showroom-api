@@ -191,4 +191,5 @@ liveLogSchema.virtual('room_info', {
 liveLogSchema.index({ data_id: 1 }, { unique: true })
 liveLogSchema.index({ data_id: 1, room_id: 1 })
 liveLogSchema.index({ 'users.user_id': 1, 'room_id': 1 })
+liveLogSchema.index({ live_id: 1 })
 export default liveDB.model<Log.Live, ILogLiveModel>('LiveLog', liveLogSchema)

@@ -309,7 +309,10 @@ export async function parseIDN(data: Log.IDN): Promise<LogDetail.IDN> {
 
 export async function getRecentDetails(c: Context): Promise<LogDetail.Showroom | LogDetail.IDN> {
   const id = c.req.param('id')
-  const data = await LiveLog.findOne({ data_id: id })
+  const data = await LiveLog.findOne({ $or: [
+    { data_id: id },
+    { live_id: id },
+  ] })
     .populate({
       path: 'room_info',
       options: {
