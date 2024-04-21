@@ -312,6 +312,7 @@ export async function getRecentDetails(c: Context): Promise<LogDetail.Showroom |
   const data = await LiveLog.findOne({ $or: [
     { data_id: id },
     { live_id: id },
+    { live_id: Number(id) },
   ] })
     .populate({
       path: 'room_info',
