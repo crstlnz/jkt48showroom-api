@@ -1,5 +1,5 @@
-import type { RedisKey } from 'ioredis'
-import redis from '@utils/redis'
+import { Redis, type RedisKey } from 'ioredis'
+// import redis from '@utils/redis'
 
 interface WithExpire<T> {
   expireIn: number
@@ -8,8 +8,10 @@ interface WithExpire<T> {
 
 class RedisManager {
   maxRetry: number
+  redis: Redis
   delay: number // retry delay
   constructor() {
+    this.redis = new Redis(process.env.REDIS_URI ?? '')
     this.maxRetry = 2
     this.delay = 1000
   }
@@ -30,7 +32,7 @@ class RedisManager {
   }
 
   async delete(key: string | number) {
-    return await redis.del(String(key))
+    return await this.redis.del(String(key))
   }
 
   async get<T>(key: RedisKey | string | number, withExpire?: true, retry?: number): Promise<WithExpire<T> | null>
@@ -43,9 +45,9 @@ class RedisManager {
   ): Promise<T | WithExpire<T> | null> {
     if (retry > 0) await this.sleep(this.delay)
     try {
-      const expireIn = await redis.pttl(key as RedisKey)
+      const expireIn = await this.redis.pttl(key as RedisKey)
       if (expireIn <= 0) return null
-      const d = await redis.get(key as RedisKey)
+      const d = await this.redis.get(key as RedisKey)
       if (!d) return null
       const data = this.parse(d) as T
       if (!withExpire) return data
@@ -72,7 +74,7 @@ class RedisManager {
   ): Promise<void> {
     if (retry > 0) await this.sleep(this.delay)
     try {
-      await redis.set(String(key), JSON.stringify(value), 'PX', ms)
+      await this.redis.set(String(key), JSON.stringify(value), 'PX', ms)
     }
     catch (e) {
       if (retry < this.maxRetry) {
@@ -85,7 +87,7 @@ class RedisManager {
   }
 
   async clear() {
-    await redis.flushall()
+    await this.redis.flushall()
   }
 }
 
