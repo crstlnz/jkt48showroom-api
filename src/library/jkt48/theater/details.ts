@@ -5,7 +5,7 @@ import IdolMember from '@/database/schema/48group/IdolMember'
 
 export async function getTheaterDetail(c: Context): Promise<IApiTheaterDetailList> {
   const id = c.req.param('id')
-  const data = await Theater.find({ id: { $regex: new RegExp(`^(${id}|^${id}(?:-\\d+))$`) } })
+  const data = await Theater.find({ $or: [{ id: { $regex: new RegExp(`^(${id}|^${id}(?:-\\d+))$`) } }, { 'showroomTheater.paid_live_id': id }] })
     .populate<{ members: JKT48.Member[] }>('members')
     .populate<{ setlist: JKT48.Setlist }>('setlist')
     .populate<{ seitansai: JKT48.Member[] }>('seitansai')
