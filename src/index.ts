@@ -60,7 +60,7 @@ app.onError((err, c) => {
   }, 500)
 })
 
-generateShowroomId()
+generateShowroomId().catch(e=> console.error(e))
 
 serve({
   fetch: app.fetch,

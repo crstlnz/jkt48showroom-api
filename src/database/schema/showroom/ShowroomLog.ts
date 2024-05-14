@@ -76,7 +76,6 @@ const showroomLogSchema = new Schema<Database.IShowroomLog, IShowroomLogModel>({
       is_excitement: Boolean,
     },
     duration: {
-      index: true,
       type: Number,
       default: 0,
     },
@@ -92,7 +91,6 @@ const showroomLogSchema = new Schema<Database.IShowroomLog, IShowroomLogModel>({
   },
   room_id: {
     type: Number,
-    index: true,
   },
   gift_data: {
     free_gifts: {
@@ -284,7 +282,4 @@ showroomLogSchema.statics.getDetails = async function (dataId: string | number):
   }
 }
 
-showroomLogSchema.index({ data_id: 1 }, { unique: true })
-showroomLogSchema.index({ data_id: 1, room_id: 1, is_dev: 1 })
-showroomLogSchema.index({ 'users.user_id': 1, 'room_id': 1, 'is_dev': 1 })
 export default model<Database.IShowroomLog, IShowroomLogModel>('ShowroomLog', showroomLogSchema)
