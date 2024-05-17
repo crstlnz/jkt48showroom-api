@@ -127,6 +127,7 @@ declare namespace Database {
   }
 
   interface PremiumTheaterData {
+    paid_live_id?: number
     title: string
     setlist_id: string
     price: number

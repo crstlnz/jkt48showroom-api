@@ -1,6 +1,7 @@
 import Fuse from 'fuse.js'
 import ShowroomLog from '@schema/showroom/ShowroomLog'
 import type { Context } from 'hono'
+import dayjs from 'dayjs'
 import config from '@/config'
 import { getMembers } from '@/library/member'
 import LiveLog from '@/database/live/schema/LiveLog'
@@ -148,7 +149,7 @@ export async function getRecents(c: Context): Promise<IApiRecents> {
         is_graduate: i.room_info?.is_group ? false : (i.room_info?.member_data?.info?.is_graduate ?? i.room_id === 332503),
         is_official: i.room_info?.is_group ?? false,
       },
-      created_at: i.created_at.toISOString(),
+      created_at: dayjs(i.created_at).toISOString(),
       live_info: {
         duration: i.live_info?.duration ?? 0,
         viewers: i.live_info?.viewers?.peak
