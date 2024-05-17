@@ -1,5 +1,6 @@
 import ShowroomGift from '@schema/showroom/ShowroomGift'
 import type { Context } from 'hono'
+import dayjs from 'dayjs'
 import { calculateFansPoints } from '../fansPoints'
 import { createError } from '@/utils/errorResponse'
 import config from '@/config'
@@ -28,7 +29,7 @@ export async function parseBase(data: Log.Live): Promise<LogDetail.Base> {
     },
     total_gifts: data.total_gifts,
     gift_rate: data.gift_rate,
-    created_at: data.created_at.toISOString(),
+    created_at: dayjs(data.created_at).toISOString(),
   }
 }
 
