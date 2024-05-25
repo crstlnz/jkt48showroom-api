@@ -20,7 +20,7 @@ export function getDecodedToken(c: Context): ShowroomLogin.User | null {
   return null
 }
 
-export const tokenCaches = new Map<string, { accessToken: string, refreshToken: string, to: NodeJS.Timeout }>()
+export const tokenCaches = new Map<string, { accessToken: string, refreshToken: string, to: Timer }>()
 
 export function checkToken(mustAuth: boolean = true) {
   return createMiddleware(async (c, next) => {

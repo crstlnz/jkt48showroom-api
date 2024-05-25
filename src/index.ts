@@ -1,5 +1,4 @@
 import 'dotenv/config'
-import { serve } from '@hono/node-server'
 import { Hono } from 'hono'
 import { FetchError } from 'ofetch'
 import type { StatusCode } from 'hono/utils/http-status'
@@ -61,18 +60,4 @@ app.onError((err, c) => {
 })
 
 generateShowroomId().catch(e => console.error(e))
-
-serve({
-  fetch: app.fetch,
-  port: Number(process.env.PORT || 3000),
-})
-
-process.on('exit', (_code) => {
-  console.log('APP stopped !')
-})
-
-process.on('unhandledRejection', error => console.error(error))
-process.on('uncaughtException', async (err) => {
-  console.error('Uncaught Exception!', err)
-  process.exit(1)
-})
+export default app

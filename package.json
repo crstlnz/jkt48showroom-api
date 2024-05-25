@@ -6,9 +6,9 @@
   "scripts": {
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
-    "dev": "tsx watch src/index.ts",
+    "dev": "bun run --hot src/index.ts",
     "build": "rimraf ./.output && tsc && tsc-alias",
-    "start": "node .output/index.js"
+    "start": "bun .output/index.js"
   },
   "dependencies": {
     "@hono/node-server": "^1.8.2",
