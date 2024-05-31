@@ -39,33 +39,6 @@ export function generateUUID() {
   return crypto.randomUUID()
 }
 
-// export function generateCSRF(c: Context) {
-//   const userAgent = c.req.header('user-agent')
-//   const sessIdCookie = getSessId(c)
-//   const token = getAccessToken(c)
-//   const decodedToken = token ? decode(token) : null
-//   const sessId = sessIdCookie || generateUUID()
-//   if (sessIdCookie == null) {
-//     setSessId(c, sessId)
-//   }
-//   const data = `${userAgent}-${sessId}-${dayjs().startOf('day').toISOString()}${decodedToken?.payload?.sr_id ? `-${decodedToken.payload.sr_id}` : ''}`
-//   return hashWithSecret(data, process.env.SECRET || '')
-// }
-
-// export function useCSRF() {
-//   return createMiddleware((c, next) => {
-//     const csrfToken = c.req.header('X-CSRF-TOKEN')
-//     const csrf = generateCSRF(c)
-//     if (csrfToken !== csrf) {
-//       throw createError({
-//         status: 403,
-//         message: 'Forbidden!',
-//       })
-//     }
-//     return next()
-//   })
-// }
-
 export function useSessionID() {
   return createMiddleware((c, next) => {
     const sessIdCookie = getSessId(c)

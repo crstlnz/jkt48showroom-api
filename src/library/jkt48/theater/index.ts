@@ -38,7 +38,7 @@ export async function getTheaterList(page: number, perpage: number, options?: Fi
     const setlist = setlistData.find(s => s.id === i.setlistId)
     return {
       id: i.id,
-      title: i.title,
+      title: i.title.trim(),
       banner: setlist?.banner,
       poster: setlist?.poster,
       member_count: i.memberIds.length ?? 0,
@@ -75,4 +75,8 @@ export async function getTheater(c: Context): Promise<IApiTheater> {
     perpage,
     total_count: total,
   }
+}
+
+export async function getTheaterById(id: string): Promise<JKT48.Theater | null> {
+  return await Theater.findOne({ id }).lean()
 }

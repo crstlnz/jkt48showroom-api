@@ -23,6 +23,11 @@ import getMissingJKT48ID from '@/library/admin/missingJKT48ID'
 import { editJKT48ID } from '@/library/admin/input/member/jkt48id'
 import { getMemberDataForEdits } from '@/library/admin/getMemberData'
 import { setMemberData } from '@/library/admin/input/setMemberData'
+import { getTheater, getTheaterById } from '@/library/jkt48/theater'
+import Theater from '@/database/showroomDB/jkt48/Theater'
+import { notFound } from '@/utils/errorResponse'
+import Member from '@/database/showroomDB/jkt48/Member'
+import { editTheater } from '@/library/admin/input/editTheater'
 
 const app = new Hono()
 app.use('*', useCORS('self'))
@@ -44,9 +49,16 @@ app.get('/watch/sr_cache', (c) => {
   })
 })
 
+app.get('/theater/:id', async (c) => {
+  const theater = await getTheaterById(c.req.param('id'))
+  if (!theater) throw notFound()
+  return c.json(theater)
+})
+
 app.post('/set_memberdata', ...handler(setMemberData))
 app.post('/set_graduate', ...handler(setGraduate))
 app.post('/edit_showroom', ...handler(editShowroom))
+app.post('/edit_theater', ...handler(editTheater))
 app.post('/edit_memberdata', ...handler(editMemberData))
 app.post('/edit/announcement', ...handler(editMemberData))
 app.post('/setlist', ...handler(addOrEditSetlist))

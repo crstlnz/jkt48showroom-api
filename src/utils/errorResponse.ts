@@ -19,3 +19,10 @@ export function createError(data: Utils.ErrorData): ApiError {
     message: data.statusMessage || data.message || 'An error occured!',
   })
 }
+
+export function notFound() {
+  return createError({
+    status: 404,
+    message: 'Not found!',
+  })
+}
