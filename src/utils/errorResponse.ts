@@ -1,7 +1,7 @@
 export class ApiError extends Error {
   data: Utils.ErrorData
   constructor(data: Utils.ErrorData) {
-    super(data.error?.message || data.message)
+    super(data?.error?.message || data?.message || 'Unknown Error!')
     this.data = data
   }
 

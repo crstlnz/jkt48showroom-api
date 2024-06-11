@@ -103,10 +103,10 @@ export async function createToken(c: Context, user_id: string, sr_id: string) {
     exp: currentTime + refreshTokenTime,
   }, process.env.AUTH_SECRET!)
 
-  await new RefreshToken({
-    userId: user_id,
-    token: refreshToken,
-  }).save()
+  // await new RefreshToken({
+  //   userId: user_id,
+  //   token: refreshToken,
+  // }).save()
 
   setAccessToken(c, accessToken)
   setRefreshToken(c, refreshToken)

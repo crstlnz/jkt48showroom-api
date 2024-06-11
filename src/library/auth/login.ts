@@ -1,10 +1,8 @@
 import { ofetch } from 'ofetch'
 import type { Context } from 'hono'
 import { parseCookieString } from '@/utils'
-import RefreshToken from '@/database/schema/auth/RefreshToken'
 import { createError } from '@/utils/errorResponse'
 import { clearToken, createToken } from '@/utils/security/token'
-import { getRefreshToken } from '@/utils/security/cookies/refreshToken'
 import { getShowroomSession } from '@/utils/showroomSession'
 import { createHandlers } from '@/utils/factory'
 import { deleteShowroomSess } from '@/utils/security/cookies/showroomSess'
@@ -78,11 +76,6 @@ export async function logoutHandler(c: Context, sr_id?: string) {
       method: 'POST',
       body: body.toString(),
     })
-
-    const refreshToken = getRefreshToken(c)
-    if (refreshToken) {
-      await RefreshToken.deleteMany({ token: refreshToken })
-    }
 
     clearToken(c)
     deleteShowroomSess(c)
