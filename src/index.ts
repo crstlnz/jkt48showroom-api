@@ -35,7 +35,7 @@ app.notFound((c) => {
 })
 
 app.onError((err, c) => {
-  console.error(err.stack)
+  console.error(err)
   const path = c.req.path
   if (err instanceof ApiError) {
     const errJson = err.toJSON()
