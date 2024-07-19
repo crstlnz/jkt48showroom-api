@@ -39,14 +39,15 @@ export async function editMemberData(c: Context) {
     }
   }
 
-  const rawSocials = query['socials[]'] as any[]
+  const rawSocials = query['socials[]'] as unknown as any[]
   if (rawSocials) {
     const socials = []
     for (const s of rawSocials) {
       try {
         socials.push(JSON.parse(s))
       }
-      catch (e) {
+      catch (_e) {
+        console.log(_e)
         throw createError({ status: 400, message: 'Data parse error!' })
       }
     }

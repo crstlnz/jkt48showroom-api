@@ -9,11 +9,12 @@ import { deleteRefreshToken, getRefreshToken, refreshTokenTime, setRefreshToken 
 import { getSessId } from './cookies/sessId'
 import { isAdmin } from '.'
 import { logoutHandler as logout } from '@/library/auth/login'
+import type { ShowroomLogin } from '@/types/auth'
 
 export function getDecodedToken(c: Context): ShowroomLogin.User | null {
   const token = getAccessToken(c)
   if (token) {
-    return decode(token).payload
+    return decode(token).payload as ShowroomLogin.User
   }
 
   return null
@@ -40,8 +41,9 @@ export function checkToken(mustAuth: boolean = true) {
 
       if (!token && refreshToken) {
         const token = decode(refreshToken)
-        if (token.payload.srId) {
-          logout(c, token.payload.srId)
+        const payload = token.payload as ShowroomLogin.User
+        if (payload.sr_id) {
+          logout(c, payload.sr_id)
         }
       }
       else if (token) {
@@ -59,9 +61,9 @@ export function checkToken(mustAuth: boolean = true) {
 }
 
 export async function getRefreshedToken(c: Context, refreshToken: string) {
-  const decodedRefreshToken = await verify(refreshToken, process.env.AUTH_SECRET!).catch(() => null)
-  if (decodedRefreshToken.id && decodedRefreshToken.srId) {
-    const { sessionData } = await createToken(c, decodedRefreshToken.id, decodedRefreshToken.srId)
+  const decodedRefreshToken = await verify(refreshToken, process.env.AUTH_SECRET!).catch(() => null) as ShowroomLogin.User
+  if (decodedRefreshToken && decodedRefreshToken?.id && decodedRefreshToken.sr_id) {
+    const { sessionData } = await createToken(c, decodedRefreshToken.id, decodedRefreshToken.sr_id)
     return sessionData
   }
   throw new Error('Failed to refresh token!')
@@ -98,7 +100,7 @@ export async function createToken(c: Context, user_id: string, sr_id: string) {
 
   const refreshToken = await sign({
     id: user_id,
-    srId: sr_id,
+    sr_id,
     exp: currentTime + refreshTokenTime,
   }, process.env.AUTH_SECRET!)
 

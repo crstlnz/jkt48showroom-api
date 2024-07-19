@@ -7,6 +7,7 @@ import { getShowroomSession } from '@/utils/showroomSession'
 import { createHandlers } from '@/utils/factory'
 import { deleteShowroomSess } from '@/utils/security/cookies/showroomSess'
 import { deleteSessId } from '@/utils/security/cookies/sessId'
+import type { ShowroomLogin } from '@/types/auth'
 
 export function login() {
   return createHandlers(async (c) => {

@@ -5,6 +5,7 @@ import { ofetch } from 'ofetch'
 import { getShowroomSess, setShowroomSess } from './security/cookies/showroomSess'
 import { getDecodedToken } from './security/token'
 import { parseCookieString } from '.'
+import type { ShowroomLogin } from '@/types/auth'
 
 export async function createShowroomSession(c: Context): Promise<ShowroomLogin.Session> {
   const user = c.get('user') || getDecodedToken(c)
@@ -31,7 +32,7 @@ export async function createShowroomSession(c: Context): Promise<ShowroomLogin.S
 }
 
 export async function getShowroomSession(c: Context): Promise<{ session: ShowroomLogin.Session, setCookie: boolean }> {
-  let sess = await verify(getShowroomSess(c) || '', process.env.SECRET!).catch(() => null)
+  let sess = await verify(getShowroomSess(c) || '', process.env.SECRET!).catch(() => null) as ShowroomLogin.Session | null
   let setCookie = false
   const user = c.get('user')
   if (((!sess?.sr_id || !sess?.csrf_token) && !c.get('showroom_session'))) {
@@ -46,7 +47,7 @@ export async function getShowroomSession(c: Context): Promise<{ session: Showroo
   }
 
   return {
-    session: sess,
+    session: sess!,
     setCookie,
   }
 }

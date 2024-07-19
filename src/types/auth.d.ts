@@ -1,3 +1,5 @@
+import type { JWTPayload } from 'hono/utils/jwt/types'
+
 interface LoginData {
   csrf?: string
   username?: string
@@ -25,12 +27,12 @@ declare namespace ShowroomLogin {
     captcha_url?: string
   }
 
-  interface Session {
+  interface Session extends JWTPayload {
     sr_id: string
     csrf_token: string
   }
 
-  interface User {
+  interface User extends JWTPayload {
     id: string
     name: string
     account_id: string
