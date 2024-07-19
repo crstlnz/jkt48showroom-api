@@ -8,7 +8,6 @@ import { accessTokenTime, deleteAccessToken, getAccessToken, setAccessToken } fr
 import { deleteRefreshToken, getRefreshToken, refreshTokenTime, setRefreshToken } from './cookies/refreshToken'
 import { getSessId } from './cookies/sessId'
 import { isAdmin } from '.'
-import RefreshToken from '@/database/schema/auth/RefreshToken'
 import { logoutHandler as logout } from '@/library/auth/login'
 
 export function getDecodedToken(c: Context): ShowroomLogin.User | null {
