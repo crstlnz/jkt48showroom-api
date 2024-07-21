@@ -1,5 +1,5 @@
-import crypto from 'crypto'
-import { Buffer } from 'buffer'
+import crypto from 'node:crypto'
+import { Buffer } from 'node:buffer'
 import { createMiddleware } from 'hono/factory'
 import { getSessId, setSessId } from './cookies/sessId'
 
@@ -9,8 +9,10 @@ function generateIV(): Buffer {
 
 const algorithm = 'aes-256-cbc'
 export function encrypt(text: string): string {
+  console.log('wew')
   const iv = generateIV()
-  const cipher = crypto.createCipheriv(algorithm, Buffer.from(process.env.SECRET!), iv)
+  const key = Buffer.from(process.env.SECRET!)
+  const cipher = crypto.createCipheriv(algorithm, key, iv)
   let encrypted = cipher.update(text)
   encrypted = Buffer.concat([encrypted, cipher.final()])
   return `${iv.toString('hex')}:${encrypted.toString('hex')}`

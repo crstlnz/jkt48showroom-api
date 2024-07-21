@@ -76,7 +76,7 @@ app.route('/showroom', showroom)
 
 app.get('/leaderboard', useCORS('self'), ...handler(getLeaderboard, { minutes: 10 }))
 
-app.use('*', useCORS('all'))
+app.use('*', useCORS('self'))
 
 app.use('/*', async (c, next) => {
   await dbConnect('all')
