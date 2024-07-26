@@ -7,6 +7,7 @@ import config from '@/config'
 import LiveLog from '@/database/live/schema/LiveLog'
 import { StageList } from '@/database/showroomDB/StageList'
 import { IDNGift } from '@/database/live/schema/idn/Gift'
+import UserLog from '@/database/userDB/UserLog'
 
 export async function parseBase(data: Log.Live): Promise<LogDetail.Base> {
   return {
@@ -318,14 +319,18 @@ export async function getRecentDetails(c: Context): Promise<LogDetail.Showroom |
     .populate({
       path: 'room_info',
       options: {
-        select: '-_id name img url -room_id member_data is_group generation group img_square',
+        select: '-_id name img url -room_id member_data is_group generation group img_square -users',
         populate: {
           path: 'member_data',
           select: 'info name slug',
         },
       },
     }).lean()
+
   if (!data) throw createError({ statusMessage: 'Data not found!', statusCode: 404 })
+  const userData = await UserLog.findOne({ data_id: data.data_id })
+  data.users = userData?.users ?? []
+
   if (data.type === 'showroom') {
     return parseShowroom(data as Log.Showroom)
   }

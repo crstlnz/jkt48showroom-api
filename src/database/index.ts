@@ -8,9 +8,11 @@ declare global {
   var _clientDC: Connection
   var _clientJKT48: Connection
   var _clientLive: Connection
+  var _clientUserDB: Connection
   var _promiseDC: Promise<Mongoose>
   var _promiseJKT48: Promise<Connection>
   var _promiseLive: Promise<Connection>
+  var _promiseUserDB: Promise<Connection>
 }
 
 class DB {
@@ -23,6 +25,9 @@ class DB {
 
   live: Connection
   livePromise: Promise<Connection>
+
+  user: Connection
+  userPromise: Promise<Connection>
   private constructor() {
     const isDev = process.env.NODE_ENV === 'development'
     this.dc = isDev && global._clientDC ? global._clientDC : mongoose.connection
@@ -34,6 +39,9 @@ class DB {
     this.live = (isDev && global._clientLive) ? global._clientLive : mongoose.createConnection(process.env.MONGODB_URI_LIVE_DB || '')
     this.livePromise = (isDev && global._promiseLive) ? global._promiseLive : this.live.asPromise()
 
+    this.user = (isDev && global._clientUserDB) ? global._clientLive : mongoose.createConnection(process.env.MONGODB_URI_USER_DB || '')
+    this.userPromise = (isDev && global._promiseUserDB) ? global._promiseUserDB : this.live.asPromise()
+
     this.dc.on('open', () => {
       console.log('MongoDB connected!')
     })
@@ -42,6 +50,9 @@ class DB {
     })
     this.live.on('open', () => {
       console.log('LiveDB connected!')
+    })
+    this.user.on('open', () => {
+      console.log('UserDB connected!')
     })
   }
 
@@ -57,8 +68,9 @@ export const db = DB.instance
 export const dcDB = db.dc
 export const jkt48DB = db.jkt48
 export const liveDB = db.live
+export const userDB = db.user
 
-type DatabaseName = 'dcDB' | 'jkt48DB' | 'liveDB'
+type DatabaseName = 'dcDB' | 'jkt48DB' | 'liveDB' | 'userDB'
 export async function dbConnect(dbList: DatabaseName[] | DatabaseName | 'all') {
   const loadAll = dbList === 'all'
   try {
@@ -70,6 +82,9 @@ export async function dbConnect(dbList: DatabaseName[] | DatabaseName | 'all') {
     }
     if (loadAll || dbList === 'liveDB' || dbList.includes('liveDB')) {
       await db.livePromise
+    }
+    if (loadAll || dbList === 'userDB' || dbList.includes('userDB')) {
+      await db.userPromise
     }
   }
   catch (e) {

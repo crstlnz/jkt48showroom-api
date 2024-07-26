@@ -8,6 +8,7 @@ function generateIV(): Buffer {
 }
 
 const algorithm = 'aes-256-cbc'
+
 export function encrypt(text: string): string {
   console.log('wew')
   const iv = generateIV()

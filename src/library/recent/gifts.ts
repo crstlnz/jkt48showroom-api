@@ -3,6 +3,7 @@ import type { Context } from 'hono'
 import config from '@/config'
 import LiveLog from '@/database/live/schema/LiveLog'
 import { createError } from '@/utils/errorResponse'
+import UserLog from '@/database/userDB/UserLog'
 
 function notEmpty<TValue>(value: TValue | null | undefined): value is TValue {
   return value !== null && value !== undefined
@@ -11,8 +12,10 @@ function notEmpty<TValue>(value: TValue | null | undefined): value is TValue {
 export async function getGifts(c: Context): Promise<IApiShowroomGift | IApiIDNGift> {
   const data_id = c.req.param('data_id') || ''
 
-  const data = await LiveLog.findOne({ data_id }).select({ gift_data: 1, users: 1 }).lean()
+  const data = await LiveLog.findOne({ data_id }).select({ gift_data: 1, type: 1, users: -1 }).lean()
   if (!data) throw createError({ status: 404, message: 'Gifts not found!' })
+  const userData = await UserLog.findOne({ data_id }).select({ users: 1 }).lean()
+  data.users = userData?.users ?? []
   if (data.type === 'showroom') {
     return parseGift(c, data as Log.Showroom)
   }

@@ -17,7 +17,7 @@ const verifySaweria = createMiddleware(async (c, next) => {
   const signature = c.req.header(HEADER_NAME)
   const hmac = crypto.createHmac('sha256', String(process.env.SAWERIA_KEY)).update(parsePayloadToHmacData(await c.req.json())).digest('hex')
   try {
-    const success = crypto.timingSafeEqual(Buffer.from(hmac), Buffer.from(String(signature)))
+    const success = crypto.timingSafeEqual(Buffer.from(hmac) as any, Buffer.from(String(signature)) as any)
     if (!success) throw new Error('Unauthorized!')
     await next()
   }

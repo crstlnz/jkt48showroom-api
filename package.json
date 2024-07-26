@@ -1,5 +1,5 @@
 {
-  "version": "0.7.10",
+  "version": "0.8.0",
   "packageManager": "pnpm@8.9.0+sha1.01c55344d677f3b481c6bb6ffba9a6b3c6dbd91d",
   "scripts": {
     "lint": "eslint .",
