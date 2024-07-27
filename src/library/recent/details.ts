@@ -316,10 +316,11 @@ export async function getRecentDetails(c: Context): Promise<LogDetail.Showroom |
     { live_id: id },
     { live_id: Number(id) },
   ] })
+    .select('-users')
     .populate({
       path: 'room_info',
       options: {
-        select: '-_id name img url -room_id member_data is_group generation group img_square -users',
+        select: '-_id name img url -room_id member_data is_group generation group img_square',
         populate: {
           path: 'member_data',
           select: 'info name slug',
