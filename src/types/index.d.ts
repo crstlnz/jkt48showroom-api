@@ -338,6 +338,51 @@ interface IDNLives {
   stream_url: string
 }
 
+interface IDNLiveMobileAPI {
+  slug: string
+  title: string
+  image_url: string
+  view_count: number
+  playback_url: string
+  status: string
+  room_identifier: string
+  live_at: number
+  end_at: number
+  scheduled_at: number
+  gift_icon_url: string
+  category: ICategory
+  creator: ICreator
+}
+
+interface ICategory {
+  name: string
+  slug: string
+}
+
+interface ICreator {
+  name: string
+  image_url: string
+  uuid: string
+  username: string
+  is_follow: boolean
+  total_gold: number
+}
+
+interface IDNLivesMobileAPI {
+  status: number
+  user_message?: {
+    title: string
+    message: string
+  }
+  data: Live[]
+  error?: {
+    message: string
+    reason: string
+    error_user_title: string
+    error_user_msg: string
+  }
+}
+
 interface IDNLivesDetail {
   user?: IDNUser
   image?: string

@@ -29,7 +29,7 @@ import { getProfile } from '@/library/room/profile'
 import { useShowroomSession } from '@/utils/showroomSession'
 import { handler } from '@/utils/factory'
 import { useCORS } from '@/utils/cors'
-import { getIDNLives } from '@/library/idn/lives'
+import { fetchIDN, getIDNLives } from '@/library/idn/lives'
 import { getIDNLive } from '@/library/watch/idn'
 import { getWatchData } from '@/library/watch'
 import { passCookie } from '@/library/bot/passCookies'
@@ -88,7 +88,7 @@ app.use('/*', async (c, next) => {
 
 // app.get('/stats', ...handler(stats))
 ///
-// app.get('/idn_lives', ...handler(getIDNLives, { seconds: 45 }))
+app.get('/idn_lives', ...handler(() => fetchIDN(false), { seconds: 30, minutes: 1, useSingleProcess: true }))
 app.get('/jkt48v_live', ...handler(getJKT48VLive, { seconds: 30 }))
 
 // TODO fix pagination
@@ -112,7 +112,7 @@ app.get('/now_live', ...handler(getCombinedNowLive, (c) => {
   group = group === 'hinatazaka46' ? 'hinatazaka46' : 'jkt48'
   return {
     name: `${group}-nowlive${debug ?? ''}`,
-    seconds: 15,
+    seconds: 30,
   }
 }))
 
