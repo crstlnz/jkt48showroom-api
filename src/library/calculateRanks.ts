@@ -37,7 +37,7 @@ export function calculateRanks(logs: Log.Showroom[], stageListData: Database.ISt
   }
 
   const users = logs.reduce<Log.ShowroomMiniUser[]>((a, b) => {
-    for (const user of b.users) {
+    for (const user of b.users ?? []) {
       a.push({
         name: user.name,
         avatar_id: user.avatar_id,

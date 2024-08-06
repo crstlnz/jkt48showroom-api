@@ -37,4 +37,5 @@ const userLogSchema = new Schema<UserLog>({
 
 // liveLogSchema.index({ data_id: 1 }, { unique: true })
 // liveLogSchema.index({ data_id: 1, room_id: 1, is_dev: 1 })
+userLogSchema.index({ 'users.user_id': 1 })
 export default userDB.model('UserLog', userLogSchema)

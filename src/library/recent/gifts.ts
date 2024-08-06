@@ -27,7 +27,7 @@ export async function getGifts(c: Context): Promise<IApiShowroomGift | IApiIDNGi
 function getUserShowroom(data: Log.Showroom, gifts: Log.UserGifts[]) {
   const users = []
   for (const usr of gifts) {
-    const u = data?.users.find(i => i.user_id === usr.user_id)
+    const u = data?.users?.find(i => i.user_id === usr.user_id)
     if (u) {
       users.push({
         id: u.user_id,
@@ -43,7 +43,7 @@ function getUserShowroom(data: Log.Showroom, gifts: Log.UserGifts[]) {
 function getUserIDN(data: Log.IDN, gifts: Log.UserGifts[]) {
   const users = []
   for (const usr of gifts) {
-    const u = data?.users.find(i => i.user_id === usr.user_id)
+    const u = data?.users?.find(i => i.user_id === usr.user_id)
     if (u) {
       users.push({
         id: u.user_id,

@@ -11,7 +11,7 @@ declare namespace Log {
     gift_rate: number // gift rate showroom in jpy
     room_info?: Database.IShowroomMember
     created_at: Date
-    users: Log.ShowroomMiniUser[] | Log.IDNMiniUser[]
+    users?: Log.ShowroomMiniUser[] | Log.IDNMiniUser[] // users field dipindah ke database baru
     type: Type
   }
 
@@ -100,7 +100,7 @@ declare namespace Log {
       gift_log: UserGifts[]
     }
     live_info: IDNLiveInfo
-    users: IDNMiniUser[]
+    users?: IDNMiniUser[]
     type: 'idn'
   }
 
@@ -112,7 +112,7 @@ declare namespace Log {
       gift_id_list: number[]
       gift_log: UserGifts[]
     }
-    users: ShowroomMiniUser[]
+    users?: ShowroomMiniUser[]
     type: 'showroom'
   }
 

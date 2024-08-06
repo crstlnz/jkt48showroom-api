@@ -356,7 +356,7 @@ export async function getMonthly(date?: string | number | Date | dayjs.Dayjs | n
   for (const d of data) {
     for (const fans of d.gift_data.gift_log) {
       const f = fansMap.get(fans.user_id)
-      const fansInfo = d.users.find(i => i.user_id === fans.user_id)
+      const fansInfo = d.users?.find(i => i.user_id === fans.user_id)
       if (f) {
         f.total_gift += fans.total * d.gift_rate
         f.total_live += 1

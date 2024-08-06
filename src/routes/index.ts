@@ -88,7 +88,7 @@ app.use('/*', async (c, next) => {
 
 // app.get('/stats', ...handler(stats))
 ///
-app.get('/idn_lives', ...handler(getIDNLives, { seconds: 45 }))
+// app.get('/idn_lives', ...handler(getIDNLives, { seconds: 45 }))
 app.get('/jkt48v_live', ...handler(getJKT48VLive, { seconds: 30 }))
 
 // TODO fix pagination
