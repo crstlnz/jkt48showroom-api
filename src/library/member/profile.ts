@@ -1,4 +1,5 @@
 import Showroom from '@schema/showroom/Showroom'
+import { getSousenkyoMembers } from '../jkt48/scraper/sousenkyo'
 import { createError } from '@/utils/errorResponse'
 import Theater from '@/database/showroomDB/jkt48/Theater'
 import LiveLog from '@/database/live/schema/LiveLog'
@@ -9,6 +10,8 @@ export async function getMemberDetails(slug: string): Promise<IMemberProfileAPI>
   if (!data) throw createError({ statusMessage: 'Data not found!', statusCode: 404 })
   let recentTheater: ITheaterAPI[] = []
   let upcomingTheater: ITheaterAPI[] = []
+
+  const sousenkyoData = await getSousenkyoMembers()
 
   if (data.group === 'jkt48' && data.jkt48id) {
     const next = await Theater.find({ memberIds: { $in: data.jkt48id }, date: { $gte: new Date() } }).populate<{ setlist: JKT48.Setlist }>('setlist').sort({ date: -1 }).limit(4)
@@ -103,6 +106,7 @@ export async function getMemberDetails(slug: string): Promise<IMemberProfileAPI>
     is_group: data.showroom?.is_group ?? false,
     url: data.slug ?? data.showroom?.url,
     birthdate: data.info?.birthdate,
+    sousenkyo: sousenkyoData?.find(s => data.jkt48id?.includes(s.id)),
     recentTheater,
     upcomingTheater,
   }

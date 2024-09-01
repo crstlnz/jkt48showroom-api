@@ -21,19 +21,19 @@ export async function getRecents(c: Context): Promise<IApiRecents> {
   const order = Number.parseInt((query.order ?? '-1') as string) || -1
   function getSort(sort: SortType): string {
     return `${order < 0 ? '-' : ''}${(() => {
-        switch (sort) {
-          case 'date':
-            return 'live_info.date.end'
-          case 'gift':
-            return 'c_gift'
-          case 'views':
-            return 'live_info.viewers.peak'
-          case 'duration':
-            return 'live_info.duration'
-          default:
-            return 'live_info.date.end'
-        }
-      })()}`
+      switch (sort) {
+        case 'date':
+          return 'live_info.date.end'
+        case 'gift':
+          return 'c_gift'
+        case 'views':
+          return 'live_info.viewers.peak'
+        case 'duration':
+          return 'live_info.duration'
+        default:
+          return 'live_info.date.end'
+      }
+    })()}`
   }
 
   let logs = [] as any[]

@@ -2,6 +2,7 @@ import ShowroomGift from '@schema/showroom/ShowroomGift'
 import type { Context } from 'hono'
 import dayjs from 'dayjs'
 import { calculateFansPoints } from '../fansPoints'
+import { getSousenkyoMembers } from '../jkt48/scraper/sousenkyo'
 import { createError } from '@/utils/errorResponse'
 import config from '@/config'
 import LiveLog from '@/database/live/schema/LiveLog'
@@ -323,19 +324,26 @@ export async function getRecentDetails(c: Context): Promise<LogDetail.Showroom |
         select: '-_id name img url -room_id member_data is_group generation group img_square',
         populate: {
           path: 'member_data',
-          select: 'info name slug',
+          select: 'info name slug jkt48id',
         },
       },
     }).lean()
-
   if (!data) throw createError({ statusMessage: 'Data not found!', statusCode: 404 })
   const userData = await UserLog.findOne({ data_id: data.data_id })
   data.users = userData?.users ?? []
+  const sousenkyoMembers = await getSousenkyoMembers().catch(() => [])
+  const sousenkyoData = sousenkyoMembers.find(i => data.room_info?.member_data?.jkt48id?.includes(i.id))
 
   if (data.type === 'showroom') {
-    return parseShowroom(data as Log.Showroom)
+    return {
+      ...await parseShowroom(data as Log.Showroom),
+      sousenkyo: sousenkyoData,
+    }
   }
   else {
-    return parseIDN(data as Log.IDN)
+    return {
+      ...await parseIDN(data as Log.IDN),
+      sousenkyo: sousenkyoData,
+    }
   }
 }

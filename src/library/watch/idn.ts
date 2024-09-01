@@ -1,5 +1,6 @@
 import type { Context } from 'hono'
 import { getIDNLives } from '../idn/lives'
+import { getSousenkyoMembers } from '../jkt48/scraper/sousenkyo'
 import cache from '@/utils/cache'
 import { createError } from '@/utils/errorResponse'
 import IdolMember from '@/database/schema/48group/IdolMember'
@@ -14,6 +15,7 @@ export async function fetch(c: Context): Promise<IDNLivesDetail> {
   const roomData = await IdolMember.findOne({ 'idn.username': username }).populate<{ showroom: Database.IShowroomMember }>('showroom').catch(() => null)
   const data = lives.find(i => i.user.username === username)
   if (!roomData && !data) throw createError({ status: 404, message: 'Room not found!' })
+  const sousenkyoData = await getSousenkyoMembers()
   return {
     ...data,
     is_live: data != null,
@@ -23,5 +25,6 @@ export async function fetch(c: Context): Promise<IDNLivesDetail> {
       key: roomData?.showroom?.url,
       room_id: roomData?.showroom_id || roomData?.showroom?.room_id,
     },
+    sousenkyo: sousenkyoData?.find(i => roomData?.jkt48id?.includes(i.id)),
   }
 }

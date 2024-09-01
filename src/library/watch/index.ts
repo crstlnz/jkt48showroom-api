@@ -1,6 +1,8 @@
 import type { Context } from 'hono'
+import { getSousenkyoMembers } from '../jkt48/scraper/sousenkyo'
 import { getCommentLog, getGiftList, getGiftLog, getLiveInfo, getRoomStatus, getStreamingURL } from '@/utils/api/showroom'
 import { createError } from '@/utils/errorResponse'
+import IdolMember from '@/database/schema/48group/IdolMember'
 
 interface WatchCache {
   data: Watch.WatchData
@@ -69,7 +71,11 @@ async function getData(c: Context): Promise<WatchCache | WatchError> {
     const comments = (data.is_live ? (await getCommentLog(data.room_id, cookies)).comment_log : []).filter(i => !(!Number.isNaN(i.comment) && Number.parseInt(i.comment) <= 50))
     const giftLog = (data.is_live ? (await getGiftLog(data.room_id, cookies)).gift_log : [])
     const giftList = (data.is_live ? (await getGiftList(data.room_id, cookies)).normal : [])
-    const watchData = {
+    const dataMember = await IdolMember.findOne({ showroom_id: data.room_id }).select({ jkt48id: true }).lean().catch(e => null)
+    const jkt48id = dataMember?.jkt48id
+    const sousenkyoData = await getSousenkyoMembers()
+
+    const watchData: Watch.WatchData = {
       name: data.room_name,
       started_at: data.started_at,
       can_comment: data.can_comment,
@@ -95,6 +101,7 @@ async function getData(c: Context): Promise<WatchCache | WatchError> {
           avatar_id: i.avatar_id,
         }
       }),
+      sousenkyo: sousenkyoData?.find(i => jkt48id?.includes(i.id)),
     }
 
     const res: WatchCache = {

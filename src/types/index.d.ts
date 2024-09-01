@@ -1,4 +1,7 @@
-type GiftSize = 'small' | 'medium'
+import type { SousenkyoMember } from '@/library/jkt48/scraper/sousenkyo'
+
+declare global {
+  type GiftSize = 'small' | 'medium'
 type OrderType = 1 | -1
 type SortType = 'date' | 'gift' | 'views' | 'duration'
 
@@ -320,6 +323,7 @@ interface IMemberProfileAPI extends IMemberBasicData {
   height?: string
   recentTheater?: ITheaterAPI[]
   upcomingTheater?: ITheaterAPI[]
+  sousenkyo?: SousenkyoMember
 }
 
 interface IDNUser {
@@ -397,5 +401,8 @@ interface IDNLivesDetail {
     img?: string
     room_id?: number
     key?: string
-  }
+  },
+  sousenkyo?: SousenkyoMember
+}
+
 }

@@ -2,6 +2,7 @@ import { Hono } from 'hono'
 import { logger } from 'hono/logger'
 import { csrf } from 'hono/csrf'
 import showroom from './showroom'
+import sousenkyo from './sousenkyo'
 import auth from './auth'
 import user from './user'
 import admin from './admin'
@@ -73,6 +74,7 @@ app.route('/admin', admin)
 app.route('/auth', auth)
 app.route('/user', user)
 app.route('/showroom', showroom)
+app.route('/sousenkyo', sousenkyo)
 
 app.get('/leaderboard', useCORS('self'), ...handler(getLeaderboard, { minutes: 10 }))
 

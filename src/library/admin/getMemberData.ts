@@ -9,7 +9,7 @@ export async function getMemberDataForEdits(c: Context): Promise<Admin.ApiMember
   const member = await Showroom.findOne({ room_id }).populate({
     path: 'member_data',
   })
-    .lean() as Admin.IShowroomMember
+    .lean() as unknown as Admin.IShowroomMember
   if (!member) throw createError({ status: 404, message: 'Member not found!' })
 
   const stage48members = await IdolMember.find({}).lean()
