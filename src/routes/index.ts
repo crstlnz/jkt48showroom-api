@@ -41,6 +41,7 @@ import { getCombinedNowLive } from '@/library/combinedNowLive'
 import getStream from '@/library/stream'
 import { getLeaderboard } from '@/library/leaderboard'
 import { getJKT48VLive } from '@/library/jkt48v'
+import getSetlist from '@/library/jkt48/theater/setlist'
 
 const app = new Hono()
 
@@ -128,6 +129,7 @@ app.get('/next_schedule', ...handler(getSchedule, { minutes: 15 }))
 app.get('/event', ...handler(getEvents, { minutes: 5 }))
 app.get('/theater', ...handler(getTheater, { minutes: 5 }))
 app.get('/theater/:id', ...handler(getTheaterDetail, { minutes: 5 }))
+app.get('/setlist', ...handler(getSetlist, { days: 1 }))
 app.get('/news', ...handler(getNews, { minutes: 5 }))
 app.get('/news/:id', ...handler(c => getNewsDetail(c.req.param('id')), { days: 1 }))
 app.get('/birthday', ...handler(getMemberBirthdays, { hours: 1 }))
