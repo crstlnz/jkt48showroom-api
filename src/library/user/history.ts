@@ -98,7 +98,7 @@ export async function getUserHistory(qq: any = null, userId: string): Promise<IH
 
   // TODO
   if (members.length || query.room_id) {
-    logs = await ShowroomLog.find(options)
+    logs = await ShowroomLog.find(options as any)
       .select({
         custom: 1,
         live_info: {
@@ -134,7 +134,7 @@ export async function getUserHistory(qq: any = null, userId: string): Promise<IH
       })
       .lean()
 
-    total = await ShowroomLog.countDocuments(options)
+    total = await ShowroomLog.countDocuments(options as any)
   }
 
   const stageListAll = await StageList.find({ data_id: logs.map(i => i.data_id) })

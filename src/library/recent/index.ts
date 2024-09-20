@@ -99,7 +99,7 @@ export async function getRecents(c: Context): Promise<IApiRecents> {
   }
 
   if (members.length || query.room_id) {
-    logs = await LiveLog.find(options)
+    logs = await LiveLog.find(options as any)
       .select({
         custom: 1,
         idn: 1,
@@ -132,7 +132,7 @@ export async function getRecents(c: Context): Promise<IApiRecents> {
       })
       .lean()
 
-    total = await ShowroomLog.countDocuments(options)
+    total = await ShowroomLog.countDocuments(options as any)
   }
 
   return {

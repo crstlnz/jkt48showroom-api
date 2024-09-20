@@ -274,28 +274,29 @@ import IdolMember from '@/database/schema/48group/IdolMember'
 // }
 
 export async function stats() {
-  const res = await Stats.findOne({ id: 'monthly' })
-  if (!res) throw createError({ status: 404, message: 'Not found!' })
-  return res
+  throw new Error('Not implemented!')
+  // const res = await Stats.findOne({ id: 'monthly' })
+  // if (!res) throw createError({ status: 404, message: 'Not found!' })
+  // return res
 }
 
 async function save(id: string, data: any) {
   try {
-    await Stats.updateOne(
-      { id },
-      {
-        $set: {
-          ...data,
-          id,
-        },
-      },
-      {
-        upsert: true,
-        setDefaultsOnInsert: true,
-        runValidators: true,
-      },
-    )
-    console.log('Finish')
+    // await Stats.updateOne(
+    //   { id },
+    //   {
+    //     $set: {
+    //       ...data,
+    //       id,
+    //     },
+    //   },
+    //   {
+    //     upsert: true,
+    //     setDefaultsOnInsert: true,
+    //     runValidators: true,
+    //   },
+    // )
+    // console.log('Finish')
   }
   catch (e) {
     console.error(e)
