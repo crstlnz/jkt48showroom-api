@@ -1,5 +1,7 @@
 import { ofetch } from 'ofetch'
+import dayjs from 'dayjs'
 import IdolMember from '@/database/schema/48group/IdolMember'
+import { convertToMilliseconds } from '@/utils'
 
 const idnUsernames = new Set<string>()
 const additionalUsernames = ['jkt48-official']
@@ -108,7 +110,7 @@ export async function newFetch(debug: boolean = false): Promise<IDNLives[]> {
         title: i.title,
         slug: i.slug,
         view_count: i.view_count,
-        live_at: new Date(i.live_at).toISOString(),
+        live_at: dayjs(convertToMilliseconds(i.live_at)).toISOString(),
       }
     })
   }

@@ -65,7 +65,7 @@ async function idnNowLive(debug: boolean = false): Promise<INowLive[]> {
       room_id: member?.showroom_id || 0,
       is_graduate: member?.info.is_graduate ?? false,
       is_group: member?.group === 'official',
-      started_at: dayjs(i.live_at).toISOString(),
+      started_at: i.live_at,
       streaming_url_list: [{
         label: 'original',
         quality: 1,

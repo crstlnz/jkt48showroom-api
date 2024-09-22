@@ -74,3 +74,7 @@ export async function streamToString(stream: ReadableStream<Uint8Array>): Promis
   result += decoder.decode()
   return result
 }
+
+export function convertToMilliseconds(timestamp: number): number {
+  return timestamp * (timestamp < 1e10 ? 1e3 : 1)
+}
