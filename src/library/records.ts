@@ -1,6 +1,7 @@
 import type { Context } from 'hono'
 import { getMembers } from './member'
 import ShowroomLog from '@/database/schema/showroom/ShowroomLog'
+import LiveLog from '@/database/live/schema/LiveLog'
 
 export async function getRecords(c: Context) {
   return await fetchData(c)
@@ -17,14 +18,21 @@ async function fetchData(c: Context): Promise<ShowroomRecord[]> {
     },
   }
   const members = await getMembers(c)
-  const options: { is_dev: boolean, room_id?: number[] | number } = {
+  const options: { is_dev: boolean, room_id?: number[] | number | Record<string, boolean> } = {
     is_dev: false,
   }
-  if (members?.length) options.room_id = members.map(i => i.room_id).filter((i): i is number => i != null)
+  if (members?.length) {
+    options.room_id = members.map(i => i.room_id).filter((i): i is number => i != null)
+  }
+  else {
+    options.room_id = { $exists: true }
+  }
 
-  const mostViewer = await ShowroomLog.findOne(options).sort({ 'live_info.viewers.peak': -1 }).populate(populatePath).lean().catch(() => null)
-  const longestDuration = await ShowroomLog.findOne(options).sort({ 'live_info.duration': -1 }).populate(populatePath).lean().catch(() => null)
-  const mostGift = await ShowroomLog.findOne(options).sort({ total_point: -1 }).populate(populatePath).lean().catch(() => null)
+  const mostViewer = await LiveLog.findOne(options).sort({ 'live_info.viewers.peak': -1 }).populate(populatePath).lean().catch(() => null)
+  const longestDuration = await LiveLog.findOne(options).sort({ 'live_info.duration': -1 }).populate(populatePath).lean().catch(() => null)
+  const mostGiftIdn = await LiveLog.findOne({ ...options, type: 'idn' }).sort({ total_gifts: -1 }).populate(populatePath).lean().catch(() => null)
+  const mostGiftSr = await LiveLog.findOne({ ...options, type: 'showroom' }).sort({ total_gifts: -1 }).populate(populatePath).lean().catch(() => null)
+  const mostGift = (mostGiftIdn?.total_gifts ?? 0) * (mostGiftIdn?.c_gift ?? 0) > (mostGiftSr?.total_gifts ?? 0) * (mostGiftSr?.c_gift ?? 0) ? mostGiftIdn : mostGiftSr
 
   const records: ShowroomRecord[] = []
   if (mostViewer) {
@@ -63,7 +71,7 @@ async function fetchData(c: Context): Promise<ShowroomRecord[]> {
       data_id: mostGift.data_id,
       key: 'mostgifts',
       name: mostGift.room_info?.member_data?.name ?? mostGift.room_info?.name ?? '',
-      value: String(mostGift.total_point ?? 0),
+      value: String(mostGift.total_gifts ?? 0),
       date: mostGift.created_at.toISOString(),
       img: mostGift.room_info?.member_data?.info?.img ?? mostGift.room_info?.img ?? '',
       room_id: mostGift.room_id ?? 0,
