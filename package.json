@@ -24,7 +24,7 @@
   },
   "devDependencies": {
     "@antfu/eslint-config": "^3.0.0",
-    "@types/bun": "^1.1.8",
+    "@types/bun": "^1.1.12",
     "@types/cli-progress": "^3.11.6",
     "eslint": "9.9.1",
     "rimraf": "^6.0.1",

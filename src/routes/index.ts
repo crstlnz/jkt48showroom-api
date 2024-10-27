@@ -42,6 +42,7 @@ import getStream from '@/library/stream'
 import { getLeaderboard } from '@/library/leaderboard'
 import { getJKT48VLive } from '@/library/jkt48v'
 import getSetlist from '@/library/jkt48/theater/setlist'
+import { getJKT48YoutubeVideo } from '@/library/jkt48tv'
 
 const app = new Hono()
 
@@ -86,13 +87,9 @@ app.use('/*', async (c, next) => {
   await next()
 })
 
-/// already use cache
-// app.get('/stats', ...handler(c => getStats(c.req.query())))
-
-// app.get('/stats', ...handler(stats))
-///
 app.get('/idn_lives', ...handler(() => fetchIDN(false), { seconds: 30, minutes: 1, useSingleProcess: true }))
 app.get('/jkt48v_live', ...handler(getJKT48VLive, { seconds: 30 }))
+app.get('/jkt48_youtube', ...handler(getJKT48YoutubeVideo, { minutes: 30, useRateLimit: true, useSingleProcess: true }))
 
 // TODO fix pagination
 app.get('/recent', ...handler(getRecents, { minutes: 4, useRateLimit: true }))
@@ -101,14 +98,7 @@ app.get('/recent/:data_id/gifts', ...handler(getGifts, { days: 1 }))
 app.get('/recent/:data_id/stagelist', ...handler(getStageList, { days: 1 }))
 app.get('/member', ...handler(getMembers, { hours: 12 }))
 app.get('/member/:id', ...handler(c => getMemberDetails(c.req.param('id')), { minutes: 30, useRateLimit: true }))
-// app.get('/now_live', ...handler(getNowLive, (c) => {
-//   let group = c.req.query('group')
-//   group = group === 'hinatazaka46' ? 'hinatazaka46' : 'jkt48'
-//   return {
-//     name: `${group}-nowlive`,
-//     seconds: 15,
-//   }
-// }))
+
 app.get('/now_live', ...handler(getCombinedNowLive, (c) => {
   let group = c.req.query('group')
   const debug = c.req.query('debug')

@@ -10,13 +10,12 @@ function generateIV(): Buffer {
 const algorithm = 'aes-256-cbc'
 
 export function encrypt(text: string): string {
-  console.log('wew')
   const iv = generateIV()
-  const key = Buffer.from(process.env.SECRET!)
-  const cipher = crypto.createCipheriv(algorithm, key, iv)
-  let encrypted = cipher.update(text)
-  encrypted = Buffer.concat([encrypted, cipher.final()])
-  return `${iv.toString('hex')}:${encrypted.toString('hex')}`
+  const key = new Uint8Array(Buffer.from(process.env.SECRET!))
+  const cipher = crypto.createCipheriv(algorithm, key, new Uint8Array(iv))
+  let encrypted = new Uint8Array(cipher.update(text))
+  encrypted = new Uint8Array(Buffer.concat([encrypted, new Uint8Array(cipher.final())]))
+  return `${iv.toString('hex')}:${Buffer.from(encrypted).toString('hex')}`
 }
 
 export function decrypt(encrypted: string) {
@@ -24,9 +23,9 @@ export function decrypt(encrypted: string) {
     const textParts = encrypted.split(':') as any[]
     const iv = Buffer.from(textParts.shift(), 'hex')
     const encryptedText = Buffer.from(textParts.join(':'), 'hex')
-    const decipher = crypto.createDecipheriv(algorithm, Buffer.from(process.env.SECRET!), iv)
-    let decrypted = decipher.update(encryptedText)
-    decrypted = Buffer.concat([decrypted, decipher.final()])
+    const decipher = crypto.createDecipheriv(algorithm, new Uint8Array(Buffer.from(process.env.SECRET!)), new Uint8Array(iv))
+    let decrypted = decipher.update(new Uint8Array(encryptedText))
+    decrypted = Buffer.concat([new Uint8Array(decrypted), new Uint8Array(decipher.final())])
     return decrypted.toString()
   }
   catch (e) {

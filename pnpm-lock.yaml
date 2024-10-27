@@ -47,8 +47,8 @@ devDependencies:
     specifier: ^3.0.0
     version: 3.0.0(@vue/compiler-sfc@3.4.38)(eslint@9.9.1)(typescript@5.5.4)
   '@types/bun':
-    specifier: ^1.1.8
-    version: 1.1.8
+    specifier: ^1.1.12
+    version: 1.1.12
   '@types/cli-progress':
     specifier: ^3.11.6
     version: 3.11.6
@@ -411,10 +411,10 @@ packages:
       - typescript
     dev: true
 
-  /@types/bun@1.1.8:
-    resolution: {integrity: sha512-PIwVFQKPviksiibobyvcWtMvMFMTj91T8dQEh9l1P3Ypr3ZuVn9w7HSr+5mTNrPqD1xpdDLEErzZPU8gqHBu6g==}
+  /@types/bun@1.1.12:
+    resolution: {integrity: sha512-UkewJesRDP3+AW30Gc8hvxuIt+vHgYZXmVOKaXV8xnwAnMXTAs3XZDsa/jW+LSdAYhHslokSm72lq63FYYjZqA==}
     dependencies:
-      bun-types: 1.1.26
+      bun-types: 1.1.32
     dev: true
 
   /@types/cli-progress@3.11.6:
@@ -488,7 +488,7 @@ packages:
   /@types/ws@8.5.12:
     resolution: {integrity: sha512-3tPRkv1EtkDpzlgyKyI8pGsGZAGPEaXeu0DOj5DI25Ja91bdAYddYHbADRYVrZMRbfW+1l5YwXVDKohDJNQxkQ==}
     dependencies:
-      '@types/node': 20.12.14
+      '@types/node': 22.5.1
     dev: true
 
   /@typescript-eslint/eslint-plugin@8.3.0(@typescript-eslint/parser@8.3.0)(eslint@9.9.1)(typescript@5.5.4):
@@ -809,8 +809,8 @@ packages:
     engines: {node: '>=6'}
     dev: true
 
-  /bun-types@1.1.26:
-    resolution: {integrity: sha512-n7jDe62LsB2+WE8Q8/mT3azkPaatKlj/2MyP6hi3mKvPz9oPpB6JW/Ll6JHtNLudasFFuvfgklYSE+rreGvBjw==}
+  /bun-types@1.1.32:
+    resolution: {integrity: sha512-Lxgux4InO/WRjSAEy3iyDscsnDXR8+3rgNDeZYjPAizFYjUraoNuMl9PuRd9XMgFZgdyQwaUX7/QHmOw5KGFQw==}
     dependencies:
       '@types/node': 20.12.14
       '@types/ws': 8.5.12
