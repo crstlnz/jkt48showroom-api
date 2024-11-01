@@ -8,7 +8,7 @@ export async function getMembers(c?: Context): Promise<IMember[]>
 export async function getMembers(c?: Context | string | null): Promise<IMember[]> {
   const group = c == null ? '' : typeof c === 'string' ? c : c.req.query('group')
   if (process.env.NODE_ENV === 'development') return await fetch(group)
-  return await cache.fetch(group ? `${group}-membersv2` : 'membersv2', () => fetch(group), 86400000)
+  return await cache.fetch(group ? `${group}-membersv3` : 'membersv3', () => fetch(group), 86400000)
 }
 
 async function fetch(group: string | null = null): Promise<IMember[]> {

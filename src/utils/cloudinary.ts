@@ -1,13 +1,16 @@
 import { Buffer } from 'buffer'
 import cloudinary from 'cloudinary'
+import defu from 'defu'
 import config from '@/config'
 
-export function uploadImage(image: any): Promise<any> {
-  return new Promise<any>((resolve, reject) => {
+export function uploadImage(image: string, configs?: cloudinary.UploadApiOptions): Promise<cloudinary.UploadApiResponse> {
+  return new Promise<cloudinary.UploadApiResponse>((resolve, reject) => {
+    const defaultCofnig: cloudinary.UploadApiOptions = { folder: config.uploadFolder }
+    const combinedConfigs = defu(configs, defaultCofnig)
     cloudinary.v2.uploader.upload(
       image,
       {
-        folder: config.uploadFolder,
+        ...combinedConfigs,
       },
       (error: any, result: any) => {
         if (error) {
