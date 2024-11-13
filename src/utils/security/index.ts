@@ -1,6 +1,7 @@
 import crypto from 'node:crypto'
 import { Buffer } from 'node:buffer'
 import { createMiddleware } from 'hono/factory'
+import type { Context } from 'hono'
 import { getSessId, setSessId } from './cookies/sessId'
 
 function generateIV(): Buffer {
@@ -28,7 +29,7 @@ export function decrypt(encrypted: string) {
     decrypted = Buffer.concat([new Uint8Array(decrypted), new Uint8Array(decipher.final())])
     return decrypted.toString()
   }
-  catch (e) {
+  catch {
     return null
   }
 }
@@ -64,4 +65,8 @@ export function checkAdmin() {
     if (!isAdmin(user.id)) return await c.notFound()
     return next()
   })
+}
+
+export function getIp(context: Context) {
+  return context.req.header('X-Real-IP')
 }

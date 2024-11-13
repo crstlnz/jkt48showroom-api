@@ -25,16 +25,15 @@ import { getNews } from '@/library/jkt48/news'
 import { getSchedule } from '@/library/jkt48/nextSchedule'
 import { getMemberBirthdays, nextBirthDay } from '@/library/stage48/birthday'
 import { getMember48List } from '@/library/stage48/memberList'
-import { useSessionID } from '@/utils/security'
+import { getIp, useSessionID } from '@/utils/security'
 import { getStageList } from '@/library/recent/stageList'
 import { getProfile } from '@/library/room/profile'
 import { useShowroomSession } from '@/utils/showroomSession'
 import { handler } from '@/utils/factory'
 import { useCORS } from '@/utils/cors'
-import { fetchIDN, getIDNLives } from '@/library/idn/lives'
+import { fetchIDN } from '@/library/idn/lives'
 import { getIDNLive } from '@/library/watch/idn'
 import { getWatchData } from '@/library/watch'
-import { passCookie } from '@/library/bot/passCookies'
 import { getSessId } from '@/utils/security/cookies/sessId'
 import { getTheater } from '@/library/jkt48/theater'
 import getEvents from '@/library/jkt48/event'
@@ -55,6 +54,8 @@ if (process.env.LOG === 'true') {
 
 const origins = (process.env.ORIGINS ?? '').split(',').map(i => i.trim())
 
+app.get('/stream', useCORS('self'), ...handler(getStream, { seconds: 20, useJson: false, cacheClientOnly: true }))
+
 // CSRF //
 app.use('*', csrf({
   origin: origins,
@@ -62,7 +63,6 @@ app.use('*', csrf({
 
 app.use('*', useSessionID())
 
-app.get('/stream', useCORS('self'), ...handler(getStream, { seconds: 20, useJson: false, cacheClientOnly: true }))
 app.route('/admin', admin)
 app.route('/auth', auth)
 app.route('/user', user)
@@ -76,6 +76,13 @@ app.get('/jkt48v_live', ...handler(getJKT48VLive, { seconds: 30 }))
 app.get('/member', ...handler(getMembers, { hours: 12 }))
 app.get('/member/:id', ...handler(c => getMemberDetails(c.req.param('id')), { minutes: 30, useRateLimit: true }))
 
+app.use('*', useCORS('all'))
+
+app.use('/*', async (c, next) => {
+  await dbConnect('all')
+  await next()
+})
+
 app.get('/now_live', ...handler(getCombinedNowLive, (c) => {
   let group = c.req.query('group')
   const debug = c.req.query('debug')
@@ -83,6 +90,10 @@ app.get('/now_live', ...handler(getCombinedNowLive, (c) => {
   return {
     name: `${group}-nowlive${debug ?? ''}`,
     seconds: 30,
+    rateLimit: {
+      maxRequest: 24,
+      limitTimeWindow: 1000 * 60 * 5,
+    },
   }
 }))
 
@@ -100,7 +111,6 @@ app.get('/setlist', ...handler(getSetlist, { days: 1 }))
 app.get('/news', ...handler(getNews, { minutes: 5 }))
 app.get('/news/:id', ...handler(c => getNewsDetail(c.req.param('id')), { days: 1 }))
 app.get('/birthday', ...handler(getMemberBirthdays, { hours: 1 }))
-app.get('/next_birthday', ...handler(nextBirthDay, { minutes: 30 }))
 app.get('/48/member', ...handler(getMember48List, { days: 1 }))
 app.get('/profile', useShowroomSession(), ...handler(getProfile, (c) => {
   const key = `${getSessId(c)}-profile-${c.req.query('room_id')}`
@@ -110,13 +120,7 @@ app.get('/profile', useShowroomSession(), ...handler(getProfile, (c) => {
   }
 }))
 
-app.use('*', useCORS('all'))
-
-app.use('/*', async (c, next) => {
-  await dbConnect('all')
-  await next()
-})
-
+app.get('/next_birthday', ...handler(nextBirthDay, { minutes: 30 }))
 app.get('/idn_lives', ...handler(() => fetchIDN(false), { seconds: 30, minutes: 1, useSingleProcess: true }))
 // TODO fix pagination
 app.get('/recent', ...handler(getRecents, { minutes: 4, useRateLimit: true }))
@@ -126,7 +130,7 @@ app.get('/recent/:data_id/stagelist', ...handler(getStageList, { days: 1 }))
 
 app.get('/my_ip', (ctx: Context) => {
   return ctx.json({
-    ip: ctx.req.header('X-Real-IP') ?? 'not-specified',
+    ip: getIp(ctx),
   })
 })
 
