@@ -126,7 +126,7 @@ app.get('/recent/:data_id/stagelist', ...handler(getStageList, { days: 1 }))
 
 app.get('/my_ip', (ctx: Context) => {
   return ctx.json({
-    ip: ctx.header('X-Real-IP') ?? 'not-specified',
+    ip: ctx.req.header('X-Real-IP') ?? 'not-specified',
   })
 })
 
