@@ -1,3 +1,4 @@
+import type { Context } from 'hono'
 import { Hono } from 'hono'
 import { logger } from 'hono/logger'
 import { csrf } from 'hono/csrf'
@@ -46,30 +47,20 @@ import { getJKT48YoutubeVideo } from '@/library/jkt48tv'
 
 const app = new Hono()
 
+app.use('*', useCORS('self'))
+
 if (process.env.LOG === 'true') {
   app.use('*', logger())
 }
 
 const origins = (process.env.ORIGINS ?? '').split(',').map(i => i.trim())
-// bot purpose
-app.post('/pass', useCORS('all'), ...handler(passCookie))
+
 // CSRF //
 app.use('*', csrf({
   origin: origins,
 }))
-// app.post('*', useCSRF())
-// app.delete('*', useCSRF())
-// app.put('*', useCSRF())
-// CSRF //
 
 app.use('*', useSessionID())
-
-// app.get('/csrf_token', useCORS('self'), async (c) => {
-//   const token = generateCSRF(c)
-//   return c.json({
-//     csrf_token: token,
-//   })
-// })
 
 app.get('/stream', useCORS('self'), ...handler(getStream, { seconds: 20, useJson: false, cacheClientOnly: true }))
 app.route('/admin', admin)
@@ -80,22 +71,8 @@ app.route('/sousenkyo', sousenkyo)
 
 app.get('/leaderboard', useCORS('self'), ...handler(getLeaderboard, { minutes: 10 }))
 
-app.use('*', useCORS('all'))
-
-app.use('/*', async (c, next) => {
-  await dbConnect('all')
-  await next()
-})
-
-app.get('/idn_lives', ...handler(() => fetchIDN(false), { seconds: 30, minutes: 1, useSingleProcess: true }))
-app.get('/jkt48v_live', ...handler(getJKT48VLive, { seconds: 30 }))
 app.get('/jkt48_youtube', ...handler(getJKT48YoutubeVideo, { minutes: 30, useRateLimit: true, useSingleProcess: true }))
-
-// TODO fix pagination
-app.get('/recent', ...handler(getRecents, { minutes: 4, useRateLimit: true }))
-app.get('/recent/:id', ...handler(getRecentDetails, { hours: 1, useRateLimit: true }))
-app.get('/recent/:data_id/gifts', ...handler(getGifts, { days: 1 }))
-app.get('/recent/:data_id/stagelist', ...handler(getStageList, { days: 1 }))
+app.get('/jkt48v_live', ...handler(getJKT48VLive, { seconds: 30 }))
 app.get('/member', ...handler(getMembers, { hours: 12 }))
 app.get('/member/:id', ...handler(c => getMemberDetails(c.req.param('id')), { minutes: 30, useRateLimit: true }))
 
@@ -132,5 +109,25 @@ app.get('/profile', useShowroomSession(), ...handler(getProfile, (c) => {
     hours: 1,
   }
 }))
+
+app.use('*', useCORS('all'))
+
+app.use('/*', async (c, next) => {
+  await dbConnect('all')
+  await next()
+})
+
+app.get('/idn_lives', ...handler(() => fetchIDN(false), { seconds: 30, minutes: 1, useSingleProcess: true }))
+// TODO fix pagination
+app.get('/recent', ...handler(getRecents, { minutes: 4, useRateLimit: true }))
+app.get('/recent/:id', ...handler(getRecentDetails, { hours: 1, useRateLimit: true }))
+app.get('/recent/:data_id/gifts', ...handler(getGifts, { days: 1 }))
+app.get('/recent/:data_id/stagelist', ...handler(getStageList, { days: 1 }))
+
+app.get('/my_ip', (ctx: Context) => {
+  return ctx.json({
+    ip: ctx.header('X-Real-IP') ?? 'not-specified',
+  })
+})
 
 export default app
