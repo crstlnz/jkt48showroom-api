@@ -38,22 +38,16 @@ jobs:
         run: pnpm build
 
       - name: Setup SSH Key
-        run: |
-          echo "$SSH_PRIVATE_KEY" > private_key
-          chmod 600 private_key
+        run: echo "$SSH_PRIVATE_KEY" > private_key && chmod 600 private_key
 
       - name: SSH and Pull Latest Code
-        run: |
-          ssh -o StrictHostKeyChecking=no -i private_key $SERVER_USER@$SERVER_IP "cd $APP_PATH && git stash && git pull"
+        run: ssh -o StrictHostKeyChecking=no -i private_key $SERVER_USER@$SERVER_IP "cd $APP_PATH && git stash && git pull"
 
       - name: Install package.json
-        run: |
-          ssh -o StrictHostKeyChecking=no -i private_key $SERVER_USER@$SERVER_IP "cd $APP_PATH && pnpm i"
+        run: ssh -o StrictHostKeyChecking=no -i private_key $SERVER_USER@$SERVER_IP "cd $APP_PATH && pnpm i"
           
       - name: Upload Build Files
-        run: |
-          scp -o StrictHostKeyChecking=no -i private_key -r ./.output $SERVER_USER@$SERVER_IP:$DEPLOY_PATH
+        run: scp -o StrictHostKeyChecking=no -i private_key -r ./.output $SERVER_USER@$SERVER_IP:$APP_PATH
 
       - name: Run with PM2
-        run: |
-          ssh -o StrictHostKeyChecking=no -i private_key $SERVER_USER@$SERVER_IP "cd $APP_PATH && pm2 startOrRestart ecosystem.config.js && pm2 save"
+        run: ssh -o StrictHostKeyChecking=no -i private_key $SERVER_USER@$SERVER_IP "cd $APP_PATH && pm2 startOrRestart ecosystem.config.js && pm2 save"
