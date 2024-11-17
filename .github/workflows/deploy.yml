@@ -45,6 +45,10 @@ jobs:
       - name: SSH and Pull Latest Code
         run: |
           ssh -o StrictHostKeyChecking=no -i private_key $SERVER_USER@$SERVER_IP "cd $APP_PATH && git stash && git pull"
+
+      - name: Install package.json
+        run: |
+          ssh -o StrictHostKeyChecking=no -i private_key $SERVER_USER@$SERVER_IP "cd $APP_PATH && pnpm i"
           
       - name: Upload Build Files
         run: |
