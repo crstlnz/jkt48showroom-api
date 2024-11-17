@@ -1,0 +1,55 @@
+name: Deploy to Server
+
+on:
+  push:
+    branches:
+      - main # Change this to your deployment branch
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      SSH_PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }} # Add your SSH key to GitHub secrets
+      SERVER_USER: ${{ secrets.USERNAME }} # Add your server username to GitHub secrets
+      SERVER_IP: ${{ secrets.HOST }} # Add your server IP to GitHub secrets
+      APP_PATH: '~/apps/api' # Change this to your actual deployment path
+      BUILD_PATH: "./.output"
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        name: Install pnpm
+        with:
+          version: 9
+          run_install: false
+
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Build
+        run: pnpm build
+
+      - name: Setup SSH Key
+        run: |
+          echo "$SSH_PRIVATE_KEY" > private_key
+          chmod 600 private_key
+
+      - name: SSH and Pull Latest Code
+        run: |
+          ssh -o StrictHostKeyChecking=no -i private_key $SERVER_USER@$SERVER_IP "cd $APP_PATH && git stash && git pull"
+          
+      - name: Upload Build Files
+        run: |
+          scp -o StrictHostKeyChecking=no -i private_key -r $BUILD_PATH $SERVER_USER@$SERVER_IP:$DEPLOY_PATH
+
+      - name: Run with PM2
+        run: |
+          ssh -o StrictHostKeyChecking=no -i private_key $SERVER_USER@$SERVER_IP "cd $APP_PATH && pm2 startOrRestart ecosystem.config.js && pm2 save"

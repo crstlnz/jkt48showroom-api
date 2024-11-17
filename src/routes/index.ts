@@ -43,6 +43,7 @@ import { getLeaderboard } from '@/library/leaderboard'
 import { getJKT48VLive } from '@/library/jkt48v'
 import getSetlist from '@/library/jkt48/theater/setlist'
 import { getJKT48YoutubeVideo } from '@/library/jkt48tv'
+import getWeekly from '@/library/weekly'
 
 const app = new Hono()
 
@@ -55,6 +56,7 @@ if (process.env.LOG === 'true') {
 const origins = (process.env.ORIGINS ?? '').split(',').map(i => i.trim())
 
 app.get('/stream', useCORS('self'), ...handler(getStream, { seconds: 20, useJson: false, cacheClientOnly: true }))
+app.get('/weekly', ...handler(getWeekly, { rateLimit: { limitTimeWindow: 60 * 1000 * 60, maxRequest: 200 } }))
 
 // CSRF //
 app.use('*', csrf({

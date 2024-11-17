@@ -5,7 +5,6 @@ const requestCounts = new Map()
 
 export function isTooManyRequest(c: Context, maxRequest: number, limitTimeWindow: number) {
   const ip = getIp(c)
-  console.log(ip)
   if (!requestCounts.has(ip)) {
     requestCounts.set(ip, { count: 1, startTime: Date.now() })
   }
