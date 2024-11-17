@@ -14,7 +14,7 @@ jobs:
       SERVER_USER: ${{ secrets.USERNAME }} # Add your server username to GitHub secrets
       SERVER_IP: ${{ secrets.HOST }} # Add your server IP to GitHub secrets
       APP_PATH: '~/apps/api' # Change this to your actual deployment path
-      BUILD_PATH: "./.output"
+      BUILD_PATH: './.output'
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -52,7 +52,7 @@ jobs:
           
       - name: Upload Build Files
         run: |
-          scp -o StrictHostKeyChecking=no -i private_key -r $BUILD_PATH $SERVER_USER@$SERVER_IP:$DEPLOY_PATH
+          scp -o StrictHostKeyChecking=no -i private_key -r ./.output $SERVER_USER@$SERVER_IP:$DEPLOY_PATH
 
       - name: Run with PM2
         run: |
