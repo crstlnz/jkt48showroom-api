@@ -4,6 +4,7 @@ import totalTheater from './type/theater'
 import weeklyDuration from './type/duration'
 import weeklyViewers from './type/viewers'
 import weeklyNolive from './type/nolive'
+import weeklyFollower from './type/follower'
 import { ApiError } from '@/utils/errorResponse'
 
 export type WeeklyType = 'theater' | 'gift' | 'live' | 'duration' | 'viewers' | 'nolive' | 'follower'
@@ -49,6 +50,9 @@ export default async function getWeekly(ctx: Context): Promise<WeeklyData> {
     }
     else if (type === 'nolive') {
       return weeklyNolive()
+    }
+    else if (type === 'follower') {
+      return weeklyFollower(platform)
     }
 
     throw new ApiError({ message: 'not implemented yet', status: 500 })
