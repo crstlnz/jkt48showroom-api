@@ -1,6 +1,7 @@
 import type { Context } from 'hono'
 import totalLive from './type/totalLive'
 import totalTheater from './type/theater'
+import weeklyGifts from './type/gifts'
 import weeklyDuration from './type/duration'
 import weeklyViewers from './type/viewers'
 import weeklyNolive from './type/nolive'
@@ -37,7 +38,7 @@ export default async function getWeekly(ctx: Context): Promise<WeeklyData> {
       return totalLive(platform)
     }
     else if (type === 'gift') {
-      return totalLive(platform)
+      return weeklyGifts(platform)
     }
     else if (type === 'theater') {
       return totalTheater()
