@@ -37,23 +37,29 @@ export async function getMemberDetails(slug: string): Promise<IMemberProfileAPI>
     }).sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
   }
 
-  const most_gift = await LiveLog.findOne({ room_id: data.showroom_id, is_dev: false }).select({
-    data_id: 1,
-    c_gift: 1,
-  }).sort({ c_gift: -1 }).catch(() => null)
+  const most_gift = !data.showroom_id
+    ? null
+    : await LiveLog.findOne({ room_id: data.showroom_id, is_dev: false }).select({
+      data_id: 1,
+      c_gift: 1,
+    }).sort({ c_gift: -1 }).catch(() => null)
 
-  const last_live = await LiveLog.findOne({ room_id: data.showroom_id, is_dev: false }).select({
-    'data_id': 1,
-    'live_info.date': 1,
-    'created_at': 1,
-  }).sort({ created_at: -1 }).catch(() => null)
+  const last_live = !data.showroom_id
+    ? null
+    : await LiveLog.findOne({ room_id: data.showroom_id, is_dev: false }).select({
+      'data_id': 1,
+      'live_info.date': 1,
+      'created_at': 1,
+    }).sort({ created_at: -1 }).catch(() => null)
 
-  const longest_live = await LiveLog.findOne({ room_id: data.showroom_id, is_dev: false }).select({
-    'data_id': 1,
-    'live_info.duration': 1,
-  }).sort({
-    'live_info.duration': -1,
-  }).catch(() => null)
+  const longest_live = !data.showroom_id
+    ? null
+    : await LiveLog.findOne({ room_id: data.showroom_id, is_dev: false }).select({
+      'data_id': 1,
+      'live_info.duration': 1,
+    }).sort({
+      'live_info.duration': -1,
+    }).catch(() => null)
 
   return {
     name: data.name,
@@ -63,8 +69,8 @@ export async function getMemberDetails(slug: string): Promise<IMemberProfileAPI>
         idn: data?.live_data?.missing?.idn || 0,
       },
       total_live: {
-        showroom: await LiveLog.countDocuments({ room_id: data.showroom_id, type: 'showroom', is_dev: false }).catch(() => 0),
-        idn: await LiveLog.countDocuments({ room_id: data.showroom_id, type: 'idn', is_dev: false }).catch(() => 0),
+        showroom: data.showroom_id ? await LiveLog.countDocuments({ room_id: data.showroom_id, type: 'showroom', is_dev: false }).catch(() => 0) : 0,
+        idn: data.showroom_id ? await LiveLog.countDocuments({ room_id: data.showroom_id, type: 'idn', is_dev: false }).catch(() => 0) : 0,
       },
       most_gift: most_gift
         ? {
