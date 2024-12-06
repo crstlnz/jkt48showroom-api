@@ -105,6 +105,7 @@ export async function getMemberDetails(slug: string): Promise<IMemberProfileAPI>
     generation: data.info?.generation,
     showroom_id: data.showroom_id,
     showroom_exists: data.showroom?.room_exists,
+    profile_video: data.info?.profile_video,
     socials: data.info?.socials ?? [],
     is_graduate: data.info?.is_graduate ?? false,
     bloodType: data.info?.blood_type,

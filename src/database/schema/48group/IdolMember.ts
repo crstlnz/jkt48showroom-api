@@ -5,6 +5,7 @@ const memberSchema = new Schema<IdolMember>({
   info: {
     img: String,
     description: String,
+    profile_video: String,
     nicknames: [String],
     kanji: String,
     is_graduate: Boolean,

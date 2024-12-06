@@ -317,6 +317,7 @@ interface IMemberProfileAPI extends IMemberBasicData {
   is_graduate: boolean
   is_group: boolean
   socials: SocialNetwork[]
+  profile_video?: string
   generation?: string
   birthdate?: Date
   bloodType?: string
@@ -401,7 +402,7 @@ interface IDNLivesDetail {
     img?: string
     room_id?: number
     key?: string
-  },
+  }
   sousenkyo?: SousenkyoMember
 }
 

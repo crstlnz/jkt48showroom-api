@@ -11,6 +11,7 @@ export async function editMemberData(c: Context) {
   const infoData: Partial<IdolMember['info']> = {
     img,
     banner,
+    profile_video: query.profile_video?.toString(),
     jikosokai: query.jikosokai?.toString(),
     generation: query.generation?.toString(),
     nicknames: query['nicknames[]'] as any,
