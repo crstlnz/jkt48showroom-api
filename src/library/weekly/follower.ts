@@ -111,7 +111,7 @@ export default async function scrapeFollower(): Promise<FollowerScrapeData[]> {
     if (!i.idn?.id) {
       console.log(`${i.name} is missing idn live id!`)
     }
-
+    if (!i.showroom_id || !i.idn?.id) return null
     const data = await scrapeAll(i)
     return {
       memberData: i,
@@ -120,7 +120,8 @@ export default async function scrapeFollower(): Promise<FollowerScrapeData[]> {
     }
   })
 
-  const res = await Promise.all(promises)
+  const res = (await Promise.all(promises)).filter(i => i != null)
+
   return res.map((i) => {
     const date = dayjs().tz('Asia/Jakarta').startOf('day')
     return {

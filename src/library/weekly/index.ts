@@ -21,13 +21,22 @@ export interface WeeklyData {
   {
     member: string
     pic: string
-    value: string
+    value: string | number
   }[]
 }
+
+export type FormatType = 'raw' | 'normal' | 'extended'
+const formats: FormatType[] = ['raw', 'normal', 'extended']
 
 export default async function getWeekly(ctx: Context): Promise<WeeklyData> {
   const apiKey = ctx.req.query('api_key')
   if (apiKey !== process.env.API_KEY) throw new ApiError({ status: 401, message: 'Unauthorized!' })
+
+  let format: FormatType = ctx.req.query('format') as FormatType
+  if (!formats.includes(format as FormatType) || !format) {
+    format = 'normal'
+  }
+
   const queryPlatform = ctx.req.query('platform')
   const queryType = ctx.req.query('type')
   const platform: LivePlatform = queryPlatform !== 'showroom' && queryPlatform !== 'idn' ? 'all' : queryPlatform
@@ -35,25 +44,25 @@ export default async function getWeekly(ctx: Context): Promise<WeeklyData> {
 
   function get() {
     if (type === 'live') {
-      return totalLive(platform)
+      return totalLive(platform, format)
     }
     else if (type === 'gift') {
-      return weeklyGifts(platform)
+      return weeklyGifts(platform, format)
     }
     else if (type === 'theater') {
-      return totalTheater()
+      return totalTheater(format)
     }
     else if (type === 'duration') {
-      return weeklyDuration(platform)
+      return weeklyDuration(platform, format)
     }
     else if (type === 'viewers') {
-      return weeklyViewers(platform)
+      return weeklyViewers(platform, format)
     }
     else if (type === 'nolive') {
-      return weeklyNolive()
+      return weeklyNolive(format)
     }
     else if (type === 'follower') {
-      return weeklyFollower(platform)
+      return weeklyFollower(platform, format)
     }
 
     throw new ApiError({ message: 'not implemented yet', status: 500 })

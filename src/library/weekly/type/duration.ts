@@ -1,9 +1,9 @@
 import dayjs from 'dayjs'
-import type { LivePlatform, WeeklyData } from '..'
+import type { FormatType, LivePlatform, WeeklyData } from '..'
 import { getMember, getOneWeekLives } from '../query'
 import { durationFormat } from '@/utils/format'
 
-export default async function weeklyDuration(type: LivePlatform): Promise<WeeklyData> {
+export default async function weeklyDuration(type: LivePlatform, format: FormatType): Promise<WeeklyData> {
   const members = await getMember()
   const weeklyLives = await getOneWeekLives(members, type)
 
@@ -16,10 +16,22 @@ export default async function weeklyDuration(type: LivePlatform): Promise<Weekly
 
   const sorted = members.map((m) => {
     const longestDuration = durationMap.get(m.showroom_id ?? 0) ?? 0
+    let val: string | number = ''
+    switch (format) {
+      case 'normal':
+        val = durationFormat(longestDuration, { second: false })
+        break
+      case 'extended':
+        val = durationFormat(longestDuration, { })
+        break
+      default:
+        val = longestDuration
+        break
+    }
     return {
       member: m.info.nicknames?.[0] || m.name,
       pic: m.info.img,
-      value: durationFormat(longestDuration, { second: false }),
+      value: val,
       num_value: longestDuration,
     }
   }).sort((a, b) => {

@@ -1,10 +1,10 @@
 import dayjs from 'dayjs'
-import type { LivePlatform, WeeklyData } from '..'
+import type { FormatType, LivePlatform, WeeklyData } from '..'
 import { getMember } from '../query'
 import scrapeFollower from '../follower'
 import FollowerData from '@/database/userDB/FollowerData'
 
-export default async function weeklyFollower(type: LivePlatform): Promise<WeeklyData> {
+export default async function weeklyFollower(type: LivePlatform, format: FormatType): Promise<WeeklyData> {
   const liveType = (type !== 'idn' && type !== 'showroom') ? undefined : type
   const members = await getMember()
   const sample = await FollowerData.findOne({
@@ -27,10 +27,23 @@ export default async function weeklyFollower(type: LivePlatform): Promise<Weekly
     const currFollowers = followers.find(i => i.showroom.id === m.showroom_id)
     const follower = liveType === 'idn' ? followerData?.idn ?? 0 : (liveType === 'showroom' ? followerData?.showroom ?? 0 : (followerData?.idn ?? 0) + (followerData?.showroom ?? 0))
     const currFoll = currFollowers ? liveType === 'idn' ? currFollowers?.idn?.follower ?? 0 : (liveType === 'showroom' ? currFollowers?.showroom?.follower ?? 0 : (currFollowers?.idn?.follower ?? 0) + (currFollowers?.showroom?.follower ?? 0)) : 0
+
+    let val: string | number = ''
+    switch (format) {
+      case 'normal':
+        val = `+${currFoll - follower}`
+        break
+      case 'extended':
+        val = `+${currFoll - follower}`
+        break
+      default:
+        val = currFoll - follower
+        break
+    }
     return {
       member: m.info.nicknames?.[0] || m.name,
       pic: m.info.img,
-      value: `+${currFoll - follower}`,
+      value: val,
       num_value: currFoll - follower,
     }
   }).sort((a, b) => {

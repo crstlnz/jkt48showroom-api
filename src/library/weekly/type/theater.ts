@@ -1,9 +1,9 @@
 import dayjs from 'dayjs'
-import type { WeeklyData } from '..'
+import type { FormatType, WeeklyData } from '..'
 import { getMember } from '../query'
 import Theater from '@/database/showroomDB/jkt48/Theater'
 
-export default async function totalTheater(): Promise<WeeklyData> {
+export default async function totalTheater(format: FormatType): Promise<WeeklyData> {
   const members = await getMember()
 
   const theaters = await Theater.find({
@@ -14,10 +14,23 @@ export default async function totalTheater(): Promise<WeeklyData> {
 
   const sorted = members.map((m) => {
     const theaterCount = theaters.filter(i => m.jkt48id?.some(id => i.memberIds.includes(id))).length
+
+    let val: string | number = ''
+    switch (format) {
+      case 'normal':
+        val = `${theaterCount}x`
+        break
+      case 'extended':
+        val = `${theaterCount}x`
+        break
+      default:
+        val = theaterCount
+        break
+    }
     return {
       member: m.info.nicknames?.[0] || m.name,
       pic: m.info.img,
-      value: `${theaterCount}x`,
+      value: val,
       num_value: theaterCount,
     }
   }).sort((a, b) => {

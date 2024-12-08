@@ -1,9 +1,9 @@
 import dayjs from 'dayjs'
-import type { LivePlatform, WeeklyData } from '..'
+import type { FormatType, LivePlatform, WeeklyData } from '..'
 import { getMember, getOneWeekLives } from '../query'
 import { youtubeViewsFormat } from '@/utils/format'
 
-export default async function weeklyViewers(type: LivePlatform): Promise<WeeklyData> {
+export default async function weeklyViewers(type: LivePlatform, format: FormatType): Promise<WeeklyData> {
   const members = await getMember()
   const weeklyLives = await getOneWeekLives(members, type)
 
@@ -16,10 +16,24 @@ export default async function weeklyViewers(type: LivePlatform): Promise<WeeklyD
 
   const sorted = members.map((m) => {
     const mostViewers = viewersMap.get(m.showroom_id ?? 0) ?? 0
+
+    let val: string | number = ''
+    switch (format) {
+      case 'normal':
+        val = youtubeViewsFormat(mostViewers, 'id')
+        break
+      case 'extended':
+        val = youtubeViewsFormat(mostViewers, 'id')
+        break
+      default:
+        val = mostViewers
+        break
+    }
+
     return {
       member: m.info.nicknames?.[0] || m.name,
       pic: m.info.img,
-      value: youtubeViewsFormat(mostViewers, 'id'),
+      value: val,
       num_value: mostViewers,
     }
   }).sort((a, b) => {

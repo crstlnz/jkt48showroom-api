@@ -1,8 +1,8 @@
 import dayjs from 'dayjs'
-import type { LivePlatform, WeeklyData } from '..'
+import type { FormatType, LivePlatform, WeeklyData } from '..'
 import { getMember, getOneWeekLives } from '../query'
 
-export default async function totalLive(type: LivePlatform): Promise<WeeklyData> {
+export default async function totalLive(type: LivePlatform, format: FormatType): Promise<WeeklyData> {
   const members = await getMember()
   const weeklyLives = await getOneWeekLives(members, type)
   const giftsMap = new Map<number, number>()
@@ -13,10 +13,22 @@ export default async function totalLive(type: LivePlatform): Promise<WeeklyData>
 
   const sorted = members.map((m) => {
     const liveCount = giftsMap.get(m.showroom_id ?? 0) ?? 0
+    let val: string | number = ''
+    switch (format) {
+      case 'normal':
+        val = `${liveCount}x`
+        break
+      case 'extended':
+        val = `${liveCount}x`
+        break
+      default:
+        val = liveCount
+        break
+    }
     return {
       member: m.info.nicknames?.[0] || m.name,
       pic: m.info.img,
-      value: `${liveCount}x`,
+      value: val,
       num_value: liveCount,
     }
   }).sort((a, b) => {
