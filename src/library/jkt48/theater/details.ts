@@ -1,11 +1,21 @@
 import type { Context } from 'hono'
+import type { FilterQuery } from 'mongoose'
 import Theater from '@/database/showroomDB/jkt48/Theater'
 import { createError } from '@/utils/errorResponse'
 import IdolMember from '@/database/schema/48group/IdolMember'
 
 export async function getTheaterDetail(c: Context): Promise<IApiTheaterDetailList> {
   const id = c.req.param('id')
-  const data = await Theater.find({ $or: [{ id: { $regex: new RegExp(`^(${id}|^${id}(?:-\\d+))$`) } }, { 'showroomTheater.paid_live_id': id }] })
+  console.log(id)
+  const query: FilterQuery<JKT48.Theater>[] = [{ id: { $regex: new RegExp(`^(${id}|^${id}(?:-\\d+))$`) } }]
+  if (!Number.isNaN(Number(id))) {
+    query.push({ 'showroomTheater.paid_live_id': id })
+  }
+  else {
+    query.push({ 'idnTheater.slug': id })
+  }
+
+  const data = await Theater.find({ $or: query })
     .populate<{ members: JKT48.Member[] }>('members')
     .populate<{ setlist: JKT48.Setlist }>('setlist')
     .populate<{ seitansai: JKT48.Member[] }>('seitansai')
@@ -34,6 +44,7 @@ export async function getTheaterDetail(c: Context): Promise<IApiTheaterDetailLis
   if (!data?.length) throw createError({ statusMessage: 'Data not found!', statusCode: 404 })
   return {
     shows: data.map((i) => {
+      console.log('Data:', i.idnTheater)
       return {
         id: i.id,
         title: i.title,
@@ -75,6 +86,7 @@ export async function getTheaterDetail(c: Context): Promise<IApiTheaterDetailLis
         date: i.date,
         team: i.team,
         showroomTheater: i.showroomTheater,
+        idnTheater: i.idnTheater,
       }
     }),
     date: new Date(data[0]?.date).toISOString(),

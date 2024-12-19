@@ -119,7 +119,7 @@ type IApiIDNGift = IApiGift<LogDetail.GiftLog, LogDetail.IDNUser>
 //   is_premium?: boolean
 // }
 
-interface StreamingURL {
+interface IStreamingURL {
   label: string
   quality: number
   url: string
@@ -135,7 +135,7 @@ interface INowLive {
   is_graduate: boolean
   is_group: boolean
   started_at: string | number
-  streaming_url_list: StreamingURL[]
+  streaming_url_list: IStreamingURL[]
   is_premium?: boolean
   type: 'idn' | 'showroom'
 }
@@ -174,6 +174,7 @@ interface IApiTheaterDetail {
   seitansai: JKT48MemberExtend[]
   graduation: JKT48MemberExtend[]
   showroomTheater?: ShowroomPremiumLive
+  idnTheater?: JKT48.IDNPremiumLive
   date: Date
   team: {
     id: string
@@ -404,6 +405,36 @@ interface IDNLivesDetail {
     key?: string
   }
   sousenkyo?: SousenkyoMember
+}
+
+interface ShowroomPremiumLive {
+  entrance_url: string
+  room_url: string
+  image: string
+  premium_live_type: number
+  is_onlive?: boolean
+  title: string
+  paid_live_id: number
+  room_id: number
+  room_name: string
+  start_at: number
+}
+
+interface ShowroomPremiumLiveWithPrice extends ShowroomPremiumLive {
+  price: number
+}
+
+interface ShowroomStreamingURL {
+  is_default: boolean
+  url: string
+  type: string
+  id: number
+  label: string
+  quality: number
+}
+
+interface StreamingURL extends ShowroomStreamingURL {
+  live: boolean
 }
 
 }
