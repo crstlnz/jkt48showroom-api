@@ -56,8 +56,10 @@ export async function getIDNLives(): Promise<IDNLives[]> {
   return await promise
 }
 
-export async function fetchAllIDNLives(page = 1): Promise<IDNLiveMobileAPI[]> { // mobile api
-  const res = await ofetch<IDNLivesMobileAPI>(`https://mobile-api.idntimes.com/v3/livestreams?category=all&page=${page}&_=${new Date().getTime()}`, {
+const chat_room_ids = new Map<string, string>()
+
+export async function fetchAllIDNLives(page = 1): Promise<IDNLiveAPI[]> { // mobile api
+  const res = await ofetch<IDNLivesMobileAPI<IDNLiveAPI[]>>(`https://mobile-api.idntimes.com/v3/livestreams?category=all&page=${page}&_=${new Date().getTime()}`, {
     headers: {
       'Host': 'mobile-api.idntimes.com',
       'x-api-key': '1ccc5bc4-8bb4-414c-b524-92d11a85a818',
@@ -97,22 +99,39 @@ export async function newFetch(debug: boolean = false): Promise<IDNLives[]> {
       result.push(...filtered)
     }
 
-    return result.map((i) => {
-      return {
-        user: {
-          id: i.creator?.uuid,
-          name: i.creator?.name,
-          username: i.creator?.username,
-          avatar: i.creator?.image_url,
-        },
-        image: i.image_url,
-        stream_url: i.playback_url,
-        title: i.title,
-        slug: i.slug,
-        view_count: i.view_count,
-        live_at: dayjs(convertToMilliseconds(i.live_at)).toISOString(),
+    const res: IDNLives[] = []
+
+    for (const live of result) {
+      let chat_room_id = chat_room_ids.get(live.slug)
+      if (!chat_room_id) {
+        const data = await ofetch<IDNLivesMobileAPI<IDNLiveDetailAPI>>(`https://api.idn.app/api/v4/livestream/${live.slug}`, {
+          headers: {
+            'User-Agent': 'Android/14/SM-A528B/6.47.4',
+            'x-api-key': '123f4c4e-6ce1-404d-8786-d17e46d65b5c',
+          },
+        })
+        chat_room_id = data.data.chat_room_id
+        chat_room_ids.set(live.slug, chat_room_id)
       }
-    })
+
+      res.push({
+        user: {
+          id: live.creator?.uuid,
+          name: live.creator?.name,
+          username: live.creator?.username,
+          avatar: live.creator?.image_url,
+        },
+        chat_room_id,
+        image: live.image_url,
+        stream_url: live.playback_url,
+        title: live.title,
+        slug: live.slug,
+        view_count: live.view_count,
+        live_at: dayjs(convertToMilliseconds(live.live_at)).toISOString(),
+      })
+    }
+
+    return res
   }
   return []
 }

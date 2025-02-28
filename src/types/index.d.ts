@@ -135,6 +135,7 @@ interface INowLive {
   is_graduate: boolean
   is_group: boolean
   started_at: string | number
+  chat_room_id?: string
   streaming_url_list: IStreamingURL[]
   is_premium?: boolean
   type: 'idn' | 'showroom'
@@ -336,6 +337,7 @@ interface IDNUser {
 }
 interface IDNLives {
   user: IDNUser
+  chat_room_id?: string
   image: string
   title: string
   slug: string
@@ -344,7 +346,7 @@ interface IDNLives {
   stream_url: string
 }
 
-interface IDNLiveMobileAPI {
+interface IDNLiveAPI {
   slug: string
   title: string
   image_url: string
@@ -360,6 +362,34 @@ interface IDNLiveMobileAPI {
   creator: ICreator
 }
 
+interface IDNLiveDetailAPI {
+  slug: string
+  title: string
+  image_url: string
+  category: ICategory
+  creator: ICreator
+  view_count: number
+  unique_view_count: number
+  room_identifier: string
+  status: string
+  live_at: number
+  end_at: number
+  scheduled_at: number
+  gift_icon_url: string
+  is_notified: boolean
+  chat_room_id: string
+  live_type: string
+  is_obs: boolean
+  live_duration: number
+  entity: IEntity
+}
+
+interface IEntity {
+  status: any
+  livestream_url: string
+  livestream_key: string
+  playback_url: string
+}
 interface ICategory {
   name: string
   slug: string
@@ -374,13 +404,13 @@ interface ICreator {
   total_gold: number
 }
 
-interface IDNLivesMobileAPI {
+interface IDNLivesMobileAPI<T> {
   status: number
   user_message?: {
     title: string
     message: string
   }
-  data: Live[]
+  data: T
   error?: {
     message: string
     reason: string
