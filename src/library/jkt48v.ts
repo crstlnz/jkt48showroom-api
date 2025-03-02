@@ -6,7 +6,7 @@ interface YoutubeThumbnail {
   width: number
   height: number
 }
-interface JKT48VLiveResults {
+export interface JKT48VLiveResults {
   channelTitle: string
   channelId: string
   title: string

@@ -4,12 +4,13 @@ import { getNowLiveCookies, getNowLiveIndirect } from './nowLive'
 import { fetchIDN } from './idn/lives'
 import IdolMember from '@/database/schema/48group/IdolMember'
 import { getOnlives } from '@/utils/api/showroom'
+import { getJKT48VLive, JKT48VLiveResults } from '@/library/jkt48v'
 
 // const sleep = (ms: number) => new Promise<void>(resolve => setTimeout(() => resolve(), ms))
 // let id = 0
 export async function getCombinedNowLive(c: Context) {
   const group = c.req.query('group') === 'hinatazaka46' ? 'hinatazaka46' : 'jkt48'
-  return await fetchCombined(c, group === 'jkt48')
+  return await fetchCombined(c, group)
 }
 
 async function showroomNowlive(c: Context): Promise<INowLive[]> {
@@ -77,13 +78,29 @@ async function idnNowLive(debug: boolean = false): Promise<INowLive[]> {
   })
 }
 
-async function fetchCombined(c: Context, idn: boolean): Promise<INowLive[]> {
+interface YoutubeLive extends JKT48VLiveResults {
+  type : "youtube"
+}
+
+async function getJKT48V(debug: boolean = false): Promise<YoutubeLive[]> {
+  const lives = await getJKT48VLive();
+  return lives.map((i) => {
+    return {
+      ...i,
+      type : "youtube"
+    }
+  })
+}
+
+async function fetchCombined(c: Context, group: string): Promise<(INowLive | YoutubeLive)[]> {
   const sr = await showroomNowlive(c)
-  const res = [...sr]
-  if (idn) {
+  const res : (INowLive | YoutubeLive)[] = [...sr]
+  if (group === 'jkt48') {
     const isDebug = c.req.query('debug')
     const idn = await idnNowLive(isDebug === 'true')
+    const jkt48v = await getJKT48V()
     res.push(...idn)
+    res.push(...jkt48v)
   }
   return res
 }
