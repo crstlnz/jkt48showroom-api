@@ -31,6 +31,20 @@ export async function getJKT48VLive() {
   }
 }
 
+const cache = new Map<string, JKT48VLiveResults[]>()
+let TO : NodeJS.Timeout;
+export async function cachedJKT48VLive() : Promise<JKT48VLiveResults[]>{
+  const c = cache.get("cache")
+  if(c) return c
+  const res = await getJKT48VLive()
+  cache.set("cache", res)
+  clearTimeout(TO)
+  TO = setTimeout(()=> {
+    cache.clear()
+  }, 30000)
+  return res
+}
+
 async function searchYoutube(result: JKT48VLiveResults[] = [], nextPageToken: string | null = null) {
   const data = await ofetch<YoutubeSearchResult>('https://www.googleapis.com/youtube/v3/search', {
     query: {

@@ -4,7 +4,7 @@ import { getNowLiveCookies, getNowLiveIndirect } from './nowLive'
 import { fetchIDN } from './idn/lives'
 import IdolMember from '@/database/schema/48group/IdolMember'
 import { getOnlives } from '@/utils/api/showroom'
-import { getJKT48VLive, JKT48VLiveResults } from '@/library/jkt48v'
+import { cachedJKT48VLive, getJKT48VLive, JKT48VLiveResults } from '@/library/jkt48v'
 
 // const sleep = (ms: number) => new Promise<void>(resolve => setTimeout(() => resolve(), ms))
 // let id = 0
@@ -83,7 +83,7 @@ interface YoutubeLive extends JKT48VLiveResults {
 }
 
 async function getJKT48V(debug: boolean = false): Promise<YoutubeLive[]> {
-  const lives = await getJKT48VLive();
+  const lives = await cachedJKT48VLive();
   return lives.map((i) => {
     return {
       ...i,
