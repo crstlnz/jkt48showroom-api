@@ -98,7 +98,7 @@ async function fetchCombined(c: Context, group: string): Promise<(INowLive | You
   if (group === 'jkt48') {
     const isDebug = c.req.query('debug')
     const idn = await idnNowLive(isDebug === 'true')
-    const jkt48v = await getJKT48V()
+    const jkt48v = await getJKT48V().catch(()=> [])
     res.push(...idn)
     res.push(...jkt48v)
   }
