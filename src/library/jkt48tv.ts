@@ -58,7 +58,7 @@ async function searchYoutube(channelId: string, result: JKT48Video[] = [], nextP
     query: {
       part: 'snippet',
       channelId,
-      key: process.env.YOUTUBE_KEY ?? '',
+      key: process.env.YOUTUBE_JKT48 ?? '',
       pageToken: nextPageToken ?? undefined,
       maxResults: 10,
       order: 'date',
