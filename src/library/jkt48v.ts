@@ -31,6 +31,13 @@ export async function getJKT48VLive() {
   }
 }
 
+let keyI = 0
+const keys = (process.env.YOUTUBE_KEY ?? "").split(",").map(i=> i.trim())
+function getYoutubeKey(){
+  keyI++
+  return keys[keyI % keys.length]
+}
+
 const cache = new Map<string, JKT48VLiveResults[]>()
 let TO : NodeJS.Timeout;
 export async function cachedJKT48VLive() : Promise<JKT48VLiveResults[]>{
@@ -51,7 +58,7 @@ async function searchYoutube(result: JKT48VLiveResults[] = [], nextPageToken: st
       part: 'snippet',
       eventType: 'live',
       type: 'video',
-      key: process.env.YOUTUBE_KEY ?? '',
+      key: getYoutubeKey(),
       q: 'JKT48V',
       pageToken: nextPageToken ?? undefined,
     },
