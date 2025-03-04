@@ -152,7 +152,7 @@ async function getVideoDetails(videos: JKT48Video[]): Promise<JKT48Video[]> {
     query: {
       id: videos.map(i => i.id).join(','),
       part: 'snippet,statistics,id',
-      key: process.env.YOUTUBE_KEY ?? '',
+      key: process.env.YOUTUBE_JKT48 ?? '',
     },
   })
 
