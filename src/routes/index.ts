@@ -40,7 +40,7 @@ import getEvents from '@/library/jkt48/event'
 import { getCombinedNowLive } from '@/library/combinedNowLive'
 import getStream from '@/library/stream'
 import { getLeaderboard } from '@/library/leaderboard'
-import { getJKT48VLive } from '@/library/jkt48v'
+import { cachedJKT48VLive } from '@/library/jkt48v'
 import getSetlist from '@/library/jkt48/theater/setlist'
 import { getJKT48YoutubeVideo } from '@/library/jkt48tv'
 import getWeekly from '@/library/weekly'
@@ -74,7 +74,7 @@ app.route('/sousenkyo', sousenkyo)
 app.get('/leaderboard', useCORS('self'), ...handler(getLeaderboard, { minutes: 10 }))
 
 app.get('/jkt48_youtube', ...handler(getJKT48YoutubeVideo, { minutes: 30, useRateLimit: true, useSingleProcess: true }))
-app.get('/jkt48v_live', ...handler(getJKT48VLive, { seconds: 30 }))
+app.get('/jkt48v_live', ...handler(cachedJKT48VLive, { minutes: 5 }))
 app.get('/member', ...handler(getMembers, { hours: 12 }))
 app.get('/member/:id', ...handler(c => getMemberDetails(c.req.param('id')), { minutes: 30, useRateLimit: true }))
 

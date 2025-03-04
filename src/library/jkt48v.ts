@@ -48,7 +48,7 @@ export async function cachedJKT48VLive() : Promise<JKT48VLiveResults[]>{
   clearTimeout(TO)
   TO = setTimeout(()=> {
     cache.clear()
-  }, 30000)
+  }, 180000)
   return res
 }
 
