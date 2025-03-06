@@ -5,6 +5,13 @@ declare namespace JKT48 {
     url?: string
   }
 
+  interface MemberWithNickname {
+    id: string
+    name: string
+    nicknames: string[]
+    url?: string
+  }
+
   interface Schedule {
     id: string
     label: string
@@ -21,6 +28,21 @@ declare namespace JKT48 {
     memberIds: string[]
     seitansaiIds: string[]
     graduationIds?: string[]
+    date: Date
+    team: {
+      id: string
+      img: string
+    }
+    showroomTheater?: ShowroomPremiumLiveWithPrice
+    idnTheater?: IDNPremiumLive
+  }
+
+  interface Event {
+    id: string
+    title: string
+    url: string
+    eventId: string
+    memberIds?: string[]
     date: Date
     team: {
       id: string
@@ -82,5 +104,15 @@ declare namespace JKT48 {
     banner?: string
     gallery?: string[]
     songs?: Song[]
+  }
+
+  interface EventDetail {
+    id: string
+    title: string
+    title_alt?: string
+    description?: string
+    poster?: string
+    banner?: string
+    gallery?: string[]
   }
 }

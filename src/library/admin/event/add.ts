@@ -1,9 +1,9 @@
-import type { Context } from 'hono'
-import { createError } from '@/utils/errorResponse'
-import { uploadImageBuffer } from '@/utils/cloudinary'
-import Setlist from '@/database/showroomDB/jkt48/Setlist'
+import EventDetail from "@/database/showroomDB/jkt48/EventDetail"
+import { uploadImageBuffer } from "@/utils/cloudinary"
+import { createError } from "@/utils/errorResponse"
+import { Context } from "hono"
 
-export async function addOrEditSetlist(c: Context) {
+export async function addOrEditEvent(c: Context) {
   const data = await c.req.parseBody()
   const dataId = data._id
   const poster = data.poster as File
@@ -43,7 +43,7 @@ export async function addOrEditSetlist(c: Context) {
         idObj.id = id
     }
 
-    await Setlist.updateOne(
+    await EventDetail.updateOne(
       {
         ...idObj
       },
@@ -63,7 +63,7 @@ export async function addOrEditSetlist(c: Context) {
     }
   }
   catch (e) {
-    console.log(e)
+    console.error(e)
     throw createError({ statusCode: 500, statusMessage: 'An error occured!' })
   }
 }

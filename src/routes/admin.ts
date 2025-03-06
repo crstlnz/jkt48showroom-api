@@ -23,11 +23,15 @@ import getMissingJKT48ID from '@/library/admin/missingJKT48ID'
 import { editJKT48ID } from '@/library/admin/input/member/jkt48id'
 import { getMemberDataForEdits } from '@/library/admin/getMemberData'
 import { setMemberData } from '@/library/admin/input/setMemberData'
-import { getTheater, getTheaterById } from '@/library/jkt48/theater'
-import Theater from '@/database/showroomDB/jkt48/Theater'
+import { getTheaterById } from '@/library/jkt48/theater'
 import { notFound } from '@/utils/errorResponse'
-import Member from '@/database/showroomDB/jkt48/Member'
 import { editTheater } from '@/library/admin/input/editTheater'
+import getAllEvent from '@/library/admin/event/event'
+import { addOrEditEvent } from '@/library/admin/event/add'
+import deleteSetlist from '@/library/admin/input/setlist/delete'
+import deleteEvent from '@/library/admin/event/delete'
+import { getJKT48EventById } from '@/library/jkt48/jkt48event'
+import { editJKT48Event } from '@/library/admin/input/editJKT48Event'
 
 const app = new Hono()
 app.use('*', useCORS('self'))
@@ -38,6 +42,7 @@ app.use('*', checkAdmin())
 app.get('/missing_jikosokai', ...handler(getMissingJikosoukai))
 app.get('/missing_jkt48id', ...handler(getMissingJKT48ID))
 app.get('/setlist', ...handler(getAllSetlist))
+app.get('/event', ...handler(getAllEvent))
 app.get('/stage48', ...handler(c => getStage48(c.req.query('group'))))
 app.get('/jkt48member', ...handler(getJKT48Members))
 app.get('/member', ...handler(getMembers))
@@ -55,13 +60,24 @@ app.get('/theater/:id', async (c) => {
   return c.json(theater)
 })
 
+app.get('/event/:id', async (c) => {
+  const theater = await getJKT48EventById(c.req.param('id'))
+  if (!theater) throw notFound()
+  return c.json(theater)
+})
+
 app.post('/set_memberdata', ...handler(setMemberData))
 app.post('/set_graduate', ...handler(setGraduate))
 app.post('/edit_showroom', ...handler(editShowroom))
 app.post('/edit_theater', ...handler(editTheater))
+app.post('/edit_jkt48event', ...handler(editJKT48Event))
 app.post('/edit_memberdata', ...handler(editMemberData))
 app.post('/edit/announcement', ...handler(editMemberData))
 app.post('/setlist', ...handler(addOrEditSetlist))
+app.post('/event', ...handler(addOrEditEvent))
+
+app.delete('/setlist/:id', ...handler(deleteSetlist))
+app.delete('/event/:id', ...handler(deleteEvent))
 
 app.post('/member/jikosokai', ...handler(editJikosoukai))
 app.post('/member/jkt48id', ...handler(editJKT48ID))
