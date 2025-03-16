@@ -9,7 +9,7 @@ import LiveLog from '@/database/live/schema/LiveLog'
 export async function getRecents(c: Context): Promise<IApiRecents> {
   const qq = c.req.query()
 
-  let type: string | undefined = qq.type || 'showroom'
+  let type: string | undefined = qq.type || 'all'
   if (type === 'all') type = undefined
 
   let page = 1

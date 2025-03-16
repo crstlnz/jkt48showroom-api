@@ -51,8 +51,22 @@ const app = new Hono()
 
 app.use('*', useCORS('self'))
 
+const loggerPrint = (message: string, ...rest: string[]) => {
+  if(process.env.ENABLE_IP) {
+
+  }
+  console.log(message, ...rest)
+}
+
+
 if (process.env.LOG === 'true') {
-  app.use('*', logger())
+  if(process.env.SHOW_IP) {
+    app.use(async (c, next) => {
+      logger((...args)=> loggerPrint(String(getIp(c)),...args))(c,next)
+    })
+  }else{
+    app.use('*',logger(loggerPrint))
+  }
 }
 
 const origins = (process.env.ORIGINS ?? '').split(',').map(i => i.trim())
