@@ -62,7 +62,7 @@ const loggerPrint = (message: string, ...rest: string[]) => {
 if (process.env.LOG === 'true') {
   if(process.env.SHOW_IP) {
     app.use(async (c, next) => {
-      logger((...args)=> loggerPrint(String(getIp(c)),...args))(c,next)
+      await logger((...args)=> loggerPrint(String(getIp(c)),...args))(c,next)
     })
   }else{
     app.use('*',logger(loggerPrint))
