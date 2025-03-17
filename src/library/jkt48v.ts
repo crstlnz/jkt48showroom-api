@@ -61,7 +61,7 @@ async function searchYoutube(result: JKT48VLiveResults[] = [], nextPageToken: st
       eventType: 'live',
       type: 'video',
       key: getYoutubeKey(),
-      q: 'JKT48|JKT48V',
+      q: '"JKT48", channel',
       pageToken: nextPageToken ?? undefined,
     },
   })
