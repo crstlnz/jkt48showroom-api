@@ -23,7 +23,9 @@ export interface JKT48VLiveResults {
 const jkt48v_ids = (process.env.JKT48V_YT_IDS ?? '').split(',').map(i => i.trim())
 export async function getJKT48VLive() {
   try {
-    return (await searchYoutube()).filter(i => jkt48v_ids.includes(i.channelId))
+    const data = await searchYoutube()
+    console.log(data)
+    return data.filter(i => jkt48v_ids.includes(i.channelId))
   }
   catch (e) {
     console.error(e)
@@ -59,7 +61,7 @@ async function searchYoutube(result: JKT48VLiveResults[] = [], nextPageToken: st
       eventType: 'live',
       type: 'video',
       key: getYoutubeKey(),
-      q: 'JKT48V',
+      q: 'JKT48|JKT48V',
       pageToken: nextPageToken ?? undefined,
     },
   })
