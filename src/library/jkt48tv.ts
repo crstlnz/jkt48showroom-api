@@ -41,14 +41,25 @@ interface JKT48Video {
   statistics?: Statistics
 }
 
+let keyI = 0
+const keys = (process.env.YOUTUBE_JKT48 ?? "").split(",").map(i=> i.trim())
+function getYoutubeKey(){
+  return keys[keyI % keys.length]
+}
+
+
+let lastSuccessData: JKT48Video[];
 export async function getJKT48YoutubeVideo() {
   try {
+    keyI++
     const jkt48tv = await searchYoutube(jkt48TVChannelId)
     const jkt48 = await searchYoutube(jkt48ChannelId)
-    return await getVideoDetails([...jkt48tv, ...jkt48].sort((a, b) => dayjs(b.date).diff(a.date)).slice(0, 10))
+    lastSuccessData = await getVideoDetails([...jkt48tv, ...jkt48].sort((a, b) => dayjs(b.date).diff(a.date)).slice(0, 10))
+    return lastSuccessData
   }
   catch (e) {
     console.error(e)
+    if(lastSuccessData) return lastSuccessData
     throw new Error('Youtube search failed!')
   }
 }
@@ -58,7 +69,7 @@ async function searchYoutube(channelId: string, result: JKT48Video[] = [], nextP
     query: {
       part: 'snippet',
       channelId,
-      key: process.env.YOUTUBE_JKT48 ?? '',
+      key: getYoutubeKey(),
       pageToken: nextPageToken ?? undefined,
       maxResults: 10,
       order: 'date',
@@ -152,14 +163,13 @@ async function getVideoDetails(videos: JKT48Video[]): Promise<JKT48Video[]> {
     query: {
       id: videos.map(i => i.id).join(','),
       part: 'snippet,statistics,id',
-      key: process.env.YOUTUBE_JKT48 ?? '',
+      key: getYoutubeKey(),
     },
   })
 
   for (const video of res.items) {
     const v = videoMap.get(video.id)
     if (v) {
-      console.log(video.statistics)
       videoMap.set(video.id, { ...v, statistics: video.statistics })
     }
   }
