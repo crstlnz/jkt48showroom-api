@@ -7,9 +7,8 @@ import { getSousenkyoMemberDetail } from '@/library/jkt48/scraper/sousenkyo/memb
 const app = new Hono()
 app.use('*', useCORS('self'))
 
-app.get('/members', ...handler(() => getSousenkyoMembers()))
-app.get('/members', ...handler(() => getSousenkyoMembers()))
-app.get('/member/:id', ...handler(c => getSousenkyoMemberDetail(c.req.param('id'))))
-app.get('/member/:id/room_id', ...handler(c => getSousenkyoMemberByRoomId(c.req.param('id'))))
+// app.get('/members', ...handler(() => getSousenkyoMembers()))
+// app.get('/member/:id', ...handler(c => getSousenkyoMemberDetail(c.req.param('id'))))
+// app.get('/member/:id/room_id', ...handler(c => getSousenkyoMemberByRoomId(c.req.param('id'))))
 
 export default app

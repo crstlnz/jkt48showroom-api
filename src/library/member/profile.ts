@@ -4,14 +4,21 @@ import { createError } from '@/utils/errorResponse'
 import Theater from '@/database/showroomDB/jkt48/Theater'
 import LiveLog from '@/database/live/schema/LiveLog'
 import IdolMember from '@/database/schema/48group/IdolMember'
+import ShowroomLog from '@/database/schema/showroom/ShowroomLog'
 
 export async function getMemberDetails(slug: string): Promise<IMemberProfileAPI> {
-  const data = await IdolMember.findOne({ slug }).populate<{ showroom: Database.IShowroomMember }>('showroom').lean()
-  if (!data) throw createError({ statusMessage: 'Data not found!', statusCode: 404 })
+  let data = await IdolMember.findOne({ slug }).populate<{ showroom: Database.IShowroomMember }>('showroom').lean()
+  if(!data) {
+    const sr = await Showroom.findOne({url : slug})
+    if (!sr) throw createError({ statusMessage: 'Data not found!', statusCode: 404 })
+    data = await IdolMember.findOne({ showroom_id : sr.room_id }).populate<{ showroom: Database.IShowroomMember }>('showroom').lean()
+    if (!data) throw createError({ statusMessage: 'Data not found!', statusCode: 404 })
+  }
+
   let recentTheater: ITheaterAPI[] = []
   let upcomingTheater: ITheaterAPI[] = []
 
-  const sousenkyoData = await getSousenkyoMembers()
+  // const sousenkyoData = await getSousenkyoMembers()
 
   if (data.group === 'jkt48' && data.jkt48id) {
     const next = await Theater.find({ memberIds: { $in: data.jkt48id }, date: { $gte: new Date() } }).populate<{ setlist: JKT48.Setlist }>('setlist').sort({ date: -1 }).limit(4)
@@ -113,7 +120,7 @@ export async function getMemberDetails(slug: string): Promise<IMemberProfileAPI>
     is_group: data.showroom?.is_group ?? false,
     url: data.slug ?? data.showroom?.url,
     birthdate: data.info?.birthdate,
-    sousenkyo: sousenkyoData?.find(s => data.jkt48id?.includes(s.id)),
+    // sousenkyo: sousenkyoData?.find(s => data.jkt48id?.includes(s.id)),
     recentTheater,
     upcomingTheater,
   }

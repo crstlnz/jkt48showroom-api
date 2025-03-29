@@ -73,7 +73,7 @@ async function getData(c: Context): Promise<WatchCache | WatchError> {
     const giftList = (data.is_live ? (await getGiftList(data.room_id, cookies)).normal : [])
     const dataMember = await IdolMember.findOne({ showroom_id: data.room_id }).select({ jkt48id: true }).lean().catch(e => null)
     const jkt48id = dataMember?.jkt48id
-    const sousenkyoData = await getSousenkyoMembers()
+    // const sousenkyoData = await getSousenkyoMembers()
 
     const watchData: Watch.WatchData = {
       name: data.room_name,
@@ -101,7 +101,7 @@ async function getData(c: Context): Promise<WatchCache | WatchError> {
           avatar_id: i.avatar_id,
         }
       }),
-      sousenkyo: sousenkyoData?.find(i => jkt48id?.includes(i.id)),
+      // sousenkyo: sousenkyoData?.find(i => jkt48id?.includes(i.id)),
     }
 
     const res: WatchCache = {

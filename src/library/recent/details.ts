@@ -331,19 +331,19 @@ export async function getRecentDetails(c: Context): Promise<LogDetail.Showroom |
   if (!data) throw createError({ statusMessage: 'Data not found!', statusCode: 404 })
   const userData = await UserLog.findOne({ data_id: data.data_id })
   data.users = userData?.users ?? []
-  const sousenkyoMembers = await getSousenkyoMembers().catch(() => [])
-  const sousenkyoData = sousenkyoMembers.find(i => data.room_info?.member_data?.jkt48id?.includes(i.id))
+  // const sousenkyoMembers = await getSousenkyoMembers().catch(() => [])
+  // const sousenkyoData = sousenkyoMembers.find(i => data.room_info?.member_data?.jkt48id?.includes(i.id))
 
   if (data.type === 'showroom') {
     return {
       ...await parseShowroom(data as Log.Showroom),
-      sousenkyo: sousenkyoData,
+      // sousenkyo: sousenkyoData,
     }
   }
   else {
     return {
       ...await parseIDN(data as Log.IDN),
-      sousenkyo: sousenkyoData,
+      // sousenkyo: sousenkyoData,
     }
   }
 }
