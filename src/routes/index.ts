@@ -46,6 +46,7 @@ import { getJKT48YoutubeVideo } from '@/library/jkt48tv'
 import getWeekly from '@/library/weekly'
 import { getEventList, getJKT48Event } from '@/library/jkt48/jkt48event'
 import { getJKT48EventDetail } from '@/library/jkt48/jkt48event/details'
+import getIDNUser from '@/library/idn/user'
 
 const app = new Hono()
 
@@ -94,6 +95,7 @@ app.get('/jkt48v_live', ...handler(cachedJKT48VLive, { minutes: 5 }))
 app.get('/member', ...handler(getMembers, { hours: 12 }))
 app.get('/member/:id', ...handler(c => getMemberDetails(c.req.param('id')), { minutes: 30, useRateLimit: true }))
 
+
 app.use('*', useCORS('all'))
 
 app.use('/*', async (c, next) => {
@@ -114,6 +116,8 @@ app.get('/now_live', ...handler(getCombinedNowLive, (c) => {
     },
   }
 }))
+
+app.get('/idn_user', ...handler(getIDNUser, { hours: 1 }))
 
 app.get('/next_live', ...handler(getNextLive, { hours: 1 }))
 app.get('/watch/:id', ...handler(getWatchData, { seconds: 4 }))
