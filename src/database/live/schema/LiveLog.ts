@@ -43,6 +43,7 @@ const liveLogSchema = new Schema<Log.Live, ILogLiveModel>({
     required: true,
     unique: true,
   },
+  replay_url : String,
   live_info: {
     is_premium: {
       type: Boolean,

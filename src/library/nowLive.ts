@@ -1,7 +1,7 @@
 import type { Context } from 'hono'
+import { getAllFollows, getIsLive, getOnlives, getProfile, getRoomStatus, getStreamingURL } from '@/utils/api/showroom'
 import dayjs from 'dayjs'
 import { getMembers } from './member'
-import { getAllFollows, getIsLive, getOnlives, getRoomStatus, getStreamingURL } from '@/utils/api/showroom'
 
 export async function getNowLive(c: Context) {
   return new Promise((resolve, reject) => {
@@ -35,7 +35,7 @@ export async function getNowLiveDirect(
         try {
           const data = await getIsLive(room_id)
           if (!data.ok) return null // if 'ok',this room is on live
-          const status = await getRoomStatus({ room_url_key: member.url.startsWith('/') ? member.url.slice(1) : member.url })
+          const profile = await getProfile(member.room_id ?? 0)
           const streamURLS = await getStreamingURL({ room_id: member.room_id }).catch(() => null)
           return {
             name: member.name,
@@ -45,7 +45,7 @@ export async function getNowLiveDirect(
             room_id,
             is_graduate: member.is_graduate,
             is_group: member.group === 'official',
-            started_at: dayjs((status.started_at ?? 0) * 1000).toISOString(),
+            started_at: dayjs((profile.current_live_started_at ?? 0) * 1000).toISOString(),
             type: 'showroom',
             streaming_url_list: (streamURLS?.streaming_url_list ?? []).filter(i => i.type === 'hls').map((i) => {
               return {
@@ -57,6 +57,7 @@ export async function getNowLiveDirect(
           }
         }
         catch (e) {
+          console.error(e)
           return null
         }
       })(),
@@ -95,18 +96,19 @@ export async function getNowLiveCookies(membersData: IMember[] | null = null, c:
               streaming_url_list: [],
             }
           })
-          const RoomStatus = await getRoomStatus({ room_url_key: room.room_url_key }).catch((e: any) => {
+          const profile = await getProfile(room.room_id).catch((e: any) => {
             if (e.data?.errors && e.data?.errors[0]?.redirect_url) {
               isPremium = true
             }
           })
+
           return {
             name: room.room_name,
             img: room.image_l,
             img_alt: member.img_alt,
             url_key: room.room_url_key,
             room_id: Number(room.room_id),
-            started_at: dayjs((RoomStatus?.started_at ?? 0) * 1000).toISOString(),
+            started_at: dayjs((profile?.current_live_started_at ?? 0) * 1000).toISOString(),
             is_graduate: member.is_graduate,
             is_group: member.group === 'official',
             type: 'showroom',

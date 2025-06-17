@@ -2,6 +2,7 @@ declare namespace Log {
   type Type = 'showroom' | 'idn'
   interface Base {
     is_dev: boolean
+    replay_url: string
     live_id: string | number
     data_id: string
     room_id: number

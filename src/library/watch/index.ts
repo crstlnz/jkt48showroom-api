@@ -1,8 +1,6 @@
 import type { Context } from 'hono'
-import { getSousenkyoMembers } from '../jkt48/scraper/sousenkyo'
-import { getCommentLog, getGiftList, getGiftLog, getLiveInfo, getRoomStatus, getStreamingURL } from '@/utils/api/showroom'
+import { getCommentLog, getGiftList, getGiftLog, getLiveInfo, getProfile, getRoomStatus, getStreamingURL } from '@/utils/api/showroom'
 import { createError } from '@/utils/errorResponse'
-import IdolMember from '@/database/schema/48group/IdolMember'
 
 interface WatchCache {
   data: Watch.WatchData
@@ -15,7 +13,7 @@ interface WatchError {
   is_error: true
 }
 
-export const cache = new Map<string, WatchCache | WatchError >()
+export const cache = new Map<string, WatchCache | WatchError>()
 
 function setClearCache(room_url_key: string) {
   setTimeout(() => {
@@ -65,21 +63,21 @@ async function getData(c: Context): Promise<WatchCache | WatchError> {
     // const cookies = ``
     const cookies = `sr_id=${srId};`
     const data = await getRoomStatus({ room_url_key }, cookies)
+    const profile = await getProfile(data.room_id ?? 0)
     const liveInfo = data.is_live ? (await getLiveInfo({ room_id: data.room_id }, cookies)) : null
     const streamUrl = data.is_live ? (await getStreamingURL({ room_id: data.room_id }, cookies)).streaming_url_list : []
     // const streamUrl = data.is_live ? (await getLive({ room_id: data.room_id }, cookies)).streaming_url_list : []
     const comments = (data.is_live ? (await getCommentLog(data.room_id, cookies)).comment_log : []).filter(i => !(!Number.isNaN(i.comment) && Number.parseInt(i.comment) <= 50))
     const giftLog = (data.is_live ? (await getGiftLog(data.room_id, cookies)).gift_log : [])
     const giftList = (data.is_live ? (await getGiftList(data.room_id, cookies)).normal : [])
-    const dataMember = await IdolMember.findOne({ showroom_id: data.room_id }).select({ jkt48id: true }).lean().catch(e => null)
-    const jkt48id = dataMember?.jkt48id
+    // const dataMember = await IdolMember.findOne({ showroom_id: data.room_id }).select({ jkt48id: true }).lean().catch(e => null)
     // const sousenkyoData = await getSousenkyoMembers()
 
     const watchData: Watch.WatchData = {
       name: data.room_name,
-      started_at: data.started_at,
-      can_comment: data.can_comment,
-      live_id: data.live_id,
+      started_at: profile.current_live_started_at ?? 0,
+      can_comment: true,
+      live_id: profile.live_id,
       room_id: data.room_id,
       streaming_url_list: streamUrl,
       socket_host: data.broadcast_host,

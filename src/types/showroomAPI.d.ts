@@ -151,36 +151,29 @@ declare namespace ShowroomAPI {
   }
 
   interface RoomStatus {
-    did_send_live_bad_report: boolean
-    is_enquete: boolean
-    room_url_key: string
-    is_owner: boolean
-    share: {
-      twitter: {
-        text: string
-        url: string
-      }
-    }
-    can_comment: boolean
-    started_at: number
-    is_live: boolean
-    live_id: number
-    room_name: string
-    background_image_url: string
-    broadcast_key: string
-    is_official: boolean
-    video_type: number
-    broadcast_port: number
-    image_s: string
-    live_type: number
     broadcast_host: string
-    live_user_key: string
+    broadcast_key: string
+    broadcast_port: number
+    did_send_live_bad_report: boolean
     genre_id: number
+    image_s: string
     is_fav: boolean
-    youtube_id: string
-    live_status: number
+    is_live: boolean
+    is_official: boolean
+    is_owner: boolean
+    is_room_organizer: boolean
     room_id: number
-    nsta_owner: boolean
+    room_name: string
+    room_url_key: string
+    share: Share
+  }
+
+  interface RoomStatusShare {
+    twitter: RoomStatusTwitter
+  }
+
+  interface RoomStatusTwitter {
+    text: string
   }
 
   interface Polling {

@@ -1,72 +1,71 @@
 import type { Context } from 'hono'
-import { Hono } from 'hono'
-import { logger } from 'hono/logger'
-import { csrf } from 'hono/csrf'
-import showroom from './showroom'
-import sousenkyo from './sousenkyo'
-import auth from './auth'
-import user from './user'
-import admin from './admin'
-import { getRecents } from '@/library/recent'
-import { getRecentDetails } from '@/library/recent/details'
 import { dbConnect } from '@/database'
-import { getMembers } from '@/library/member'
-import { getMemberDetails } from '@/library/member/profile'
-
-// import { getStats } from '@/library/stats'
-import { getGifts } from '@/library/recent/gifts'
-import { getNextLive } from '@/library/nextLive'
-import { getFirstData } from '@/library/firstData'
-import { getScreenshots } from '@/library/screenshots'
-import { getRecords } from '@/library/records'
-import { getTheaterDetail } from '@/library/jkt48/theater/details'
-import { getNewsDetail } from '@/library/jkt48/news/details'
-import { getNews } from '@/library/jkt48/news'
-import { getSchedule } from '@/library/jkt48/nextSchedule'
-import { getMemberBirthdays, nextBirthDay } from '@/library/stage48/birthday'
-import { getMember48List } from '@/library/stage48/memberList'
-import { getIp, useSessionID } from '@/utils/security'
-import { getStageList } from '@/library/recent/stageList'
-import { getProfile } from '@/library/room/profile'
-import { useShowroomSession } from '@/utils/showroomSession'
-import { handler } from '@/utils/factory'
-import { useCORS } from '@/utils/cors'
-import { fetchIDN } from '@/library/idn/lives'
-import { getIDNLive } from '@/library/watch/idn'
-import { getWatchData } from '@/library/watch'
-import { getSessId } from '@/utils/security/cookies/sessId'
-import { getTheater } from '@/library/jkt48/theater'
-import getEvents from '@/library/jkt48/event'
 import { getCombinedNowLive } from '@/library/combinedNowLive'
-import getStream from '@/library/stream'
-import { getLeaderboard } from '@/library/leaderboard'
-import { cachedJKT48VLive } from '@/library/jkt48v'
-import getSetlist from '@/library/jkt48/theater/setlist'
-import { getJKT48YoutubeVideo } from '@/library/jkt48tv'
-import getWeekly from '@/library/weekly'
+import { getFirstData } from '@/library/firstData'
+import { fetchIDN } from '@/library/idn/lives'
+import getIDNUser from '@/library/idn/user'
+import getEvents from '@/library/jkt48/event'
 import { getEventList, getJKT48Event } from '@/library/jkt48/jkt48event'
 import { getJKT48EventDetail } from '@/library/jkt48/jkt48event/details'
-import getIDNUser from '@/library/idn/user'
+import { getNews } from '@/library/jkt48/news'
+import { getNewsDetail } from '@/library/jkt48/news/details'
+import { getSchedule } from '@/library/jkt48/nextSchedule'
+import { getTheater } from '@/library/jkt48/theater'
+import { getTheaterDetail } from '@/library/jkt48/theater/details'
+
+import getSetlist from '@/library/jkt48/theater/setlist'
+import { getJKT48YoutubeVideo } from '@/library/jkt48tv'
+import { cachedJKT48VLive } from '@/library/jkt48v'
+import { getLeaderboard } from '@/library/leaderboard'
+import { getMembers } from '@/library/member'
+import { getMemberDetails } from '@/library/member/profile'
+import { getNextLive } from '@/library/nextLive'
+import { getRecents } from '@/library/recent'
+import { getRecentDetails } from '@/library/recent/details'
+// import { getStats } from '@/library/stats'
+import { getGifts } from '@/library/recent/gifts'
+import { getStageList } from '@/library/recent/stageList'
+import { getRecords } from '@/library/records'
+import { getProfile } from '@/library/room/profile'
+import { getScreenshots } from '@/library/screenshots'
+import { getMemberBirthdays, nextBirthDay } from '@/library/stage48/birthday'
+import { getMember48List } from '@/library/stage48/memberList'
+import getStream from '@/library/stream'
+import { getWatchData } from '@/library/watch'
+import { getIDNLive } from '@/library/watch/idn'
+import getWeekly from '@/library/weekly'
+import { useCORS } from '@/utils/cors'
+import { handler } from '@/utils/factory'
+import { getIp, useSessionID } from '@/utils/security'
+import { getSessId } from '@/utils/security/cookies/sessId'
+import { useShowroomSession } from '@/utils/showroomSession'
+import { Hono } from 'hono'
+import { csrf } from 'hono/csrf'
+import { logger } from 'hono/logger'
+import admin from './admin'
+import auth from './auth'
+import showroom from './showroom'
+import sousenkyo from './sousenkyo'
+import user from './user'
 
 const app = new Hono()
 
 app.use('*', useCORS('self'))
 
-const loggerPrint = (message: string, ...rest: string[]) => {
-  if(process.env.ENABLE_IP) {
-
+function loggerPrint(message: string, ...rest: string[]) {
+  if (process.env.ENABLE_IP) {
+    console.log(message, ...rest)
   }
-  console.log(message, ...rest)
 }
 
-
 if (process.env.LOG === 'true') {
-  if(process.env.SHOW_IP) {
+  if (process.env.SHOW_IP) {
     app.use(async (c, next) => {
-      await logger((...args)=> loggerPrint(String(getIp(c)),...args))(c,next)
+      await logger((...args) => loggerPrint(String(getIp(c)), ...args))(c, next)
     })
-  }else{
-    app.use('*',logger(loggerPrint))
+  }
+  else {
+    app.use('*', logger(loggerPrint))
   }
 }
 
@@ -94,7 +93,6 @@ app.get('/jkt48_youtube', ...handler(getJKT48YoutubeVideo, { minutes: 30, useRat
 app.get('/jkt48v_live', ...handler(cachedJKT48VLive, { minutes: 5 }))
 app.get('/member', ...handler(getMembers, { hours: 12 }))
 app.get('/member/:id', ...handler(c => getMemberDetails(c.req.param('id')), { minutes: 30, useRateLimit: true }))
-
 
 app.use('*', useCORS('all'))
 
