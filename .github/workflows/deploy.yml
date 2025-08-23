@@ -57,8 +57,17 @@ jobs:
       # - name: Install package.json
       #   run: ssh -o StrictHostKeyChecking=no -i private_key $SERVER_USER@$SERVER_IP "cd $APP_PATH && pnpm i"
           
-      - name: Upload Build Files
-        run: scp -o StrictHostKeyChecking=no -i private_key -r ./.output $SERVER_USER@$SERVER_IP:${{ vars.DEPLOY_APP_DIR }}
+      - name: Zip Build Files
+        run: zip -r output.zip ./.output
+
+      - name: Upload and Unzip Build Files
+        run: |
+          scp -o StrictHostKeyChecking=no -i private_key output.zip $SERVER_USER@$SERVER_IP:${{ vars.DEPLOY_APP_DIR }}
+          ssh -o StrictHostKeyChecking=no -i private_key $SERVER_USER@$SERVER_IP "
+            cd ${{ vars.DEPLOY_APP_DIR }} &&
+            unzip -o output.zip &&
+            rm output.zip
+          "
 
       - name: Run with PM2
         run: ssh -o StrictHostKeyChecking=no -i private_key $SERVER_USER@$SERVER_IP "cd ${{ vars.DEPLOY_APP_DIR }} && pm2 startOrRestart ecosystem.config.js && pm2 save"
