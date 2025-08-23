@@ -78,9 +78,6 @@ jobs:
             rm output.zip
           "
 
-      - name: Run with PM2
-        run: ssh -o StrictHostKeyChecking=no -i private_key $SERVER_USER@$SERVER_IP "cd ${{ vars.DEPLOY_APP_DIR }} && pm2 startOrRestart ecosystem.config.js && pm2 save"
-      
       - name: Create Environment
         uses: mkyai/env-builder@v1.1.1
         with:
@@ -89,3 +86,6 @@ jobs:
 
       - name: Copy .env file
         run: scp -o StrictHostKeyChecking=no -i private_key .env $SERVER_USER@$SERVER_IP:${{ vars.DEPLOY_APP_DIR }}
+
+      - name: Run with PM2
+        run: ssh -o StrictHostKeyChecking=no -i private_key $SERVER_USER@$SERVER_IP "cd ${{ vars.DEPLOY_APP_DIR }} && pm2 startOrRestart ecosystem.config.js && pm2 save"
