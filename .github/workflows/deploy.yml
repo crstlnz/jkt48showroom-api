@@ -54,7 +54,7 @@ jobs:
               git clone https://github.com/crstlnz/jkt48showroom-api.git .
             else
               echo \"Repository exists, pulling latest changes...\"
-              git pull origin main
+              git stash && git pull origin main
             fi
             
             echo \"Repository setup completed at ${{ vars.DEPLOY_APP_DIR }}\"
@@ -63,8 +63,8 @@ jobs:
       # - name: SSH and Pull Latest Code
       #   run: ssh -o StrictHostKeyChecking=no -i private_key $SERVER_USER@$SERVER_IP "cd ${{ vars.DEPLOY_APP_DIR }} && git stash && git pull"
 
-      # - name: Install package.json
-      #   run: ssh -o StrictHostKeyChecking=no -i private_key $SERVER_USER@$SERVER_IP "cd $APP_PATH && pnpm i"
+      - name: Install package.json
+        run: ssh -o StrictHostKeyChecking=no -i private_key $SERVER_USER@$SERVER_IP "cd $APP_PATH && pnpm i"
           
       - name: Zip Build Files
         run: zip -r output.zip ./.output
