@@ -88,4 +88,4 @@ jobs:
           variables: ${{ toJson(vars) }}
 
       - name: Copy .env file
-        run: scp -o StrictHostKeyChecking=no -i private_key ./deploy.key .env $SERVER_USER@$SERVER_IP:${{ vars.DEPLOY_APP_DIR }}
+        run: scp -o StrictHostKeyChecking=no -i private_key .env $SERVER_USER@$SERVER_IP:${{ vars.DEPLOY_APP_DIR }}
