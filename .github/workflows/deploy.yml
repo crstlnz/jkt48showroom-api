@@ -13,8 +13,6 @@ jobs:
       SSH_PRIVATE_KEY: ${{ secrets.DEPLOY_PRIVATE_KEY }} # Add your SSH key to GitHub secrets
       SERVER_USER: ${{ secrets.DEPLOY_USERNAME }} # Add your server username to GitHub secrets
       SERVER_IP: ${{ secrets.DEPLOY_SERVER_IP }} # Add your server IP to GitHub secrets
-      APP_PATH: '~/apps/api' # Change this to your actual deployment path
-      BUILD_PATH: './.output'
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -40,15 +38,26 @@ jobs:
       - name: Setup SSH Key
         run: echo "$SSH_PRIVATE_KEY" > private_key && chmod 600 private_key
       
-      - name: Create directory
+      - name: Create directory and clone repository on remote server
         run: |
           ssh -o StrictHostKeyChecking=no -i private_key $SERVER_USER@$SERVER_IP "
-            if [ ! -d \"${{ vars.DEPLOY_APP_DIR }}\" ]; then
-              mkdir -p \"${{ vars.DEPLOY_APP_DIR }}\"
-              echo \"Created directory: ${{ vars.DEPLOY_APP_DIR }}\"
+            # Buat folder menggunakan variabel
+            mkdir -p ${{ vars.DEPLOY_APP_DIR }}
+            echo \"Created directory: ${{ vars.DEPLOY_APP_DIR }}\"
+            
+            # Masuk ke folder
+            cd ${{ vars.DEPLOY_APP_DIR }}
+            
+            # Clone atau update repository
+            if [ ! -d '.git' ]; then
+              echo \"Cloning repository to ${{ vars.DEPLOY_APP_DIR }}...\"
+              git clone https://github.com/crstlnz/jkt48showroom-api.git .
             else
-              echo \"Directory already exists: ${{ vars.DEPLOY_APP_DIR }}\"
+              echo \"Repository exists, pulling latest changes...\"
+              git pull origin main
             fi
+            
+            echo \"Repository setup completed at ${{ vars.DEPLOY_APP_DIR }}\"
           "
 
       # - name: SSH and Pull Latest Code
