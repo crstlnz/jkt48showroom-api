@@ -64,7 +64,7 @@ jobs:
       #   run: ssh -o StrictHostKeyChecking=no -i private_key $SERVER_USER@$SERVER_IP "cd ${{ vars.DEPLOY_APP_DIR }} && git stash && git pull"
 
       - name: Install package.json
-        run: ssh -o StrictHostKeyChecking=no -i private_key $SERVER_USER@$SERVER_IP "cd $APP_PATH && pnpm i"
+        run: ssh -o StrictHostKeyChecking=no -i private_key $SERVER_USER@$SERVER_IP "cd ${{ vars.DEPLOY_APP_DIR }} && pnpm i"
           
       - name: Zip Build Files
         run: zip -r output.zip ./.output
