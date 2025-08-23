@@ -1,7 +1,7 @@
 module.exports = {
   apps: [
     {
-      name: 'api',
+      name: 'module-api',
       script: 'pnpm',
       args: 'start',
       cron_restart: '0 * * * *',
