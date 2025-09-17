@@ -53,7 +53,7 @@ const app = new Hono()
 app.use('*', useCORS('self'))
 
 function loggerPrint(message: string, ...rest: string[]) {
-  if (process.env.ENABLE_IP) {
+  if (process.env.SHOW_IP) {
     console.log(message, ...rest)
   }
 }
