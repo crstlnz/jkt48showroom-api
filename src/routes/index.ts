@@ -109,7 +109,7 @@ app.get('/now_live', ...handler(getCombinedNowLive, (c) => {
     name: `${group}-nowlive${debug ?? ''}`,
     seconds: 30,
     rateLimit: {
-      maxRequest: 24,
+      maxRequest: 40,
       limitTimeWindow: 1000 * 60 * 5,
     },
   }
