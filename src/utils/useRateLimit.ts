@@ -11,6 +11,7 @@ export interface RateOkResponse {
 }
 
 export default function useRateLimit(): RateLimitedResponse | RateOkResponse {
+  if (Number(process.env.ENABLE_RATE_LIMIT ?? 0) !== 1) return
   const uuid = crypto.randomUUID()
   if (rateLimit.size > maxConcurrentProcess) {
     return {
