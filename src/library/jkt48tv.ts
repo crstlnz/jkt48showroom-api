@@ -1,5 +1,5 @@
-import { ofetch } from 'ofetch'
 import dayjs from 'dayjs'
+import { ofetch } from 'ofetch'
 
 const jkt48TVChannelId = 'UCadv-UfEyjjwOPcZHc2QvIQ'
 const jkt48ChannelId = 'UCaIbbu5Xg3DpHsn_3Zw2m9w'
@@ -42,13 +42,12 @@ interface JKT48Video {
 }
 
 let keyI = 0
-const keys = (process.env.YOUTUBE_JKT48 ?? "").split(",").map(i=> i.trim())
-function getYoutubeKey(){
+const keys = (process.env.YOUTUBE_JKT48 ?? '').split(',').map(i => i.trim())
+function getYoutubeKey() {
   return keys[keyI % keys.length]
 }
 
-
-let lastSuccessData: JKT48Video[];
+let lastSuccessData: JKT48Video[]
 export async function getJKT48YoutubeVideo() {
   try {
     keyI++
@@ -59,7 +58,7 @@ export async function getJKT48YoutubeVideo() {
   }
   catch (e) {
     console.error(e)
-    if(lastSuccessData) return lastSuccessData
+    if (lastSuccessData) return lastSuccessData
     throw new Error('Youtube search failed!')
   }
 }

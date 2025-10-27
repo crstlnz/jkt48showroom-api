@@ -1,7 +1,7 @@
 import { Schema } from 'mongoose'
+import { jkt48DB } from '@/database'
 import Member from './Member'
 import Setlist from './Setlist'
-import { jkt48DB } from '@/database'
 
 const theaterSchema = new Schema<JKT48.Theater>({
   id: {

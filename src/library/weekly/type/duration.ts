@@ -1,7 +1,7 @@
-import dayjs from 'dayjs'
 import type { FormatType, LivePlatform, WeeklyData } from '..'
-import { getMember, getOneWeekLives } from '../query'
+import dayjs from 'dayjs'
 import { durationFormat } from '@/utils/format'
+import { getMember, getOneWeekLives } from '../query'
 
 export default async function weeklyDuration(type: LivePlatform, format: FormatType): Promise<WeeklyData> {
   const members = await getMember()

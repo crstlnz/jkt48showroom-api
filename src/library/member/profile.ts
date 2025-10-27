@@ -1,17 +1,15 @@
 import Showroom from '@schema/showroom/Showroom'
-import { getSousenkyoMembers } from '../jkt48/scraper/sousenkyo'
-import { createError } from '@/utils/errorResponse'
-import Theater from '@/database/showroomDB/jkt48/Theater'
 import LiveLog from '@/database/live/schema/LiveLog'
 import IdolMember from '@/database/schema/48group/IdolMember'
-import ShowroomLog from '@/database/schema/showroom/ShowroomLog'
+import Theater from '@/database/showroomDB/jkt48/Theater'
+import { createError } from '@/utils/errorResponse'
 
 export async function getMemberDetails(slug: string): Promise<IMemberProfileAPI> {
   let data = await IdolMember.findOne({ slug }).populate<{ showroom: Database.IShowroomMember }>('showroom').lean()
-  if(!data) {
-    const sr = await Showroom.findOne({url : slug})
+  if (!data) {
+    const sr = await Showroom.findOne({ url: slug })
     if (!sr) throw createError({ statusMessage: 'Data not found!', statusCode: 404 })
-    data = await IdolMember.findOne({ showroom_id : sr.room_id }).populate<{ showroom: Database.IShowroomMember }>('showroom').lean()
+    data = await IdolMember.findOne({ showroom_id: sr.room_id }).populate<{ showroom: Database.IShowroomMember }>('showroom').lean()
     if (!data) throw createError({ statusMessage: 'Data not found!', statusCode: 404 })
   }
 
@@ -47,26 +45,26 @@ export async function getMemberDetails(slug: string): Promise<IMemberProfileAPI>
   const most_gift = !data.showroom_id
     ? null
     : await LiveLog.findOne({ room_id: data.showroom_id, is_dev: false }).select({
-      data_id: 1,
-      c_gift: 1,
-    }).sort({ c_gift: -1 }).catch(() => null)
+        data_id: 1,
+        c_gift: 1,
+      }).sort({ c_gift: -1 }).catch(() => null)
 
   const last_live = !data.showroom_id
     ? null
     : await LiveLog.findOne({ room_id: data.showroom_id, is_dev: false }).select({
-      'data_id': 1,
-      'live_info.date': 1,
-      'created_at': 1,
-    }).sort({ created_at: -1 }).catch(() => null)
+        'data_id': 1,
+        'live_info.date': 1,
+        'created_at': 1,
+      }).sort({ created_at: -1 }).catch(() => null)
 
   const longest_live = !data.showroom_id
     ? null
     : await LiveLog.findOne({ room_id: data.showroom_id, is_dev: false }).select({
-      'data_id': 1,
-      'live_info.duration': 1,
-    }).sort({
-      'live_info.duration': -1,
-    }).catch(() => null)
+        'data_id': 1,
+        'live_info.duration': 1,
+      }).sort({
+        'live_info.duration': -1,
+      }).catch(() => null)
 
   return {
     name: data.name,

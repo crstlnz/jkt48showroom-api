@@ -41,7 +41,7 @@ class CacheManager {
       try {
         return await this.redis.set(key, value, ms)
       }
-      catch (e) {
+      catch {
         return
       }
     }
@@ -59,7 +59,7 @@ class CacheManager {
       try {
         return await this.redis.get<T>(key, false).catch(() => null)
       }
-      catch (e) {
+      catch {
         return null
       }
     }

@@ -1,8 +1,8 @@
 import type { Context } from 'hono'
 import type { FilterQuery } from 'mongoose'
-import { createError } from '@/utils/errorResponse'
 import IdolMember from '@/database/schema/48group/IdolMember'
 import JKT48Event from '@/database/showroomDB/jkt48/JKT48Event'
+import { createError } from '@/utils/errorResponse'
 
 export async function getJKT48EventDetail(c: Context): Promise<IApiJKT48EventDetail> {
   const id = c.req.param('id')
@@ -19,7 +19,7 @@ export async function getJKT48EventDetail(c: Context): Promise<IApiJKT48EventDet
     .populate<{ event: JKT48.EventDetail }>('event')
     .lean()
 
-   console.log(data)
+  console.log(data)
 
   const memberList = data.reduce<JKT48.Member[]>((a, b) => {
     a.push(...b.members)
@@ -35,11 +35,10 @@ export async function getJKT48EventDetail(c: Context): Promise<IApiJKT48EventDet
     slug: 1,
     showroom_id: 1,
     jkt48id: 1,
-  }).populate('showroom')
-    .lean()
+  }).populate('showroom').lean()
 
   if (!data?.length) throw createError({ statusMessage: 'Data not found!', statusCode: 404 })
-const i = data[0]
+  const i = data[0]
   return {
     id: i.id,
     title: i.title,

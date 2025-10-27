@@ -1,4 +1,4 @@
-import { Schema, model } from 'mongoose'
+import { model, Schema } from 'mongoose'
 
 const giftSchema = new Schema<Database.IShowroomGift>({
   gift_id: {

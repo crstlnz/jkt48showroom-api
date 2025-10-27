@@ -1,8 +1,8 @@
 import type { Context } from 'hono'
 import type { FilterQuery } from 'mongoose'
+import IdolMember from '@/database/schema/48group/IdolMember'
 import Theater from '@/database/showroomDB/jkt48/Theater'
 import { createError } from '@/utils/errorResponse'
-import IdolMember from '@/database/schema/48group/IdolMember'
 
 export async function getTheaterDetail(c: Context): Promise<IApiTheaterDetailList> {
   const id = c.req.param('id')
@@ -38,8 +38,7 @@ export async function getTheaterDetail(c: Context): Promise<IApiTheaterDetailLis
     slug: 1,
     showroom_id: 1,
     jkt48id: 1,
-  }).populate('showroom')
-    .lean()
+  }).populate('showroom').lean()
 
   if (!data?.length) throw createError({ statusMessage: 'Data not found!', statusCode: 404 })
   return {

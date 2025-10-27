@@ -1,11 +1,11 @@
-import { createMiddleware } from 'hono/factory'
-import type { JSONValue } from 'hono/utils/types'
-import duration from 'dayjs/plugin/duration'
-import dayjs from 'dayjs'
 import type { Context } from 'hono'
 import type { StatusCode } from 'hono/utils/http-status'
-import cache from './cache'
+import type { JSONValue } from 'hono/utils/types'
 import type { CacheOptions } from './factory'
+import dayjs from 'dayjs'
+import duration from 'dayjs/plugin/duration'
+import { createMiddleware } from 'hono/factory'
+import cache from './cache'
 
 dayjs.extend(duration)
 

@@ -1,8 +1,7 @@
 import { Schema } from 'mongoose'
 import { jkt48DB } from '../..'
-import Member from './Member'
-import Setlist from './Setlist'
 import EventDetail from './EventDetail'
+import Member from './Member'
 
 const eventSchema = new Schema<JKT48.Event>({
   id: {
@@ -68,7 +67,6 @@ eventSchema.virtual('event', {
   foreignField: 'id',
   justOne: true,
 })
-
 
 export default jkt48DB.model<JKT48.Event>(
   'JKT48Event',

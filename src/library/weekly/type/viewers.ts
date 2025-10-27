@@ -1,7 +1,7 @@
-import dayjs from 'dayjs'
 import type { FormatType, LivePlatform, WeeklyData } from '..'
-import { getMember, getOneWeekLives } from '../query'
+import dayjs from 'dayjs'
 import { youtubeViewsFormat } from '@/utils/format'
+import { getMember, getOneWeekLives } from '../query'
 
 export default async function weeklyViewers(type: LivePlatform, format: FormatType): Promise<WeeklyData> {
   const members = await getMember()

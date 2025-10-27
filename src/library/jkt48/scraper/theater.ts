@@ -1,8 +1,8 @@
-import { parse } from 'node-html-parser'
 import dayjs from 'dayjs'
+import { parse } from 'node-html-parser'
+import { sleep } from '@/utils'
 import { extractIdFromUrl, extractTeamId, getTheaterId } from './utils'
 import 'dayjs/locale/id'
-import { sleep } from '@/utils'
 
 export async function getTheaterDetail(id: string, retry = 1, headers: HeadersInit): Promise<{ show: JKT48.Theater[], members: JKT48.Member[] }> {
   try {

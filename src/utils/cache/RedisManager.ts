@@ -1,4 +1,5 @@
-import { Redis, type RedisKey } from 'ioredis'
+import type { RedisKey } from 'ioredis'
+import { Redis } from 'ioredis'
 // import redis from '@utils/redis'
 
 interface WithExpire<T> {
@@ -26,7 +27,7 @@ class RedisManager {
     try {
       return JSON.parse(value)
     }
-    catch (e) {
+    catch {
       return value
     }
   }

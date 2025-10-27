@@ -1,6 +1,6 @@
 import type { Context } from 'hono'
-import { createError } from '@/utils/errorResponse'
 import IdolMember from '@/database/schema/48group/IdolMember'
+import { createError } from '@/utils/errorResponse'
 
 export async function editJKT48ID(c: Context) {
   const query = await c.req.parseBody()

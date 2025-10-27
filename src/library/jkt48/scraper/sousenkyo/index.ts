@@ -1,11 +1,11 @@
-import parse from 'node-html-parser'
-import scrapeRequest from '../request'
 import type { SousenkyoMemberDetail } from './member_detail'
-import { getSousenkyoMemberDetail } from './member_detail'
-import { sleep } from '@/utils'
-import Sousenkyou2024 from '@/database/showroomDB/jkt48/Sousenkyou2024'
+import parse from 'node-html-parser'
 import IdolMember from '@/database/schema/48group/IdolMember'
+import Sousenkyou2024 from '@/database/showroomDB/jkt48/Sousenkyou2024'
+import { sleep } from '@/utils'
 import { notFound } from '@/utils/errorResponse'
+import scrapeRequest from '../request'
+import { getSousenkyoMemberDetail } from './member_detail'
 
 export interface SousenkyoMember {
   name: string
@@ -30,7 +30,7 @@ export async function getSousenkyoMembers(): Promise<SousenkyoMember[]> {
         getSousenkyoMembersFetch().then((d) => {
           cacheData = d
           resolve(d)
-        }).catch(e => resolve([]))
+        }).catch(() => resolve([]))
       })
       return await promise
     }

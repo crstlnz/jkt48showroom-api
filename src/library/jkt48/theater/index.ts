@@ -1,8 +1,8 @@
 import type { Context } from 'hono'
 import type { FilterQuery } from 'mongoose'
-import Theater from '@/database/showroomDB/jkt48/Theater'
-import Setlist from '@/database/showroomDB/jkt48/Setlist'
 import IdolMember from '@/database/schema/48group/IdolMember'
+import Setlist from '@/database/showroomDB/jkt48/Setlist'
+import Theater from '@/database/showroomDB/jkt48/Theater'
 
 export async function getTheaterList(page: number, perpage: number, options?: FilterQuery<JKT48.Theater>): Promise<IApiTheaterInfo[]> {
   const theater = await Theater.find(options ?? {}).limit(perpage).skip((page - 1) * perpage).sort('-date').select('title date label id setlistId memberIds seitansaiIds').lean()
@@ -30,7 +30,8 @@ export async function getTheaterList(page: number, perpage: number, options?: Fi
         slug: 1,
         showroom_id: 1,
         jkt48id: 1,
-      }).populate('showroom')
+      })
+      .populate('showroom')
       .lean()
   }
 
@@ -44,14 +45,14 @@ export async function getTheaterList(page: number, perpage: number, options?: Fi
       member_count: i.memberIds.length ?? 0,
       seitansai: i.seitansaiIds?.length
         ? i.seitansaiIds.map((i) => {
-          const member = memberDetailData?.find(m => m.jkt48id?.includes(String(i)))
-          return {
-            id: i,
-            name: member?.name || member?.info?.nicknames?.[0] || '',
-            img: member?.info?.img ?? undefined,
-            url_key: member?.slug,
-          }
-        })
+            const member = memberDetailData?.find(m => m.jkt48id?.includes(String(i)))
+            return {
+              id: i,
+              name: member?.name || member?.info?.nicknames?.[0] || '',
+              img: member?.info?.img ?? undefined,
+              url_key: member?.slug,
+            }
+          })
         : undefined,
       url: i.id?.split('-')?.[0],
       date: i.date,

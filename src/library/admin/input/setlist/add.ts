@@ -1,14 +1,13 @@
 import type { Context } from 'hono'
-import { createError } from '@/utils/errorResponse'
-import { uploadImageBuffer } from '@/utils/cloudinary'
 import Setlist from '@/database/showroomDB/jkt48/Setlist'
+import { uploadImageBuffer } from '@/utils/cloudinary'
+import { createError } from '@/utils/errorResponse'
 
 export async function addOrEditSetlist(c: Context) {
   const data = await c.req.parseBody()
   const dataId = data._id
   const poster = data.poster as File
   const banner = data.banner as File
-  const origin_id = data.origin_id
   const id = String(data.id)
   const title = String(data.title)
   const title_alt = String(data.title_alt)
@@ -36,16 +35,17 @@ export async function addOrEditSetlist(c: Context) {
       dataJson.banner = secure_url
     }
 
-    const idObj : Record<string, string> = {}
-    if(dataId) {
-        idObj._id = String(dataId)
-    }else{
-        idObj.id = id
+    const idObj: Record<string, string> = {}
+    if (dataId) {
+      idObj._id = String(dataId)
+    }
+    else {
+      idObj.id = id
     }
 
     await Setlist.updateOne(
       {
-        ...idObj
+        ...idObj,
       },
       {
         $set: dataJson,

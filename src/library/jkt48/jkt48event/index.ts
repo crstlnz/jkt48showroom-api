@@ -1,14 +1,13 @@
-import IdolMember from "@/database/schema/48group/IdolMember"
-import EventDetail from "@/database/showroomDB/jkt48/EventDetail"
-import JKT48Event from "@/database/showroomDB/jkt48/JKT48Event"
-import { Context } from "hono"
-import { FilterQuery } from "mongoose"
+import type { Context } from 'hono'
+import type { FilterQuery } from 'mongoose'
+import EventDetail from '@/database/showroomDB/jkt48/EventDetail'
+import JKT48Event from '@/database/showroomDB/jkt48/JKT48Event'
 
 export async function getEventList(page: number, perpage: number, options?: FilterQuery<JKT48.Event>): Promise<IApiTheaterInfo[]> {
   const events = await JKT48Event.find(options ?? {}).limit(perpage).skip((page - 1) * perpage).sort('-date').select('title date label id eventId memberIds').lean()
-  const eventIds = events.map(i=> i.eventId)
+  const eventIds = events.map(i => i.eventId)
   console.log(eventIds)
-  const eventsData = await EventDetail.find({ id: {$in : [...eventIds]} }).lean()
+  const eventsData = await EventDetail.find({ id: { $in: [...eventIds] } }).lean()
   console.log(eventsData)
   return events.map((i) => {
     const eventDetail = eventsData.find(s => s.id === i.eventId)
@@ -16,7 +15,7 @@ export async function getEventList(page: number, perpage: number, options?: Filt
     return {
       id: i.id,
       title: i.title.trim(),
-      poster : eventDetail?.poster,
+      poster: eventDetail?.poster,
       banner: eventDetail?.banner,
       member_count: i.memberIds?.length ?? 0,
       url: i.id?.split('-')?.[0],
@@ -43,6 +42,6 @@ export async function getJKT48Event(c: Context): Promise<IApiJKT48Event> {
   }
 }
 
-export async function getJKT48EventById(id : string): Promise<JKT48.Event | null> {
+export async function getJKT48EventById(id: string): Promise<JKT48.Event | null> {
   return await JKT48Event.findOne({ id }).lean()
 }

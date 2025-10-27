@@ -1,14 +1,13 @@
-import ShowroomGift from '@schema/showroom/ShowroomGift'
 import type { Context } from 'hono'
+import ShowroomGift from '@schema/showroom/ShowroomGift'
 import dayjs from 'dayjs'
-import { calculateFansPoints } from '../fansPoints'
-import { getSousenkyoMembers } from '../jkt48/scraper/sousenkyo'
-import { createError } from '@/utils/errorResponse'
 import config from '@/config'
+import { IDNGift } from '@/database/live/schema/idn/Gift'
 import LiveLog from '@/database/live/schema/LiveLog'
 import { StageList } from '@/database/showroomDB/StageList'
-import { IDNGift } from '@/database/live/schema/idn/Gift'
 import UserLog from '@/database/userDB/UserLog'
+import { createError } from '@/utils/errorResponse'
+import { calculateFansPoints } from '../fansPoints'
 
 export async function parseBase(data: Log.Live): Promise<LogDetail.Base> {
   return {
@@ -60,7 +59,7 @@ export async function parseShowroom(data: Log.Showroom): Promise<LogDetail.Showr
   const fansRank = calculateFansPoints(data?.users ?? [], stageListData?.stage_list ?? [])
   const giftList = await ShowroomGift.find({ gift_id: data.gift_data.gift_id_list }).lean()
 
-  const giftMap = new Map<number, LogDetail.ShowroomGift >()
+  const giftMap = new Map<number, LogDetail.ShowroomGift>()
 
   const userMap = new Map<number, LogDetail.ShowroomUser>()
   const stageList = (stageListData?.stage_list ?? []).pop()
@@ -198,7 +197,7 @@ export async function parseShowroom(data: Log.Showroom): Promise<LogDetail.Showr
 export async function parseIDN(data: Log.IDN): Promise<LogDetail.IDN> {
   const giftPagination = getGiftPagination(data)
   const giftList = await IDNGift.find({ slug: data.gift_data.gift_id_list }).lean()
-  const giftMap = new Map<string, LogDetail.IDNGift >()
+  const giftMap = new Map<string, LogDetail.IDNGift>()
 
   const users: LogDetail.IDNUser[] = giftPagination.users.map((i) => {
     return {
@@ -327,7 +326,8 @@ export async function getRecentDetails(c: Context): Promise<LogDetail.Showroom |
           select: 'info name slug jkt48id',
         },
       },
-    }).lean()
+    })
+    .lean()
   if (!data) throw createError({ statusMessage: 'Data not found!', statusCode: 404 })
   const userData = await UserLog.findOne({ data_id: data.data_id })
   data.users = userData?.users ?? []

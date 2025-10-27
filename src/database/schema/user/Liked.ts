@@ -1,6 +1,6 @@
-import { Schema, model } from 'mongoose'
 import type { Model } from 'mongoose'
 import Showroom from '@schema/showroom/Showroom'
+import { model, Schema } from 'mongoose'
 import config from '@/config'
 import LiveLog from '@/database/live/schema/LiveLog'
 

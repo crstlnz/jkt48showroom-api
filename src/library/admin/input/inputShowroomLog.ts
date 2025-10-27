@@ -1,11 +1,11 @@
+import type { Context } from 'hono'
 import fs from 'fs'
 import dayjs from 'dayjs'
 import id from 'dayjs/locale/id'
 import CustomParseFormat from 'dayjs/plugin/customParseFormat'
-import type { Context } from 'hono'
-import { createError } from '@/utils/errorResponse'
-import ShowroomLog from '@/database/schema/showroom/ShowroomLog'
 import Config from '@/database/schema/config/Config'
+import ShowroomLog from '@/database/schema/showroom/ShowroomLog'
+import { createError } from '@/utils/errorResponse'
 
 dayjs.extend(CustomParseFormat)
 dayjs.locale({ ...id })
@@ -172,7 +172,7 @@ export async function inputShowroomLog(c: Context): Promise<{ data_id: string, s
       throw createError({ statusCode: 400, statusMessage: 'Data is wrong!' })
     }
   }
-  catch (e) {
+  catch {
     throw createError({
       statusCode: 500,
       statusMessage: 'Something error!',

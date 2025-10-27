@@ -20,6 +20,8 @@ export default async function scrapeRequest(url: string): Promise<string> {
       'User-Agent': 'Mozilla/5.0 (Windows NT 5.1; rv:5.0) Gecko/20100101 Firefox/5.0',
     },
   })
-  if (!res.ok) { throw new Error('Failed!') }
+  if (!res.ok) {
+    throw new Error('Failed!')
+  }
   return await res.text()
 }

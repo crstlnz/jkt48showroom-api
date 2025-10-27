@@ -34,21 +34,21 @@ export async function getJKT48VLive() {
 }
 
 let keyI = 0
-const keys = (process.env.YOUTUBE_KEY ?? "").split(",").map(i=> i.trim())
-function getYoutubeKey(){
+const keys = (process.env.YOUTUBE_KEY ?? '').split(',').map(i => i.trim())
+function getYoutubeKey() {
   keyI++
   return keys[keyI % keys.length]
 }
 
 const cache = new Map<string, JKT48VLiveResults[]>()
-let TO : NodeJS.Timeout;
-export async function cachedJKT48VLive() : Promise<JKT48VLiveResults[]>{
-  const c = cache.get("cache")
-  if(c) return c
+let TO: NodeJS.Timeout
+export async function cachedJKT48VLive(): Promise<JKT48VLiveResults[]> {
+  const c = cache.get('cache')
+  if (c) return c
   const res = await getJKT48VLive()
-  cache.set("cache", res)
+  cache.set('cache', res)
   clearTimeout(TO)
-  TO = setTimeout(()=> {
+  TO = setTimeout(() => {
     cache.clear()
   }, 180000)
   return res

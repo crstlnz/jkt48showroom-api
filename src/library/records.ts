@@ -1,7 +1,6 @@
 import type { Context } from 'hono'
-import { getMembers } from './member'
-import ShowroomLog from '@/database/schema/showroom/ShowroomLog'
 import LiveLog from '@/database/live/schema/LiveLog'
+import { getMembers } from './member'
 
 export async function getRecords(c: Context) {
   return await fetchData(c)

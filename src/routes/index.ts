@@ -1,18 +1,22 @@
 import type { Context } from 'hono'
+import { Hono } from 'hono'
+import { csrf } from 'hono/csrf'
+import { logger } from 'hono/logger'
 import { dbConnect } from '@/database'
+import { getBanner } from '@/library/admin/banner'
 import { getCombinedNowLive } from '@/library/combinedNowLive'
 import { getFirstData } from '@/library/firstData'
 import { fetchIDN } from '@/library/idn/lives'
 import getIDNUser from '@/library/idn/user'
 import getEvents from '@/library/jkt48/event'
-import { getEventList, getJKT48Event } from '@/library/jkt48/jkt48event'
+import { getJKT48Event } from '@/library/jkt48/jkt48event'
 import { getJKT48EventDetail } from '@/library/jkt48/jkt48event/details'
 import { getNews } from '@/library/jkt48/news'
+
 import { getNewsDetail } from '@/library/jkt48/news/details'
 import { getSchedule } from '@/library/jkt48/nextSchedule'
 import { getTheater } from '@/library/jkt48/theater'
 import { getTheaterDetail } from '@/library/jkt48/theater/details'
-
 import getSetlist from '@/library/jkt48/theater/setlist'
 import { getJKT48YoutubeVideo } from '@/library/jkt48tv'
 import { cachedJKT48VLive } from '@/library/jkt48v'
@@ -39,9 +43,6 @@ import { handler } from '@/utils/factory'
 import { getIp, useSessionID } from '@/utils/security'
 import { getSessId } from '@/utils/security/cookies/sessId'
 import { useShowroomSession } from '@/utils/showroomSession'
-import { Hono } from 'hono'
-import { csrf } from 'hono/csrf'
-import { logger } from 'hono/logger'
 import admin from './admin'
 import auth from './auth'
 import showroom from './showroom'
@@ -87,6 +88,7 @@ app.route('/user', user)
 app.route('/showroom', showroom)
 app.route('/sousenkyo', sousenkyo)
 
+app.get('/banner', useCORS('self'), ...handler(getBanner, { minutes: 10 }))
 app.get('/leaderboard', useCORS('self'), ...handler(getLeaderboard, { minutes: 10 }))
 
 app.get('/jkt48_youtube', ...handler(getJKT48YoutubeVideo, { minutes: 30, useRateLimit: true, useSingleProcess: true }))

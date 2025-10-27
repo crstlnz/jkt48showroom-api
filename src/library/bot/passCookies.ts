@@ -1,7 +1,7 @@
 import type { Context } from 'hono'
-import { fetchNewsJKT48, fetchScheduleJKT48 } from '../jkt48/scraper'
-import { createError } from '@/utils/errorResponse'
 import Config from '@/database/schema/config/Config'
+import { createError } from '@/utils/errorResponse'
+import { fetchNewsJKT48, fetchScheduleJKT48 } from '../jkt48/scraper'
 
 export async function passCookie(c: Context) {
   const body = await c.req.parseBody()

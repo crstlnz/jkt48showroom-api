@@ -1,4 +1,4 @@
-import { Schema, model } from 'mongoose'
+import { model, Schema } from 'mongoose'
 
 const memberSchema = new Schema<Database.I48Member>({
   name: {

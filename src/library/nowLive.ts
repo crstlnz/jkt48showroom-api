@@ -1,6 +1,6 @@
 import type { Context } from 'hono'
-import { getAllFollows, getIsLive, getOnlives, getProfile, getRoomStatus, getStreamingURL } from '@/utils/api/showroom'
 import dayjs from 'dayjs'
+import { getAllFollows, getIsLive, getOnlives, getProfile, getStreamingURL } from '@/utils/api/showroom'
 import { getMembers } from './member'
 
 export async function getNowLive(c: Context) {

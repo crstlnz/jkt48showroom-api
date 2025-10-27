@@ -33,7 +33,9 @@ export async function getSousenkyoMemberDetail(id: string): Promise<SousenkyoMem
     const document = parse(body)
     const scriptTags = document.querySelectorAll('script')
     const data = extractCandidateData(scriptTags.map(i => i.textContent))
-    if (data) { return { ...data.candidate } }
+    if (data) {
+      return { ...data.candidate }
+    }
     return null
   }
   catch (e) {
@@ -62,7 +64,7 @@ function parseCandidateData(data: string): any | null {
       const parsedData = JSON.parse(jsonString)
       return parsedData
     }
-    catch (e) {
+    catch {
       return null
     }
   }

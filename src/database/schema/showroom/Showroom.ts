@@ -1,4 +1,4 @@
-import { Schema, model } from 'mongoose'
+import { model, Schema } from 'mongoose'
 import IdolMember from '../48group/IdolMember'
 
 const ShowroomSchema = new Schema<Database.IShowroomMember>({

@@ -1,6 +1,6 @@
 import dayjs from 'dayjs'
-import { getTheaterList } from './theater'
 import Schedule from '@/database/showroomDB/jkt48/Schedule'
+import { getTheaterList } from './theater'
 
 export default async function getEvents(): Promise<IApiEvent> {
   const theaterList = await getTheaterList(1, 20, {

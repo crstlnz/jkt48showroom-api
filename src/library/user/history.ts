@@ -1,9 +1,9 @@
 import Fuse from 'fuse.js'
-import { getMembers } from '../member'
 import config from '@/config'
 import ShowroomLog from '@/database/schema/showroom/ShowroomLog'
 import { StageList } from '@/database/showroomDB/StageList'
 import { createError } from '@/utils/errorResponse'
+import { getMembers } from '../member'
 
 export async function getUserHistory(qq: any = null, userId: string): Promise<IHistoryRecents> {
   if (!userId) throw createError({ statusCode: 401, statusMessage: 'Unauthenticated!' })
@@ -138,7 +138,7 @@ export async function getUserHistory(qq: any = null, userId: string): Promise<IH
   }
 
   const stageListAll = await StageList.find({ data_id: logs.map(i => i.data_id) })
-  const stageListMap = new Map<string, Database.IStageListItem >()
+  const stageListMap = new Map<string, Database.IStageListItem>()
   for (const stageList of stageListAll) {
     stageListMap.set(stageList.data_id, stageList)
   }

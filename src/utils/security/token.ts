@@ -1,15 +1,15 @@
 import type { Context } from 'hono'
+import type { ShowroomLogin } from '@/types/auth'
+import { createMiddleware } from 'hono/factory'
 import { decode, sign, verify } from 'hono/jwt'
 import { ofetch } from 'ofetch'
-import { createMiddleware } from 'hono/factory'
+import { logoutHandler as logout } from '@/library/auth/login'
+import { isAdmin } from '.'
 import { parseCookieString } from '..'
 import { createError } from '../errorResponse'
 import { accessTokenTime, deleteAccessToken, getAccessToken, setAccessToken } from './cookies/accessToken'
 import { deleteRefreshToken, getRefreshToken, refreshTokenTime, setRefreshToken } from './cookies/refreshToken'
 import { getSessId } from './cookies/sessId'
-import { isAdmin } from '.'
-import { logoutHandler as logout } from '@/library/auth/login'
-import type { ShowroomLogin } from '@/types/auth'
 
 export function getDecodedToken(c: Context): ShowroomLogin.User | null {
   const token = getAccessToken(c)

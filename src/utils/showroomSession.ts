@@ -1,11 +1,11 @@
 import type { Context } from 'hono'
+import type { ShowroomLogin } from '@/types/auth'
 import { createMiddleware } from 'hono/factory'
 import { sign, verify } from 'hono/jwt'
 import { ofetch } from 'ofetch'
+import { parseCookieString } from '.'
 import { getShowroomSess, setShowroomSess } from './security/cookies/showroomSess'
 import { getDecodedToken } from './security/token'
-import { parseCookieString } from '.'
-import type { ShowroomLogin } from '@/types/auth'
 
 export async function createShowroomSession(c: Context): Promise<ShowroomLogin.Session> {
   const user = c.get('user') || getDecodedToken(c)

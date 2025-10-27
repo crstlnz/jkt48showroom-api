@@ -114,7 +114,7 @@ declare global {
       image: string
     }
 
-      type TabView = 'gift-list' | 'gift-log' | 'ranks' | 'comment'
+    type TabView = 'gift-list' | 'gift-log' | 'ranks' | 'comment'
   }
 
 }

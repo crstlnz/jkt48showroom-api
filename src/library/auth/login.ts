@@ -1,13 +1,13 @@
-import { ofetch } from 'ofetch'
 import type { Context } from 'hono'
+import type { ShowroomLogin } from '@/types/auth'
+import { ofetch } from 'ofetch'
 import { parseCookieString } from '@/utils'
 import { createError } from '@/utils/errorResponse'
+import { createHandlers } from '@/utils/factory'
+import { deleteSessId } from '@/utils/security/cookies/sessId'
+import { deleteShowroomSess } from '@/utils/security/cookies/showroomSess'
 import { clearToken, createToken } from '@/utils/security/token'
 import { getShowroomSession } from '@/utils/showroomSession'
-import { createHandlers } from '@/utils/factory'
-import { deleteShowroomSess } from '@/utils/security/cookies/showroomSess'
-import { deleteSessId } from '@/utils/security/cookies/sessId'
-import type { ShowroomLogin } from '@/types/auth'
 
 export function login() {
   return createHandlers(async (c) => {
@@ -83,7 +83,7 @@ export async function logoutHandler(c: Context, sr_id?: string) {
     deleteSessId(c)
     return c.json({ success: true })
   }
-  catch (e) {
+  catch {
     throw createError({ status: 401, message: 'Unauthorized!' })
   }
 }

@@ -1,8 +1,8 @@
-import { parse } from 'node-html-parser'
-import dayjs from 'dayjs'
 import { Presets, SingleBar } from 'cli-progress'
-import { extractYearAndMonthFromUrl } from './utils'
+import dayjs from 'dayjs'
+import { parse } from 'node-html-parser'
 import { sleep } from '@/utils'
+import { extractYearAndMonthFromUrl } from './utils'
 
 export async function getAllCalendar(headers: HeadersInit): Promise<string[]> {
   const res = await fetch('https://jkt48.com/calendar/list/', { headers })

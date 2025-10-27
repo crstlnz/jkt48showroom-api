@@ -1,7 +1,7 @@
 import type { Context } from 'hono'
 import { createMiddleware } from 'hono/factory'
-import useRateLimit from './useRateLimit'
 import { createError } from './errorResponse'
+import useRateLimit from './useRateLimit'
 
 const processes = new Map<string, Promise<any>>()
 export async function useSingleProcess<T>(id: string, process: () => Promise<T>): Promise<T> {

@@ -1,10 +1,10 @@
 import { randomUUID } from 'crypto'
-import { ofetch } from 'ofetch'
 import dayjs from 'dayjs'
-import utc from 'dayjs/plugin/utc'
 import tz from 'dayjs/plugin/timezone'
-import { sleep } from '@/utils'
+import utc from 'dayjs/plugin/utc'
+import { ofetch } from 'ofetch'
 import IdolMember from '@/database/schema/48group/IdolMember'
+import { sleep } from '@/utils'
 
 dayjs.extend(utc)
 dayjs.extend(tz)

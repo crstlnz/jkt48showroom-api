@@ -1,8 +1,8 @@
-import dayjs from 'dayjs'
 import type { FormatType, LivePlatform, WeeklyData } from '..'
-import { getMember } from '../query'
-import scrapeFollower from '../follower'
+import dayjs from 'dayjs'
 import FollowerData from '@/database/userDB/FollowerData'
+import scrapeFollower from '../follower'
+import { getMember } from '../query'
 
 export default async function weeklyFollower(type: LivePlatform, format: FormatType): Promise<WeeklyData> {
   const liveType = (type !== 'idn' && type !== 'showroom') ? undefined : type

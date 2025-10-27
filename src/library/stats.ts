@@ -9,11 +9,9 @@
 
 import dayjs from 'dayjs'
 import LiveLog from '@/database/live/schema/LiveLog'
-import Theater from '@/database/showroomDB/jkt48/Theater'
-import Stats from '@/database/live/schema/Stats'
-import { createError } from '@/utils/errorResponse'
-import { getMembers } from '@/library/member'
 import IdolMember from '@/database/schema/48group/IdolMember'
+import Theater from '@/database/showroomDB/jkt48/Theater'
+import { getMembers } from '@/library/member'
 
 // const time = 43200000 // 12 hours
 
@@ -280,7 +278,7 @@ export async function stats() {
   // return res
 }
 
-async function save(id: string, data: any) {
+async function save(_id: string, _data: any) {
   try {
     // await Stats.updateOne(
     //   { id },

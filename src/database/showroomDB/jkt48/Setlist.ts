@@ -1,6 +1,6 @@
 import { Schema } from 'mongoose'
-import Song from './Song'
 import { jkt48DB } from '@/database'
+import Song from './Song'
 
 const eventSchema = new Schema<JKT48.Setlist>({
   id: {

@@ -1,9 +1,8 @@
 import type { Context } from 'hono'
-import { getIDNLives } from '../idn/lives'
-import { getSousenkyoMembers } from '../jkt48/scraper/sousenkyo'
+import IdolMember from '@/database/schema/48group/IdolMember'
 import cache from '@/utils/cache'
 import { createError } from '@/utils/errorResponse'
-import IdolMember from '@/database/schema/48group/IdolMember'
+import { getIDNLives } from '../idn/lives'
 
 export async function getIDNLive(c: Context): Promise<IDNLivesDetail> {
   return await fetch(c)

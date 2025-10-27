@@ -1,6 +1,6 @@
+import type { SousenkyoMember } from '@/library/jkt48/scraper/sousenkyo'
 import { Schema } from 'mongoose'
 import { jkt48DB } from '@/database'
-import type { SousenkyoMember } from '@/library/jkt48/scraper/sousenkyo'
 
 interface Sousenkyo2024 { id: string, data: SousenkyoMember[], last_fetch: Date }
 

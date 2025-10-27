@@ -1,7 +1,7 @@
-import { parse } from 'node-html-parser'
 import dayjs from 'dayjs'
-import { extractNewsId } from './utils'
+import { parse } from 'node-html-parser'
 import { sleep } from '@/utils'
+import { extractNewsId } from './utils'
 
 const url = 'https://jkt48.com/news/list'
 // dayjs.extend(LocaleData)

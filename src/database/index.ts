@@ -1,5 +1,5 @@
 /* eslint-disable no-restricted-globals */
-/* eslint-disable no-var */
+
 /* eslint-disable vars-on-top */
 import type { Connection, Mongoose } from 'mongoose'
 import mongoose from 'mongoose'

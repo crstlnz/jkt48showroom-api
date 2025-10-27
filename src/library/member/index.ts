@@ -1,7 +1,7 @@
 import type { Context } from 'hono'
 import config from '@/config'
-import cache from '@/utils/cache'
 import IdolMember from '@/database/schema/48group/IdolMember'
+import cache from '@/utils/cache'
 
 export async function getMembers(group?: string | null): Promise<IMember[]>
 export async function getMembers(c?: Context): Promise<IMember[]>

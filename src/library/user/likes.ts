@@ -1,8 +1,8 @@
 import type { Context } from 'hono'
+import config from '@/config'
+import LiveLog from '@/database/live/schema/LiveLog'
 import Liked from '@/database/schema/user/Liked'
 import { createError } from '@/utils/errorResponse'
-import LiveLog from '@/database/live/schema/LiveLog'
-import config from '@/config'
 
 export async function getLikes(c: Context): Promise <IBookmarks> {
   const userId = c.get('user')?.id

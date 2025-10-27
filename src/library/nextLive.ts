@@ -1,6 +1,6 @@
 import type { Context } from 'hono'
-import { getMembers } from './member'
 import { getNextLive as fetchNextLive, getAllFollows } from '@/utils/api/showroom'
+import { getMembers } from './member'
 
 /// 318247 is umega room
 export async function getNextLive(c: Context): Promise<INextLive[]> {
@@ -74,7 +74,7 @@ async function getDirectNextLive(membersData: IMember[] | null = null, c: Contex
               date: new Date(new Date(data.epoch * 1000).toLocaleString('en-US', { timeZone: 'Asia/Tokyo' })).toISOString(),
             }
           }
-          catch (e) {
+          catch {
             return null
           }
         })(),
@@ -84,7 +84,7 @@ async function getDirectNextLive(membersData: IMember[] | null = null, c: Contex
     data = data.filter(i => new Date(i.date).getTime() - new Date().getTime() > 0)
     return data
   }
-  catch (e) {
+  catch {
     return []
   }
 }

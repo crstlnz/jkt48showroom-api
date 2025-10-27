@@ -1,7 +1,7 @@
-import dayjs from 'dayjs'
 import type { FormatType, WeeklyData } from '..'
-import { getMember } from '../query'
+import dayjs from 'dayjs'
 import Theater from '@/database/showroomDB/jkt48/Theater'
+import { getMember } from '../query'
 
 export default async function totalTheater(format: FormatType): Promise<WeeklyData> {
   const members = await getMember()

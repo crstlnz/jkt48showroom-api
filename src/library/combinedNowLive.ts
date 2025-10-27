@@ -1,10 +1,11 @@
 import type { Context } from 'hono'
+import type { JKT48VLiveResults } from '@/library/jkt48v'
 import dayjs from 'dayjs'
-import { getNowLiveCookies, getNowLiveIndirect } from './nowLive'
-import { fetchIDN } from './idn/lives'
 import IdolMember from '@/database/schema/48group/IdolMember'
+import { cachedJKT48VLive } from '@/library/jkt48v'
 import { getOnlives } from '@/utils/api/showroom'
-import { cachedJKT48VLive, getJKT48VLive, JKT48VLiveResults } from '@/library/jkt48v'
+import { fetchIDN } from './idn/lives'
+import { getNowLiveCookies, getNowLiveIndirect } from './nowLive'
 
 // const sleep = (ms: number) => new Promise<void>(resolve => setTimeout(() => resolve(), ms))
 // let id = 0
@@ -79,26 +80,26 @@ async function idnNowLive(debug: boolean = false): Promise<INowLive[]> {
 }
 
 interface YoutubeLive extends JKT48VLiveResults {
-  type : "youtube"
+  type: 'youtube'
 }
 
-async function getJKT48V(debug: boolean = false): Promise<YoutubeLive[]> {
-  const lives = await cachedJKT48VLive();
+async function getJKT48V(_debug: boolean = false): Promise<YoutubeLive[]> {
+  const lives = await cachedJKT48VLive()
   return lives.map((i) => {
     return {
       ...i,
-      type : "youtube"
+      type: 'youtube',
     }
   })
 }
 
 async function fetchCombined(c: Context, group: string): Promise<(INowLive | YoutubeLive)[]> {
   const sr = await showroomNowlive(c)
-  const res : (INowLive | YoutubeLive)[] = [...sr]
+  const res: (INowLive | YoutubeLive)[] = [...sr]
   if (group === 'jkt48') {
     const isDebug = c.req.query('debug')
     const idn = await idnNowLive(isDebug === 'true')
-    const jkt48v = await getJKT48V().catch(()=> [])
+    const jkt48v = await getJKT48V().catch(() => [])
     res.push(...idn)
     res.push(...jkt48v)
   }

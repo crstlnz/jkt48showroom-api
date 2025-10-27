@@ -1,5 +1,5 @@
-import dayjs from 'dayjs'
 import type { FormatType, LivePlatform, WeeklyData } from '..'
+import dayjs from 'dayjs'
 import { getMember, getOneWeekLives } from '../query'
 
 export default async function totalLive(type: LivePlatform, format: FormatType): Promise<WeeklyData> {

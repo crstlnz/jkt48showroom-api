@@ -6,14 +6,14 @@ export async function getJKT48Members(): Promise<JKT48.Member[]> {
     const members = await JKT48Member.find({})
       .lean()
 
-    const memberData = await IdolMember.find({jkt48id : {$in : members.map(i=> i.id)}})
+    const memberData = await IdolMember.find({ jkt48id: { $in: members.map(i => i.id) } })
     return (members as unknown as JKT48.Member[])
       .map((i) => {
-        const data = memberData.find(x=> x.jkt48id?.includes(i.id))
+        const data = memberData.find(x => x.jkt48id?.includes(i.id))
         return {
           id: i.id,
           name: i.name,
-          nicknames : data?.info.nicknames,
+          nicknames: data?.info.nicknames,
           url: i.url,
         }
       })

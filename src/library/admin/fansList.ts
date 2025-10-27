@@ -1,6 +1,6 @@
 import type { Context } from 'hono'
-import ShowroomUser from '@/database/schema/showroom/ShowroomUser'
 import Config from '@/database/schema/config/Config'
+import ShowroomUser from '@/database/schema/showroom/ShowroomUser'
 
 export default async function getFansList(c: Context): Promise<{ jpy_rates: number, fans: Database.IShowroomFans[] }> {
   let page = 1

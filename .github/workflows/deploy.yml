@@ -26,7 +26,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: 'pnpm'
+          cache: pnpm
 
       - name: Install dependencies
         run: pnpm install
@@ -36,17 +36,17 @@ jobs:
 
       - name: Setup SSH Key
         run: echo "$SSH_PRIVATE_KEY" > private_key && chmod 600 private_key
-      
+
       - name: Create directory and clone repository on remote server
         run: |
           ssh -o StrictHostKeyChecking=no -i private_key $SERVER_USER@$SERVER_IP "
             # Buat folder menggunakan variabel
             mkdir -p ${{ vars.DEPLOY_APP_DIR }}
             echo \"Created directory: ${{ vars.DEPLOY_APP_DIR }}\"
-            
+
             # Masuk ke folder
             cd ${{ vars.DEPLOY_APP_DIR }}
-            
+
             # Clone atau update repository
             if [ ! -d '.git' ]; then
               echo \"Cloning repository to ${{ vars.DEPLOY_APP_DIR }}...\"
@@ -55,7 +55,7 @@ jobs:
               echo \"Repository exists, pulling latest changes...\"
               git stash && git pull origin main
             fi
-            
+
             echo \"Repository setup completed at ${{ vars.DEPLOY_APP_DIR }}\"
           "
 
@@ -64,7 +64,7 @@ jobs:
 
       - name: Install package.json
         run: ssh -o StrictHostKeyChecking=no -i private_key $SERVER_USER@$SERVER_IP "cd ${{ vars.DEPLOY_APP_DIR }} && pnpm i"
-          
+
       - name: Zip Build Files
         run: zip -r output.zip ./.output
 
