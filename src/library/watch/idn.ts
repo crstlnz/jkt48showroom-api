@@ -11,6 +11,7 @@ export async function getIDNLive(c: Context): Promise<IDNLivesDetail> {
 export async function fetch(c: Context): Promise<IDNLivesDetail> {
   const lives = await cache.fetch('idnlivess', () => getIDNLives(), 7000)
   const username = c.req.param('id')
+  if (username === 'undefined') throw createError({ status: 400, message: 'Bad request!' })
   const roomData = await IdolMember.findOne({ 'idn.username': username }).populate<{ showroom: Database.IShowroomMember }>('showroom').catch(() => null)
   const data = lives.find(i => i.user.username === username)
   if (!roomData && !data) throw createError({ status: 404, message: 'Room not found!' })
