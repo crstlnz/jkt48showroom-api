@@ -120,8 +120,8 @@ app.get('/now_live', ...handler(getCombinedNowLive, (c) => {
 app.get('/idn_user', ...handler(getIDNUser, { hours: 1 }))
 
 app.get('/next_live', ...handler(getNextLive, { hours: 1 }))
-app.get('/watch/:id', ...handler(getWatchData, { seconds: 4 }))
-app.get('/watch/:id/idn', ...handler(getIDNLive, { seconds: 13 }))
+app.get('/watch/:id', ...handler(getWatchData, { seconds: 4, useSingleProcess: true }))
+app.get('/watch/:id/idn', ...handler(getIDNLive, { seconds: 13, useSingleProcess: true }))
 app.get('/first_data', ...handler(getFirstData, { days: 30 }))
 app.get('/screenshots/:id', ...handler(getScreenshots, { hours: 12 }))
 app.get('/records', ...handler(getRecords, { hours: 12 }))
