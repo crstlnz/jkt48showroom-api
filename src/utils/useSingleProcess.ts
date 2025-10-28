@@ -22,7 +22,7 @@ export async function useSingleProcess<T>(id: string, process: () => Promise<T>)
 }
 
 export function useRateLimitSingleProcess(fetch: (c: Context) => any) {
-  return createMiddleware(async (c: Context) => {
+  return createMiddleware(async (c: Context, next) => {
     const config = {
       useRateLimit: c.get('useRateLimit'),
       useSingleProcess: c.get('useSingleProcess'),
@@ -53,19 +53,20 @@ export function useRateLimitSingleProcess(fetch: (c: Context) => any) {
 
     if (config.useSingleProcess) {
       if (config.useJson) {
-        return c.json(await useSingleProcess(c.req.url, fetchData))
+        c.json(await useSingleProcess(c.req.url, fetchData))
       }
       else {
-        return c.body(await useSingleProcess(c.req.url, fetchData))
+        c.body(await useSingleProcess(c.req.url, fetchData))
       }
     }
     else {
       if (config.useJson) {
-        return c.json(await fetchData())
+        c.json(await fetchData())
       }
       else {
-        return c.body(await fetchData())
+        c.body(await fetchData())
       }
     }
+    await next()
   })
 }

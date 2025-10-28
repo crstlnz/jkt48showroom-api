@@ -36,9 +36,13 @@ const defaultConfig = {
 export function handler(fetch: (c: Context) => Promise<any>, opts?: ((c: Context) => CacheOptions) | CacheOptions) {
   return createHandlers(createMiddleware(async (c, next) => {
     const config = defu(typeof opts === 'function' ? opts(c) : opts ?? {}, defaultConfig)
+    // @ts-expect-error error type
     c.set('useRateLimit', config.useRateLimit)
+    // @ts-expect-error error type
     c.set('useSingleProcess', config.useSingleProcess)
+    // @ts-expect-error error type
     c.set('useJson', config.useJson)
+    // @ts-expect-error error type
     c.set('cacheClientOnly', config.cacheClientOnly)
     const ms = dayjs.duration(getDurationObject(config ?? {})).asSeconds()
 
@@ -46,7 +50,7 @@ export function handler(fetch: (c: Context) => Promise<any>, opts?: ((c: Context
       throw new ApiError({ message: 'Too many request!', status: 409 })
     }
 
-    if (process.env.NODE_ENV !== 'development') return await next()
+    if (process.env.NODE_ENV === 'development') return await next()
     if (ms === 0) return await next()
     c.header('Cache-Control', `max-age=${ms}, must-revalidate`)
     return await next()
