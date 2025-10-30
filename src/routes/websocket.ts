@@ -125,7 +125,7 @@ export const wsHandler: Bun.WebSocketHandler<WebSocketData> = {
         if (Object.values(IdolGroupTypes).includes(id as IdolGroup)) {
           ws.subscribe(id)
           ws.send('ok')
-          sendLiveUpdates(id as IdolGroup)
+          ws.send(combinedLives().filter(i => i.group === id))
         }
       })
     }
@@ -154,7 +154,7 @@ export const wsHandler: Bun.WebSocketHandler<WebSocketData> = {
   close(ws) {
     users.delete(ws.data.sessionId)
     admins.delete(ws.data.sessionId)
-    for (const l in Object.values(EventChannel)) {
+    for (const l of Object.values(EventChannel)) {
       ws.unsubscribe(l)
     }
 
