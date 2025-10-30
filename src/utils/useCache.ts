@@ -1,5 +1,5 @@
 import type { Context } from 'hono'
-import type { StatusCode } from 'hono/utils/http-status'
+import type { ContentfulStatusCode } from 'hono/utils/http-status'
 import type { JSONValue } from 'hono/utils/types'
 import type { CacheOptions } from './factory'
 import dayjs from 'dayjs'
@@ -48,7 +48,7 @@ export function useCache(cacheOpts?: ((c: Context) => CacheOptions) | CacheOptio
     else {
       if (useJson) {
         const oldJson = c.json
-        const newJson = (object: JSONValue, status?: StatusCode | undefined, headers?: any | undefined) => {
+        const newJson = (object: JSONValue, status?: ContentfulStatusCode | undefined, headers?: any | undefined) => {
           if (status === undefined || status === 200) {
             cache.set(cacheName, object as object, ms)
           }
@@ -58,7 +58,7 @@ export function useCache(cacheOpts?: ((c: Context) => CacheOptions) | CacheOptio
       }
       else {
         const oldBody = c.body
-        const newBody = (data: any | null, status?: StatusCode | undefined, headers?: any | undefined) => {
+        const newBody = (data: any | null, status?: ContentfulStatusCode | undefined, headers?: any | undefined) => {
           if (status === undefined || status === 200) {
             let headerArray = []
             try {

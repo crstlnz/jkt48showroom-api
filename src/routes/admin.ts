@@ -24,21 +24,54 @@ import getMissingJikosoukai from '@/library/admin/missingJikosoukai'
 import getMissingJKT48ID from '@/library/admin/missingJKT48ID'
 import getAllSetlist from '@/library/admin/setlist'
 import { getStage48 } from '@/library/admin/stage48'
+import { CombinedLivesListZod } from '@/library/combinedNowLive'
 import { getJKT48EventById } from '@/library/jkt48/jkt48event'
 import { getTheaterById } from '@/library/jkt48/theater'
+import { IdolGroupTypes } from '@/types/index.types'
 import cache from '@/utils/cache'
 import { useCORS } from '@/utils/cors'
-import { notFound } from '@/utils/errorResponse'
+import { ApiError, notFound } from '@/utils/errorResponse'
 import { handler } from '@/utils/factory'
 import { checkAdmin } from '@/utils/security'
+import { createJWT } from '@/utils/security/jwt'
 import { checkToken } from '@/utils/security/token'
 import { cache as wCache } from '../library/watch/index'
+import { webhookUpdateLive } from './websocket'
 
 const app = new Hono()
+
+app.post('/update_lives', async (c) => {
+  const data = await c.req.json()
+  if (!data?.api_key || data.api_key !== process.env.API_KEY) throw new ApiError({ status: 401, message: 'Unauthorized!' })
+  const lives = data?.lives
+  const group = IdolGroupTypes.includes(data?.group) ? data?.group : undefined
+  if (!lives) throw new ApiError({ status: 400, message: 'Bad request!' })
+  try {
+    const parsed = CombinedLivesListZod.parse(lives)
+    webhookUpdateLive(parsed, group)
+    return c.json({
+      ok: true,
+    })
+  }
+  catch (e) {
+    console.error(e)
+    throw new ApiError({
+      status: 400,
+      message: 'Error',
+    })
+  }
+})
+
 app.use('*', useCORS('self'))
 app.use('*', checkToken(false))
 app.use('*', checkAdmin())
 // app.use('*', useShowroomSession())
+
+app.get('/get_token', (c) => {
+  return c.text(createJWT({
+    admin: true,
+  }, 60 * 1000 * 2))
+})
 
 app.get('/missing_jikosokai', ...handler(getMissingJikosoukai))
 app.get('/missing_jkt48id', ...handler(getMissingJKT48ID))

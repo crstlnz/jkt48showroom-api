@@ -4,7 +4,7 @@ import { csrf } from 'hono/csrf'
 import { logger } from 'hono/logger'
 import { dbConnect } from '@/database'
 import { getBanner } from '@/library/admin/banner'
-import { getCombinedNowLive } from '@/library/combinedNowLive'
+import { fetchCombined, getCombinedNowLive } from '@/library/combinedNowLive'
 import { getFirstData } from '@/library/firstData'
 import { fetchIDN } from '@/library/idn/lives'
 import getIDNUser from '@/library/idn/user'
@@ -38,6 +38,7 @@ import getStream from '@/library/stream'
 import { getWatchData } from '@/library/watch'
 import { getIDNLive } from '@/library/watch/idn'
 import getWeekly from '@/library/weekly'
+import { cachedFetch } from '@/utils/cache/cachedFetch'
 import { useCORS } from '@/utils/cors'
 import { handler } from '@/utils/factory'
 import { getIp, useSessionID } from '@/utils/security'
@@ -48,6 +49,7 @@ import auth from './auth'
 import showroom from './showroom'
 import sousenkyo from './sousenkyo'
 import user from './user'
+import { combinedLives } from './websocket'
 
 const app = new Hono()
 
@@ -90,7 +92,6 @@ app.route('/sousenkyo', sousenkyo)
 
 app.get('/banner', useCORS('self'), ...handler(getBanner, { minutes: 10 }))
 app.get('/leaderboard', useCORS('self'), ...handler(getLeaderboard, { minutes: 10 }))
-
 app.get('/jkt48_youtube', ...handler(getJKT48YoutubeVideo, { minutes: 30, useRateLimit: true, useSingleProcess: true }))
 app.get('/jkt48v_live', ...handler(cachedJKT48VLive, { minutes: 5 }))
 app.get('/member', ...handler(getMembers, { hours: 12 }))
@@ -103,18 +104,31 @@ app.use('/*', async (c, next) => {
   await next()
 })
 
-app.get('/now_live', ...handler(getCombinedNowLive, (c) => {
+app.get('/now_live', ...handler(async (c) => {
+  const data = combinedLives()
+  const debug = c.req.query('debug')
+  const group = c.req.query('group')
+  if (debug) {
+    return await cachedFetch.fetch('combined-live', async () => {
+      return await fetchCombined(group ?? 'all', true)
+    }, 1000 * 60 * 5)
+  }
+  if (group === 'all') return data
+  return data.filter(i => i.group === group)
+}, (c) => {
   let group = c.req.query('group')
   const debug = c.req.query('debug')
   group = group === 'hinatazaka46' ? 'hinatazaka46' : 'jkt48'
   return {
     name: `${group}-nowlive${debug ?? ''}`,
-    seconds: 30,
-    useSingleProcess: true,
-    rateLimit: {
-      maxRequest: 40,
-      limitTimeWindow: 1000 * 60 * 5,
-    },
+    seconds: debug ? 1000 * 60 * 5 : 3,
+    useSingleProcess: !!debug,
+    rateLimit: debug
+      ? {
+          maxRequest: 40,
+          limitTimeWindow: 1000 * 60 * 5,
+        }
+      : undefined,
   }
 }))
 

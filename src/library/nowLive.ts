@@ -1,16 +1,18 @@
 import type { Context } from 'hono'
+import type { INowLive } from './combinedNowLive'
 import dayjs from 'dayjs'
 import { getAllFollows, getIsLive, getOnlives, getProfile, getStreamingURL } from '@/utils/api/showroom'
 import { getMembers } from './member'
 
 export async function getNowLive(c: Context) {
   return new Promise((resolve, reject) => {
-    getNowLiveCookies(null, c).then((r) => {
+    const group = c.req.query('group') || undefined
+    getNowLiveCookies(null, group).then((r) => {
       resolve(r)
     }).catch(() => {
       console.error(new Error('ERROR CHANGE TO BACKUP'))
       console.log('ERROR change to backup')
-      return getNowLiveIndirect(null, c).then((r) => {
+      return getNowLiveIndirect(null, group).then((r) => {
         resolve(r)
         console.log('now live indirect', r)
       }).catch((e) => {
@@ -23,9 +25,9 @@ export async function getNowLive(c: Context) {
 
 export async function getNowLiveDirect(
   membersData: IMember[] | null = null,
-  c: Context,
+  group: string = 'jkt48',
 ): Promise<INowLive[]> {
-  const members: IMember[] = membersData ?? await getMembers(c)
+  const members: IMember[] = membersData ?? await getMembers(group)
   const promises: Promise<INowLive | null>[] = []
   for (const member of members) {
     if (!member.room_id) continue
@@ -41,6 +43,7 @@ export async function getNowLiveDirect(
             name: member.name,
             img: member.img,
             img_alt: member.img_alt,
+            group: member?.group === 'hinatazaka46' ? 'hinatazaka46' : 'jkt48',
             url_key: member.url,
             room_id,
             is_graduate: member.is_graduate,
@@ -72,8 +75,8 @@ async function newOnlivesCookies() {
   // TODO
 }
 
-export async function getNowLiveCookies(membersData: IMember[] | null = null, c: Context): Promise<INowLive[]> {
-  const members: IMember[] = membersData ?? await getMembers(c)
+export async function getNowLiveCookies(membersData: IMember[] | null = null, group: string = 'jkt48'): Promise<INowLive[]> {
+  const members: IMember[] = membersData ?? await getMembers(group)
   const rooms = await getAllFollows().catch(() => [])
   const roomMap = new Map<string, ShowroomAPI.RoomFollow>()
   const result: Promise<INowLive>[] = []
@@ -108,6 +111,7 @@ export async function getNowLiveCookies(membersData: IMember[] | null = null, c:
             img_alt: member.img_alt,
             url_key: room.room_url_key,
             room_id: Number(room.room_id),
+            group: member?.group === 'hinatazaka46' ? 'hinatazaka46' : 'jkt48',
             started_at: dayjs((profile?.current_live_started_at ?? 0) * 1000).toISOString(),
             is_graduate: member.is_graduate,
             is_group: member.group === 'official',
@@ -132,13 +136,13 @@ export async function getNowLiveCookies(membersData: IMember[] | null = null, c:
   const lives = []
   lives.push(...await Promise.all(result))
   if (missing.length) {
-    lives.push(...await getNowLiveDirect(missing, c))
+    lives.push(...await getNowLiveDirect(missing, group))
   }
   return lives
 }
 
-export async function getNowLiveIndirect(membersData: IMember[] | null = null, c: Context): Promise<INowLive[]> {
-  const members: IMember[] = membersData ?? await getMembers(c)
+export async function getNowLiveIndirect(membersData: IMember[] | null = null, group: string = 'jkt48'): Promise<INowLive[]> {
+  const members: IMember[] = membersData ?? await getMembers(group)
   const memberMap = new Map<string | number, IMember>()
   for (const member of members) {
     if (!member.room_id) continue
@@ -160,6 +164,7 @@ export async function getNowLiveIndirect(membersData: IMember[] | null = null, c
         img: room.image,
         img_alt: member.img_alt,
         url_key: room.room_url_key,
+        group: member?.group === 'hinatazaka46' ? 'hinatazaka46' : 'jkt48',
         room_id: room.room_id,
         started_at: dayjs((room.started_at ?? 0) * 1000).toISOString(),
         is_graduate: member.is_graduate,

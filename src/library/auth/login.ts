@@ -17,12 +17,12 @@ export function login() {
     body.append('account_id', String(loginData.account_id || ''))
     body.append('password', String(loginData.password || ''))
 
-    const sr_sess: ShowroomLogin.Session | null = c.get('showroom_session')
-    if (sr_sess?.csrf_token) body.append('csrf_token', sr_sess?.csrf_token)
+    const sr_sess: ShowroomLogin.Session | null = c.get('showroom_session' as never)
+    if ((sr_sess as any)?.csrf_token) body.append('csrf_token', (sr_sess as any)?.csrf_token)
 
     if (loginData.captcha_word) body.append('captcha_word', String(loginData.captcha_word))
 
-    let sr_id = sr_sess?.sr_id
+    let sr_id = (sr_sess as any)?.sr_id
     const data = await ofetch<ShowroomLogin.Data | ShowroomLogin.Error>('https://www.showroom-live.com/user/login', {
       method: 'POST',
       headers: {

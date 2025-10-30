@@ -22,6 +22,7 @@ export async function useSingleProcess<T>(id: string, process: () => Promise<T>)
 }
 
 export function useRateLimitSingleProcess(fetch: (c: Context) => any) {
+  // @ts-expect-error type error
   return createMiddleware(async (c: Context, next) => {
     const config = {
       useRateLimit: c.get('useRateLimit'),
@@ -53,18 +54,18 @@ export function useRateLimitSingleProcess(fetch: (c: Context) => any) {
 
     if (config.useSingleProcess) {
       if (config.useJson) {
-        c.json(await useSingleProcess(c.req.url, fetchData))
+        return c.json(await useSingleProcess(c.req.url, fetchData))
       }
       else {
-        c.body(await useSingleProcess(c.req.url, fetchData))
+        return c.body(await useSingleProcess(c.req.url, fetchData))
       }
     }
     else {
       if (config.useJson) {
-        c.json(await fetchData())
+        return c.json(await fetchData())
       }
       else {
-        c.body(await fetchData())
+        return c.body(await fetchData())
       }
     }
     await next()

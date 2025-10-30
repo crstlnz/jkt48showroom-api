@@ -36,14 +36,10 @@ const defaultConfig = {
 export function handler(fetch: (c: Context) => Promise<any>, opts?: ((c: Context) => CacheOptions) | CacheOptions) {
   return createHandlers(createMiddleware(async (c, next) => {
     const config = defu(typeof opts === 'function' ? opts(c) : opts ?? {}, defaultConfig)
-    // @ts-expect-error error type
-    c.set('useRateLimit', config.useRateLimit)
-    // @ts-expect-error error type
-    c.set('useSingleProcess', config.useSingleProcess)
-    // @ts-expect-error error type
-    c.set('useJson', config.useJson)
-    // @ts-expect-error error type
-    c.set('cacheClientOnly', config.cacheClientOnly)
+    c.set('useRateLimit' as never, config.useRateLimit as never)
+    c.set('useSingleProcess' as never, config.useSingleProcess as never)
+    c.set('useJson' as never, config.useJson as never)
+    c.set('cacheClientOnly' as never, config.cacheClientOnly as never)
     const ms = dayjs.duration(getDurationObject(config ?? {})).asSeconds()
 
     if (config.rateLimit && isTooManyRequest(c, config.rateLimit.maxRequest, config.rateLimit.limitTimeWindow)) {

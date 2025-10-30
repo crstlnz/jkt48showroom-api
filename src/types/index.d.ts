@@ -125,22 +125,6 @@ declare global {
     url: string
   }
 
-  interface INowLive {
-    name: string
-    img: string
-    img_alt?: string
-    url_key?: string
-    slug?: string
-    room_id: number
-    is_graduate: boolean
-    is_group: boolean
-    started_at: string | number
-    chat_room_id?: string
-    streaming_url_list: IStreamingURL[]
-    is_premium?: boolean
-    type: 'idn' | 'showroom'
-  }
-
   interface INextLive {
     name: string
     img: string

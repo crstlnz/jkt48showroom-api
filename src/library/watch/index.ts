@@ -1,6 +1,8 @@
 import type { Context } from 'hono'
+import IdolMember from '@/database/schema/48group/IdolMember'
 import { getCommentLog, getGiftList, getGiftLog, getLiveInfo, getProfile, getRoomStatus, getStreamingURL } from '@/utils/api/showroom'
 import { createError } from '@/utils/errorResponse'
+import singleflight from '@/utils/singleflight'
 
 interface WatchCache {
   data: Watch.WatchData
@@ -23,8 +25,9 @@ function setClearCache(room_url_key: string) {
 
 export async function getWatchData(c: Context) {
   const room_url_key = c.req.param('id')
+  if (!room_url_key) throw createError({ status: 400, message: 'Bad request!' })
   const cacheData = cache.get(room_url_key)
-  const data = cacheData || await queuedFetch(c)
+  const data = cacheData || await singleflight.do(room_url_key, async () => getData(room_url_key))
   if (!cacheData) {
     setClearCache(room_url_key)
     cache.set(room_url_key, data)
@@ -39,29 +42,13 @@ export async function getWatchData(c: Context) {
   }
 }
 
-const promises = new Map<string, Promise<WatchCache | WatchError>>()
-async function queuedFetch(c: Context): Promise<WatchCache | WatchError> {
-  const id = c.req.param('id')
-  if (!id) throw createError({ status: 400, message: 'Bad request!' })
-  let promise = promises.get(id)
-  if (!promise) {
-    promise = new Promise((resolve, reject) => {
-      getData(c).then((r) => {
-        resolve(r)
-        promises.delete(id)
-      }).catch(reject)
-    })
-    promises.set(id, promise)
-  }
-  return await promise
-}
-
-async function getData(c: Context): Promise<WatchCache | WatchError> {
-  const room_url_key = c.req.param('id')
-  const srId = c.get('user')?.sr_id // disabled because singleprocesses feature
+async function getData(room_key: string): Promise<WatchCache | WatchError> {
+  const room_url_key = room_key
+  // const srId = c.get('user')?.sr_id // disabled because singleprocesses feature
   try {
     // const cookies = ``
-    const cookies = `sr_id=${srId};`
+    // const cookies = `sr_id=${srId};`
+    const cookies = ``
     const data = await getRoomStatus({ room_url_key }, cookies)
     const profile = await getProfile(data.room_id ?? 0)
     const liveInfo = data.is_live ? (await getLiveInfo({ room_id: data.room_id }, cookies)) : null
