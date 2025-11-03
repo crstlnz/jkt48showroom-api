@@ -1,5 +1,4 @@
 import type { Context } from 'hono'
-import { group } from 'node:console'
 import dayjs from 'dayjs'
 import { z } from 'zod'
 import IdolMember from '@/database/schema/48group/IdolMember'

@@ -1,4 +1,4 @@
-import type { CombinedLive, JKT48VLiveResults } from '@/library/combinedNowLive'
+import type { CombinedLive, JKT48VLiveResults, YoutubeLive } from '@/library/combinedNowLive'
 import type { IdolGroup } from '@/types/index.types'
 import { createId } from '@paralleldrive/cuid2'
 import { fetchCombined } from '@/library/combinedNowLive'
@@ -10,7 +10,7 @@ import { verifyJWT } from '@/utils/security/jwt'
 
 let server: Bun.Server<WebSocketData> | null = null
 let currentLives: CombinedLive[] = []
-let jkt48vLives: JKT48VLiveResults[] = []
+let jkt48vLives: YoutubeLive[] = []
 
 const updateLivesTrigger = new AutoTrigger(async () => {
   initLiveData()
@@ -85,7 +85,7 @@ function publish(topic: string, data: any) {
 setInterval(async () => {
   const data = await cachedJKT48VLive().catch(() => null)
   if (data) {
-    jkt48vLives = await cachedJKT48VLive()
+    jkt48vLives = (await cachedJKT48VLive()).map(i => ({ ...i, type: 'youtube' }))
     sendLiveUpdates('jkt48')
   }
 }, jkt48v_cache_time + 1)
