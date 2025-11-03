@@ -1,4 +1,4 @@
-name: Deploy to Server
+name: 🐳 Build and Push Docker Image
 
 on:
   push:
@@ -9,73 +9,33 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    env:
-      SSH_PRIVATE_KEY: ${{ secrets.DEPLOY_PRIVATE_KEY }} # Add your SSH key to GitHub secrets
-      SERVER_USER: ${{ secrets.DEPLOY_USERNAME }} # Add your server username to GitHub secrets
-      SERVER_IP: ${{ secrets.DEPLOY_SERVER_IP }} # Add your server IP to GitHub secrets
     steps:
-      - name: Checkout code
+      - name: 🧰 Checkout
         uses: actions/checkout@v4
 
-      - uses: pnpm/action-setup@v4
-        name: Install pnpm
+      - name: 🔧 Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: 🔑 Login to Docker Hub
+        uses: docker/login-action@v3
         with:
-          run_install: false
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Install Node.js
-        uses: actions/setup-node@v4
+      - name: 🏗️ Build and push image
+        uses: docker/build-push-action@v5
         with:
-          node-version: 20
-          cache: pnpm
+          push: true
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/api:latest
 
-      - name: Install dependencies
-        run: pnpm install
-
-      - name: Build
-        run: pnpm build
-
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+    env:
+      SSH_PRIVATE_KEY: ${{ secrets.DEPLOY_PRIVATE_KEY }} # Add your SSH key to GitHub secrets
+    steps:
       - name: Setup SSH Key
         run: echo "$SSH_PRIVATE_KEY" > private_key && chmod 600 private_key
-
-      - name: Create directory and clone repository on remote server
-        run: |
-          ssh -o StrictHostKeyChecking=no -i private_key $SERVER_USER@$SERVER_IP "
-            # Buat folder menggunakan variabel
-            mkdir -p ${{ vars.DEPLOY_APP_DIR }}
-            echo \"Created directory: ${{ vars.DEPLOY_APP_DIR }}\"
-
-            # Masuk ke folder
-            cd ${{ vars.DEPLOY_APP_DIR }}
-
-            # Clone atau update repository
-            if [ ! -d '.git' ]; then
-              echo \"Cloning repository to ${{ vars.DEPLOY_APP_DIR }}...\"
-              git clone https://github.com/crstlnz/jkt48showroom-api.git .
-            else
-              echo \"Repository exists, pulling latest changes...\"
-              git stash && git pull origin main
-            fi
-
-            echo \"Repository setup completed at ${{ vars.DEPLOY_APP_DIR }}\"
-          "
-
-      # - name: SSH and Pull Latest Code
-      #   run: ssh -o StrictHostKeyChecking=no -i private_key $SERVER_USER@$SERVER_IP "cd ${{ vars.DEPLOY_APP_DIR }} && git stash && git pull"
-
-      - name: Install package.json
-        run: ssh -o StrictHostKeyChecking=no -i private_key $SERVER_USER@$SERVER_IP "cd ${{ vars.DEPLOY_APP_DIR }} && pnpm i"
-
-      - name: Zip Build Files
-        run: zip -r output.zip ./.output
-
-      - name: Upload and Unzip Build Files
-        run: |
-          scp -o StrictHostKeyChecking=no -i private_key output.zip $SERVER_USER@$SERVER_IP:${{ vars.DEPLOY_APP_DIR }}
-          ssh -o StrictHostKeyChecking=no -i private_key $SERVER_USER@$SERVER_IP "
-            cd ${{ vars.DEPLOY_APP_DIR }} &&
-            unzip -o output.zip &&
-            rm output.zip
-          "
 
       - name: Create Environment
         uses: mkyai/env-builder@v1.1.1
@@ -83,8 +43,72 @@ jobs:
           secrets: ${{ toJson(secrets) }}
           variables: ${{ toJson(vars) }}
 
-      - name: Copy .env file
-        run: scp -o StrictHostKeyChecking=no -i private_key .env $SERVER_USER@$SERVER_IP:${{ vars.DEPLOY_APP_DIR }}
+      - name: Clean .env file (remove CI_* and github_* including multiline)
+        run: |
+          ENV_FILE=".env"
+          TEMP_FILE=$(mktemp)
 
-      - name: Run with PM2
-        run: ssh -o StrictHostKeyChecking=no -i private_key $SERVER_USER@$SERVER_IP "cd ${{ vars.DEPLOY_APP_DIR }} && pm2 startOrRestart ecosystem.config.js && pm2 save"
+          is_forbidden() {
+            [[ "$1" =~ ^(CI_|github_|DEPLOY_) ]]
+          }
+
+          in_multiline=0
+          current_key=""
+
+          while IFS= read -r line || [[ -n "$line" ]]; do
+            # Skip comments
+            [[ "$line" =~ ^[[:space:]]*# ]] && continue
+            # Skip empty lines (only if not in multiline)
+            [[ -z "${line// }" ]] && (( ! in_multiline )) && echo "$line" >> "$TEMP_FILE" && continue
+
+            if (( in_multiline )); then
+              # Still inside a forbidden multiline block
+              if [[ "$line" == *"-----END "* ]] || [[ "$line" == *\"* ]] || [[ "$line" == *"'"* ]]; then
+                in_multiline=0
+              fi
+              continue
+            else
+              # Check if line starts with KEY=
+              if [[ "$line" =~ ^[[:space:]]*([A-Za-z0-9_]+)= ]]; then
+                current_key="${BASH_REMATCH[1]}"
+
+                if is_forbidden "$current_key"; then
+                  # Start skipping
+                  in_multiline=1
+                  # If not multiline (no quote or BEGIN), end immediately
+                  if [[ "$line" != *\"* && "$line" != *"'"* && "$line" != *"-----BEGIN "* ]]; then
+                    in_multiline=0
+                  fi
+                  continue
+                else
+                  echo "$line" >> "$TEMP_FILE"
+                  # Check if value starts with quote or BEGIN → multiline
+                  if [[ "$line" == *\"* || "$line" == *"'"* || "$line" == *"-----BEGIN "* ]]; then
+                    in_multiline=1
+                  fi
+                fi
+              else
+                # Continuation line or junk
+                if (( ! in_multiline )) && ! is_forbidden "$current_key"; then
+                  echo "$line" >> "$TEMP_FILE"
+                fi
+              fi
+            fi
+          done < "$ENV_FILE"
+
+          mv "$TEMP_FILE" "$ENV_FILE"
+          echo "File .env berhasil dibersihkan dari CI_* dan github_*"
+
+      - name: Copy .env file
+        run: scp -o StrictHostKeyChecking=no -i private_key .env ${{ secrets.DEPLOY_USERNAME }}@${{ secrets.DEPLOY_SERVER_IP }}:${{ vars.DEPLOY_APP_DIR }}/.env.api
+
+      - name: 🔁 Re-pull & restart Docker
+        run: |
+          ssh -o StrictHostKeyChecking=no -i private_key \
+            ${{ secrets.DEPLOY_USERNAME }}@${{ secrets.DEPLOY_SERVER_IP }} \
+            "cd ${ { vars.DEPLOY_APP_DIR } } && \
+            echo '🔄 Pulling latest Docker image...' && \
+            docker compose pull && \
+            echo '♻️ Restarting containers...' && \
+            docker compose up -d && \
+            echo '✅ Deployment complete!'"
