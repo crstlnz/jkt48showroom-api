@@ -124,8 +124,8 @@ export const wsHandler: Bun.WebSocketHandler<WebSocketData> = {
       msg.split(' ').slice(1).forEach((id) => {
         if (Object.values(IdolGroupTypes).includes(id as IdolGroup)) {
           ws.subscribe(id)
-          ws.send('ok')
           ws.send(typedBroadcast(id, combinedLives().filter(i => i.group === id)))
+          ws.send('ok-listen')
         }
       })
     }
