@@ -17,7 +17,7 @@ const updateLivesTrigger = new AutoTrigger(async () => {
 }, 1000 * 60 * 5).start()
 
 export async function initLiveData() {
-  currentLives = await fetchCombined('all', process.env.NODE_ENV === 'development')
+  currentLives = (await fetchCombined('all', process.env.NODE_ENV === 'development')).filter(i => i.type !== 'youtube')
   sendLiveUpdates('all')
 }
 
