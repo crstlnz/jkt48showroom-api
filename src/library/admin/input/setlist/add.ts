@@ -63,7 +63,7 @@ export async function addOrEditSetlist(c: Context) {
     }
   }
   catch (e) {
-    console.log(e)
+    console.error(e)
     throw createError({ statusCode: 500, statusMessage: 'An error occured!' })
   }
 }

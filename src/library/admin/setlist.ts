@@ -6,7 +6,7 @@ export default async function getAllSetlist(): Promise<JKT48.Setlist[]> {
     return setlists
   }
   catch (e) {
-    console.log(e)
+    console.error(e)
     return []
   }
 }

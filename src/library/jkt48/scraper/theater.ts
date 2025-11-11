@@ -81,8 +81,8 @@ export async function getTheaterDetail(id: string, retry = 1, headers: HeadersIn
     if (retry > 20) {
       throw e
     }
-    console.log('Error fetching', id)
-    console.log('Retry', id)
+    console.error('Error fetching', id)
+    console.error('Retry', id)
     await sleep(1000)
     return await getTheaterDetail(id, retry + 1, headers)
   }

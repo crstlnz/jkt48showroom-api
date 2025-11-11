@@ -32,9 +32,9 @@ app.post('/saweria', verifySaweria, async (c) => {
     await new Saweria(body).save()
   }
   catch (e) {
-    console.log(e)
+    console.error(e)
   }
-  return await c.text('success')
+  return c.text('success')
 })
 
 export default app

@@ -43,7 +43,6 @@ export async function getTheaterDetail(c: Context): Promise<IApiTheaterDetailLis
   if (!data?.length) throw createError({ statusMessage: 'Data not found!', statusCode: 404 })
   return {
     shows: data.map((i) => {
-      console.log('Data:', i.idnTheater)
       return {
         id: i.id,
         title: i.title,

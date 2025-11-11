@@ -44,7 +44,7 @@ export async function passCookie(c: Context) {
       return true
     }
     catch (e) {
-      console.log(e)
+      console.error(e)
     }
   }
 

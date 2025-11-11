@@ -20,7 +20,7 @@ export async function getJKT48Members(): Promise<JKT48.Member[]> {
       .sort((a, b) => a.name.localeCompare(b.name))
   }
   catch (e) {
-    console.log(e)
+    console.error(e)
     return []
   }
 }

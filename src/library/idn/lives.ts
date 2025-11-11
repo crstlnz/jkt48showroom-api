@@ -18,9 +18,6 @@ export async function getAllIDNUsername(): Promise<Set<string>> {
       idnUsernames.clear()
     }, 3600_000)
   }
-  else {
-    console.log('IDN Usernames is empty!')
-  }
 
   return idnUsernames
 }

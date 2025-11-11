@@ -109,7 +109,7 @@ export default async function scrapeFollower(): Promise<FollowerScrapeData[]> {
   const members = await IdolMember.find({ 'info.is_graduate': false, 'group': 'jkt48' })
   const promises = members.map(async (i) => {
     if (!i.idn?.id) {
-      console.log(`${i.name} is missing idn live id!`)
+      console.error(`${i.name} is missing idn live id!`)
     }
     if (!i.showroom_id || !i.idn?.id) return null
     const data = await scrapeAll(i)

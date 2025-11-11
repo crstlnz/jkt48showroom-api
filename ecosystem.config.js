@@ -2,7 +2,7 @@ module.exports = {
   apps: [
     {
       name: 'module-api',
-      script: 'pnpm',
+      script: 'bun',
       args: 'start',
       cron_restart: '0 * * * *',
       exec_mode: 'fork',

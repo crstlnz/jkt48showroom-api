@@ -1,4 +1,4 @@
-import type { CombinedLive, JKT48VLiveResults, YoutubeLive } from '@/library/combinedNowLive'
+import type { CombinedLive, YoutubeLive } from '@/library/combinedNowLive'
 import type { IdolGroup } from '@/types/index.types'
 import { createId } from '@paralleldrive/cuid2'
 import { fetchCombined } from '@/library/combinedNowLive'

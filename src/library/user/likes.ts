@@ -112,7 +112,7 @@ export async function setLike(query: any, userId: string) {
     )
   }
   catch (e) {
-    console.log(e)
+    console.error(e)
   }
   return {
     status: 200,
@@ -120,7 +120,6 @@ export async function setLike(query: any, userId: string) {
   }
 }
 export async function deleteLike(query: any, userId: string) {
-  console.log(query)
   if (!userId) throw createError({ statusCode: 401, statusMessage: 'Unauthenticated!' })
   if (!query?.liked_id || !query?.type) throw createError({ statusCode: 400, statusMessage: 'Bad request!' })
 

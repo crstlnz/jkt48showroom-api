@@ -6,7 +6,7 @@ export default async function getAllEvent(): Promise<JKT48.EventDetail[]> {
     return setlists
   }
   catch (e) {
-    console.log(e)
+    console.error(e)
     return []
   }
 }

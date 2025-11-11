@@ -18,7 +18,7 @@ export async function getMembers(c: Context): Promise<Admin.IShowroomMember[]> {
       .sort((a, b) => a.name.localeCompare(b.name))
   }
   catch (e) {
-    console.log(e)
+    console.error(e)
     return []
   }
 }

@@ -330,7 +330,7 @@ export async function getMonthly(date?: string | number | Date | dayjs.Dayjs | n
       select: '-_id name img nicknames jkt48id',
     },
   }).lean()
-  console.log(data.length)
+  // console.log(data.length)
   // if (exists) {
   //   console.log('EXISTS')
   //   const raw = fs.readFileSync(filePath)

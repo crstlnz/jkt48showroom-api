@@ -41,7 +41,7 @@ export function useCache(cacheOpts?: ((c: Context) => CacheOptions) | CacheOptio
         for (const header of headers) {
           c.header(header.key, header.value)
         }
-        console.log(headers)
+        console.error(headers)
         return c.body(res.data)
       }
     }
@@ -68,7 +68,7 @@ export function useCache(cacheOpts?: ((c: Context) => CacheOptions) | CacheOptio
               }
             }
             catch (e) {
-              console.log(e)
+              console.error(e)
             }
             bodyCache.set(cacheName, {
               headers: headerArray,

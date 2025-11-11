@@ -82,7 +82,7 @@ export async function getSousenkyoMembersFetch(retry: number = 0): Promise<Souse
     if (retry > 20) {
       throw e
     }
-    console.log('Error fetching sousenkyou member')
+    console.error('Error fetching sousenkyou member')
     await sleep(1000)
     return await getSousenkyoMembersFetch(retry + 1)
   }
@@ -91,7 +91,6 @@ export async function getSousenkyoMembersFetch(retry: number = 0): Promise<Souse
 export async function getSousenkyoMemberByRoomId(room_id: string) {
   const memberData = await IdolMember.findOne({ showroom_id: room_id }).select({ jkt48id: true }).lean()
   const sousenkyoData = await getSousenkyoMembers()
-  console.log(memberData?.jkt48id)
   const data = sousenkyoData.find(i => memberData?.jkt48id?.includes(i.id))
   if (data) return data
   throw notFound()

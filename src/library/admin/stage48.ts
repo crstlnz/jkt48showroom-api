@@ -9,7 +9,7 @@ export async function getStage48(group: string | null = null): Promise<IdolMembe
       .sort((a, b) => a.name.localeCompare(b.name))
   }
   catch (e) {
-    console.log(e)
+    console.error(e)
     return []
   }
 }

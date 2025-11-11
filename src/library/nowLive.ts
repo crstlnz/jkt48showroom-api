@@ -94,7 +94,7 @@ export async function getNowLiveCookies(membersData: IMember[] | null = null, gr
         let isPremium = false
         result.push((async () => {
           const streamURLS = await getStreamingURL({ room_id: room.room_id }, process.env.SR_ID || '').catch((e) => {
-            console.log(e)
+            console.error(e)
             return {
               streaming_url_list: [],
             }

@@ -29,7 +29,6 @@ export async function getNewsPage(page = 1, news: JKT48.News[] = [], headers: He
 
 export async function getAllNews(page = 1, news: JKT48.News[] = [], headers: HeadersInit): Promise<JKT48.News[]> {
   await sleep(350)
-  console.log(`Fetching page ${page}`)
   const res = await fetch(`${url}?page=${page}&lang=id`, {
     headers,
   })

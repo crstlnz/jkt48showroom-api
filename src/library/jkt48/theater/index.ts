@@ -19,7 +19,6 @@ export async function getTheaterList(page: number, perpage: number, options?: Fi
 
   let memberDetailData: IdolMember[]
   if (seitansai.size > 0) {
-    console.log([...seitansai.values()])
     memberDetailData = await IdolMember.find({ jkt48id: { $in: [...seitansai.values()] } })
       .select({
         name: 1,

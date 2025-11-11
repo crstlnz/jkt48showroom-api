@@ -88,7 +88,7 @@ export async function getRecents(c: Context): Promise<IApiRecents> {
         }
       }
       catch (e) {
-        console.log(e)
+        console.error(e)
       }
     }
   }

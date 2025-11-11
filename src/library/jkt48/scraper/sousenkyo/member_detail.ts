@@ -47,7 +47,6 @@ export async function getSousenkyoMemberDetail(id: string): Promise<SousenkyoMem
 function extractCandidateData(scripts: string[]) {
   for (const script of scripts) {
     const data = parseCandidateData(script)
-    console.log(data)
     if (data?.candidate) {
       return data
     }

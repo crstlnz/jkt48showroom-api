@@ -40,7 +40,7 @@ export async function sendComment(c: Context): Promise<Response> {
   }).catch((e) => {
     request.delete(uuid)
     if (e.data?.errors?.length) {
-      console.log(e.response)
+      console.error(e.response)
       throw createError({ statusCode: e?.response?.status ?? 400, statusMessage: e?.data?.error ?? 'An error occured' })
     }
     throw createError({ statusCode: 500, statusMessage: 'An error occured!' })

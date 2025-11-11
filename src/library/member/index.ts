@@ -48,7 +48,7 @@ async function fetch(group: string | null = null): Promise<IMember[]> {
       .sort((a, b) => a.name.localeCompare(b.name))
   }
   catch (e) {
-    console.log(e)
+    console.error(e)
     return []
   }
 }

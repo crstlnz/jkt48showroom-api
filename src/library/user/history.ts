@@ -85,7 +85,7 @@ export async function getUserHistory(qq: any = null, userId: string): Promise<IH
         }
       }
       catch (e) {
-        console.log(e)
+        console.error(e)
       }
     }
   }

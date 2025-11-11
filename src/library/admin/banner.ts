@@ -47,7 +47,7 @@ export async function getBanner() {
     return res
   }
   catch (e) {
-    console.log(e)
+    console.error(e)
     return {}
   }
 }

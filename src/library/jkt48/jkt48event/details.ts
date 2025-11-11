@@ -19,8 +19,6 @@ export async function getJKT48EventDetail(c: Context): Promise<IApiJKT48EventDet
     .populate<{ event: JKT48.EventDetail }>('event')
     .lean()
 
-  console.log(data)
-
   const memberList = data.reduce<JKT48.Member[]>((a, b) => {
     a.push(...b.members)
     return a

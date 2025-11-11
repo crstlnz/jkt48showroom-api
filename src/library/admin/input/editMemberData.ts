@@ -48,7 +48,7 @@ export async function editMemberData(c: Context) {
         socials.push(JSON.parse(s))
       }
       catch (_e) {
-        console.log(_e)
+        console.error(_e)
         throw createError({ status: 400, message: 'Data parse error!' })
       }
     }
