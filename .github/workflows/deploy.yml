@@ -28,19 +28,22 @@ jobs:
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/api:latest
 
-  # deploy:
-  #   runs-on: ubuntu-latest
-  #   needs: build
-  #   env:
-  #     SSH_PRIVATE_KEY: ${{ secrets.DEPLOY_PRIVATE_KEY }} # Add your SSH key to GitHub secrets
-  #   steps:
-  # - name: 🔁 Re-pull & restart Docker
-  #   run: |
-  #     ssh -o StrictHostKeyChecking=no -i private_key \
-  #       ${{ secrets.DEPLOY_USERNAME }}@${{ secrets.DEPLOY_SERVER_IP }} \
-  #       "cd ${ { vars.DEPLOY_APP_DIR } } && \
-  #       echo '🔄 Pulling latest Docker image...' && \
-  #       docker compose pull && \
-  #       echo '♻️ Restarting containers...' && \
-  #       docker compose up -d && \
-  #       echo '✅ Deployment complete!'"
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+    env:
+      SSH_PRIVATE_KEY: ${{ secrets.CI_PRIVATE_KEY }} # Add your SSH key to GitHub secrets
+    steps:
+    - name: Setup SSH Key
+      run: echo "$SSH_PRIVATE_KEY" > private_key && chmod 600 private_key
+
+    - name: 🔁 Re-pull & restart Docker
+      run: |
+        ssh -o StrictHostKeyChecking=no -i private_key \
+          ${{ secrets.CI_USER }}@${{ secrets.CI_HOST }} \
+          "cd ${ { vars.DEPLOY_APP_DIR } } && \
+          echo '🔄 Pulling latest Docker image...' && \
+          docker compose pull api && \
+          echo '♻️ Restarting containers...' && \
+          docker compose up -d --no-deps --force-recreate api && \
+          echo '✅ Deployment complete!'"
