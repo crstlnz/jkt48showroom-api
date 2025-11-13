@@ -41,7 +41,7 @@ jobs:
       run: |
         ssh -o StrictHostKeyChecking=no -i private_key \
           ${{ secrets.CI_USER }}@${{ secrets.CI_HOST }} \
-          "cd ${ { vars.DEPLOY_APP_DIR } } && \
+          "cd ${{ vars.DEPLOY_APP_DIR }} && \
           echo '🔄 Pulling latest Docker image...' && \
           docker compose pull api && \
           echo '♻️ Restarting containers...' && \
