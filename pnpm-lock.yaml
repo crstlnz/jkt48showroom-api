@@ -45,8 +45,8 @@ importers:
         specifier: ^4.17.21
         version: 4.17.21
       mongoose:
-        specifier: ^8.9.5
-        version: 8.19.2
+        specifier: 8.19.3
+        version: 8.19.3
       node-html-parser:
         specifier: ^6.1.13
         version: 6.1.13
@@ -1443,8 +1443,8 @@ packages:
       socks:
         optional: true
 
-  mongoose@8.19.2:
-    resolution: {integrity: sha512-ww2T4dBV+suCbOfG5YPwj9pLCfUVyj8FEA1D3Ux1HHqutpLxGyOYEPU06iPRBW4cKr3PJfOSYsIpHWPTkz5zig==}
+  mongoose@8.19.3:
+    resolution: {integrity: sha512-fTAGaIohkk8wCggMuBuqTVD4YrM1/J8cBr1ekqzFqtz65qkLjtX2dcy3NH1e+2rk2365dyrrsPAnt4YTxBhEiQ==}
     engines: {node: '>=16.20.1'}
 
   mpath@0.9.0:
@@ -3492,7 +3492,7 @@ snapshots:
       bson: 6.10.4
       mongodb-connection-string-url: 3.0.2
 
-  mongoose@8.19.2:
+  mongoose@8.19.3:
     dependencies:
       bson: 6.10.4
       kareem: 2.6.3

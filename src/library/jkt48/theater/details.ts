@@ -6,7 +6,6 @@ import { createError } from '@/utils/errorResponse'
 
 export async function getTheaterDetail(c: Context): Promise<IApiTheaterDetailList> {
   const id = c.req.param('id')
-  console.log(id)
   const query: FilterQuery<JKT48.Theater>[] = [{ id: { $regex: new RegExp(`^(${id}|^${id}(?:-\\d+))$`) } }]
   if (!Number.isNaN(Number(id))) {
     query.push({ 'showroomTheater.paid_live_id': id })

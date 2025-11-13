@@ -3,7 +3,7 @@ module.exports = {
     {
       name: 'module-api',
       script: 'bun',
-      args: 'start',
+      args: 'dev',
       cron_restart: '0 * * * *',
       exec_mode: 'fork',
       instance: 1,

@@ -1,12 +1,12 @@
-import type { BunWebSocketData, BunWebSocketHandler } from 'hono/bun'
 import { Hono } from 'hono'
 import { FetchError } from 'ofetch'
 import pkg from '../package.json'
-
 import api from './routes'
+
 import { initLiveData, websocketUpgrade, wsHandler } from './routes/websocket'
 import { generateShowroomId } from './utils/api/showroom'
 import { ApiError } from './utils/errorResponse'
+import { isJWTValid } from './utils/security/jwt'
 import webhook from './webhooks'
 import 'dotenv/config'
 
@@ -116,6 +116,15 @@ Bun.serve({
   fetch: (...args) => {
     const [req, server] = args
     if (isWebSocketPath(req.url)) {
+      let apiKey = null
+      const i = req.url.indexOf('token=')
+      if (i !== -1) {
+        const s = i + 6
+        let e = req.url.indexOf('&', s)
+        if (e === -1) e = req.url.length
+        apiKey = req.url.slice(s, e)
+      }
+      if (!apiKey || !isJWTValid(apiKey)) throw new ApiError({ status: 401, message: 'Unauthorized!' })
       return websocketUpgrade(req, server)
     }
 
