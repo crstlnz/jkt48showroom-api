@@ -27,6 +27,7 @@ import { getStage48 } from '@/library/admin/stage48'
 import { CombinedLivesListZod } from '@/library/combinedNowLive'
 import { getJKT48EventById } from '@/library/jkt48/jkt48event'
 import { getTheaterById } from '@/library/jkt48/theater'
+import { sendLog } from '@/library/sendLog'
 import { IdolGroupTypes } from '@/types/index.types'
 import cache from '@/utils/cache'
 import { useCORS } from '@/utils/cors'
@@ -41,6 +42,7 @@ import { webhookUpdateLive } from './websocket'
 const app = new Hono()
 
 app.post('/update_lives', async (c) => {
+  sendLog('Update lives received!')
   const data = await c.req.json()
   if (!data?.api_key || data.api_key !== process.env.API_KEY) throw new ApiError({ status: 401, message: 'Unauthorized!' })
   const lives = data?.lives
@@ -55,6 +57,7 @@ app.post('/update_lives', async (c) => {
   }
   catch (e) {
     console.error(e)
+    sendLog(`Error Update Lives \`\`\`${e}\`\`\``)
     throw new ApiError({
       status: 400,
       message: 'Error',

@@ -3,6 +3,7 @@ import type { IdolGroup } from '@/types/index.types'
 import { createId } from '@paralleldrive/cuid2'
 import { fetchCombined } from '@/library/combinedNowLive'
 import { cachedJKT48VLive, jkt48v_cache_time } from '@/library/jkt48v'
+import { sendLog } from '@/library/sendLog'
 import { IdolGroupTypes } from '@/types/index.types'
 import { AutoTrigger } from '@/utils/autoTrigger'
 import { debounce } from '@/utils/debounce'
@@ -41,6 +42,7 @@ function typedBroadcast(type: string, data: any) {
 }
 
 export function webhookUpdateLive(data: CombinedLive[], group?: IdolGroup) {
+  sendLog('Webhook update')
   updateLivesTrigger.touch()
   currentLives = data
   sendLiveUpdates(group ?? 'all')

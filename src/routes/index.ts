@@ -133,7 +133,6 @@ app.get('/now_live', ...handler(async (c) => {
 }))
 
 app.get('/idn_user', ...handler(getIDNUser, { hours: 1 }))
-
 app.get('/next_live', ...handler(getNextLive, { hours: 1 }))
 app.get('/watch/:id', ...handler(getWatchData, { seconds: 4, useSingleProcess: true }))
 app.get('/watch/:id/idn', ...handler(getIDNLive, { seconds: 13, useSingleProcess: true }))
@@ -166,7 +165,6 @@ app.get('/recent', ...handler(getRecents, { minutes: 4, useRateLimit: true }))
 app.get('/recent/:id', ...handler(getRecentDetails, { hours: 1, useRateLimit: true }))
 app.get('/recent/:data_id/gifts', ...handler(getGifts, { days: 1 }))
 app.get('/recent/:data_id/stagelist', ...handler(getStageList, { days: 1 }))
-
 app.get('/my_ip', (ctx: Context) => {
   return ctx.json({
     ip: getIp(ctx),

@@ -6,6 +6,8 @@
     "lint:fix": "eslint . --fix",
     "dev": "bun run --hot src/index.ts",
     "build": "rimraf ./.output && bun build ./src/index.ts --outdir ./.output --target bun",
+    "docker-build" : "docker build -t crstlnz/api:latest .",
+    "docker-push" : "docker push crstlnz/api:latest",
     "start": "bun .output/index.js"
   },
   "dependencies": {
