@@ -73,7 +73,6 @@ export const userDB = db.user
 
 type DatabaseName = 'dcDB' | 'jkt48DB' | 'liveDB' | 'userDB'
 export async function dbConnect(dbList: DatabaseName[] | DatabaseName | 'all') {
-  console.log('CONNECT BOI')
   const loadAll = dbList === 'all'
   try {
     if (loadAll || dbList === 'dcDB' || dbList.includes('dcDB')) {

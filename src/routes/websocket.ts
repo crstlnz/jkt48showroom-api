@@ -42,7 +42,6 @@ function typedBroadcast(type: string, data: any) {
 }
 
 export function webhookUpdateLive(data: CombinedLive[], group?: IdolGroup) {
-  sendLog('Webhook update')
   updateLivesTrigger.touch()
   currentLives = data
   sendLiveUpdates(group ?? 'all')

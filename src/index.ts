@@ -1,17 +1,24 @@
+import dayjs from 'dayjs'
+import timezone from 'dayjs/plugin/timezone'
+import utc from 'dayjs/plugin/utc'
 import { Hono } from 'hono'
+
 import { FetchError } from 'ofetch'
 import pkg from '../package.json'
 import api from './routes'
-
 import { initLiveData, websocketUpgrade, wsHandler } from './routes/websocket'
 import { generateShowroomId } from './utils/api/showroom'
 import { ApiError } from './utils/errorResponse'
 import { isJWTValid } from './utils/security/jwt'
 import webhook from './webhooks'
 import 'dotenv/config'
-
 // import { startCron } from './cron'
 const app = new Hono()
+
+dayjs.extend(utc)
+dayjs.extend(timezone)
+
+dayjs.tz.setDefault('Asia/Jakarta')
 /// start Cron
 // startCron()
 
