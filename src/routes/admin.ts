@@ -42,7 +42,6 @@ import { webhookUpdateLive } from './websocket'
 const app = new Hono()
 
 app.post('/update_lives', async (c) => {
-  sendLog('Update lives received!')
   const data = await c.req.json()
   if (!data?.api_key || data.api_key !== process.env.API_KEY) throw new ApiError({ status: 401, message: 'Unauthorized!' })
   const lives = data?.lives
@@ -50,6 +49,16 @@ app.post('/update_lives', async (c) => {
   if (!lives) throw new ApiError({ status: 400, message: 'Bad request!' })
   try {
     const parsed = CombinedLivesListZod.parse(lives)
+    for (const l of parsed) {
+      if (l.type === 'idn') {
+        console.log(l.streaming_url_list)
+        if (!l.streaming_url_list?.[0]) throw new Error('Tidak ada streaming url')
+      }
+      else if (l.type === 'showroom') {
+        console.log(l.streaming_url_list)
+        if (!l.streaming_url_list?.[0]) throw new Error('Tidak ada streaming url')
+      }
+    }
     webhookUpdateLive(parsed, group)
     return c.json({
       ok: true,
@@ -57,7 +66,7 @@ app.post('/update_lives', async (c) => {
   }
   catch (e) {
     console.error(e)
-    sendLog(`Error Update Lives \`\`\`${e}\`\`\``)
+    // sendLog(`Error Update Lives \`\`\`${e}\`\`\``)
     throw new ApiError({
       status: 400,
       message: 'Error',

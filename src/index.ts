@@ -1,6 +1,6 @@
-import dayjs from 'dayjs'
-import timezone from 'dayjs/plugin/timezone'
-import utc from 'dayjs/plugin/utc'
+// import dayjs from 'dayjs'
+// import timezone from 'dayjs/plugin/timezone'
+// import utc from 'dayjs/plugin/utc'
 import { Hono } from 'hono'
 
 import { FetchError } from 'ofetch'
@@ -15,10 +15,10 @@ import 'dotenv/config'
 // import { startCron } from './cron'
 const app = new Hono()
 
-dayjs.extend(utc)
-dayjs.extend(timezone)
+// dayjs.extend(utc)
+// dayjs.extend(timezone)
 
-dayjs.tz.setDefault('Asia/Jakarta')
+// dayjs.tz.setDefault('Asia/Jakarta')
 /// start Cron
 // startCron()
 
