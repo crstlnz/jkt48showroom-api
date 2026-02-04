@@ -1,7 +1,7 @@
 import type { Context } from 'hono'
 import IdolMember from '@/database/schema/48group/IdolMember'
-import { uploadImageBuffer } from '@/utils/cloudinary'
 import { createError } from '@/utils/errorResponse'
+import { uploadImageBuffer } from '@/utils/imageUpload'
 
 export async function setBanner(c: Context): Promise<{
   url: string

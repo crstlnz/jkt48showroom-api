@@ -1,8 +1,8 @@
 import type { Context } from 'hono'
 import type { AnyKeys, AnyObject } from 'mongoose'
 import IdolMember from '@/database/schema/48group/IdolMember'
-import { uploadImageBuffer } from '@/utils/cloudinary'
 import { createError } from '@/utils/errorResponse'
+import { uploadImageBuffer } from '@/utils/imageUpload'
 
 export async function editMemberData(c: Context) {
   const query = await c.req.parseBody()

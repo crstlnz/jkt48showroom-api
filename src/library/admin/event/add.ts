@@ -1,7 +1,7 @@
 import type { Context } from 'hono'
 import EventDetail from '@/database/showroomDB/jkt48/EventDetail'
-import { uploadImageBuffer } from '@/utils/cloudinary'
 import { createError } from '@/utils/errorResponse'
+import { uploadImageBuffer } from '@/utils/imageUpload'
 
 export async function addOrEditEvent(c: Context) {
   const data = await c.req.parseBody()

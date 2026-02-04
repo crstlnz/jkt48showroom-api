@@ -1,7 +1,7 @@
 import type { Context } from 'hono'
 import Setlist from '@/database/showroomDB/jkt48/Setlist'
-import { uploadImageBuffer } from '@/utils/cloudinary'
 import { createError } from '@/utils/errorResponse'
+import { uploadImageBuffer } from '@/utils/imageUpload'
 
 export async function addOrEditSetlist(c: Context) {
   const data = await c.req.parseBody()
