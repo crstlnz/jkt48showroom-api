@@ -1,5 +1,5 @@
 import { Hono } from 'hono'
-import { updateBanner } from '@/library/admin/banner'
+import { getBanner, updateBanner } from '@/library/admin/banner'
 import { addOrEditEvent } from '@/library/admin/event/add'
 import deleteEvent from '@/library/admin/event/delete'
 import getAllEvent from '@/library/admin/event/event'
@@ -27,7 +27,6 @@ import { getStage48 } from '@/library/admin/stage48'
 import { CombinedLivesListZod } from '@/library/combinedNowLive'
 import { getJKT48EventById } from '@/library/jkt48/jkt48event'
 import { getTheaterById } from '@/library/jkt48/theater'
-import { sendLog } from '@/library/sendLog'
 import { IdolGroupTypes } from '@/types/index.types'
 import cache from '@/utils/cache'
 import { useCORS } from '@/utils/cors'
@@ -85,6 +84,7 @@ app.get('/get_token', (c) => {
   }, 60 * 1000 * 2))
 })
 
+app.get('/banner', ...handler(getBanner))
 app.get('/missing_jikosokai', ...handler(getMissingJikosoukai))
 app.get('/missing_jkt48id', ...handler(getMissingJKT48ID))
 app.get('/setlist', ...handler(getAllSetlist))
