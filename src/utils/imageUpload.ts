@@ -146,8 +146,6 @@ export async function uploadImageBuffer(image: Buffer | ArrayBuffer, mimeType = 
   const uploadContent = await bucket.uploadStream(formatted, `images/${key}`, undefined, mimeType)
   const now = new Date()
 
-  console.log(uploadContent)
-
   return {
     public_id: id,
     version: uploadContent.versionId ?? '',
