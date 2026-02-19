@@ -62,7 +62,7 @@ export async function nextBirthDay(c: Context) {
   const today = dayjs()
   const month = today.month()
   const membersData = await IdolMember.find({ 'info.is_graduate': false, '$and': [{ group: { $ne: 'official' } }, { group }] }).lean()
-  const members = membersData.map((i) => {
+  const members = membersData.filter(i => i.info?.birthdate != null).map((i) => {
     return {
       ...i,
       birthdate: dayjs(i.info.birthdate),
