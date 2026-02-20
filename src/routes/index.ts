@@ -5,14 +5,15 @@ import { logger } from 'hono/logger'
 import { ofetch } from 'ofetch'
 import { dbConnect } from '@/database'
 import { getBanner } from '@/library/admin/banner'
+import { getClientInfo } from '@/library/client'
 import { fetchCombined } from '@/library/combinedNowLive'
 import { getFirstData } from '@/library/firstData'
 import { fetchIDN } from '@/library/idn/lives'
 import getIDNUser from '@/library/idn/user'
 import getEvents from '@/library/jkt48/event'
 import { getJKT48Event } from '@/library/jkt48/jkt48event'
-import { getJKT48EventDetail } from '@/library/jkt48/jkt48event/details'
 
+import { getJKT48EventDetail } from '@/library/jkt48/jkt48event/details'
 import { getNews } from '@/library/jkt48/news'
 import { getNewsDetail } from '@/library/jkt48/news/details'
 import { getSchedule } from '@/library/jkt48/nextSchedule'
@@ -27,7 +28,6 @@ import { getMemberDetails } from '@/library/member/profile'
 import { getNextLive } from '@/library/nextLive'
 import { getRecents } from '@/library/recent'
 import { getRecentDetails } from '@/library/recent/details'
-// import { getStats } from '@/library/stats'
 import { getGifts } from '@/library/recent/gifts'
 import { getStageList } from '@/library/recent/stageList'
 import { getRecords } from '@/library/records'
@@ -35,6 +35,7 @@ import { getProfile } from '@/library/room/profile'
 import { getScreenshots } from '@/library/screenshots'
 import { getMemberBirthdays, nextBirthDay } from '@/library/stage48/birthday'
 import { getMember48List } from '@/library/stage48/memberList'
+import { getStatsMonths, stats } from '@/library/stats'
 import getStream from '@/library/stream'
 import { getWatchData } from '@/library/watch'
 import { getIDNLive } from '@/library/watch/idn'
@@ -143,6 +144,28 @@ app.get('/watch/:id/idn', ...handler(getIDNLive, { seconds: 13, useSingleProcess
 app.get('/first_data', ...handler(getFirstData, { days: 30 }))
 app.get('/screenshots/:id', ...handler(getScreenshots, { hours: 12 }))
 app.get('/records', ...handler(getRecords, { hours: 12 }))
+app.get('/stats', ...handler(stats, (c) => {
+  const month = c.req.query('month') || 'last'
+  const group = c.req.query('group') || 'jkt48'
+  const topFans = c.req.query('top_fans') || `${50}`
+  return {
+    name: `stats:${group}:${month}:${topFans}`,
+    minutes: 30,
+    useSingleProcess: true,
+    rateLimit: {
+      maxRequest: 120,
+      limitTimeWindow: 1000 * 60 * 10,
+    },
+  }
+}))
+app.get('/stats/months', ...handler(getStatsMonths, (c) => {
+  const group = c.req.query('group') || 'jkt48'
+  return {
+    name: `stats-months:${group}`,
+    hours: 1,
+    useSingleProcess: true,
+  }
+}))
 app.get('/next_schedule', ...handler(getSchedule, { minutes: 15 }))
 app.get('/event', ...handler(getEvents, { minutes: 5 }))
 app.get('/theater', ...handler(getTheater, { minutes: 5 }))
@@ -169,6 +192,10 @@ app.get('/recent', ...handler(getRecents, { minutes: 4, useRateLimit: true }))
 app.get('/recent/:id', ...handler(getRecentDetails, { hours: 1, useRateLimit: true }))
 app.get('/recent/:data_id/gifts', ...handler(getGifts, { days: 1 }))
 app.get('/recent/:data_id/stagelist', ...handler(getStageList, { days: 1 }))
+app.get('/client', ...handler(getClientInfo, {
+  useSingleProcess: false,
+  cacheClientOnly: true,
+}))
 app.get('/my_ip', (ctx: Context) => {
   return ctx.json({
     ip: getIp(ctx),
