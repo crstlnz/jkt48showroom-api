@@ -35,7 +35,7 @@ import { getProfile } from '@/library/room/profile'
 import { getScreenshots } from '@/library/screenshots'
 import { getMemberBirthdays, nextBirthDay } from '@/library/stage48/birthday'
 import { getMember48List } from '@/library/stage48/memberList'
-import { getStatsMonths, stats } from '@/library/stats'
+// import { getStatsMonths, stats } from '@/library/stats'
 import getStream from '@/library/stream'
 import { getWatchData } from '@/library/watch'
 import { getIDNLive } from '@/library/watch/idn'
@@ -158,14 +158,14 @@ app.get('/stats', ...handler(stats, (c) => {
     },
   }
 }))
-app.get('/stats/months', ...handler(getStatsMonths, (c) => {
-  const group = c.req.query('group') || 'jkt48'
-  return {
-    name: `stats-months:${group}`,
-    hours: 1,
-    useSingleProcess: true,
-  }
-}))
+// app.get('/stats/months', ...handler(getStatsMonths, (c) => {
+//   const group = c.req.query('group') || 'jkt48'
+//   return {
+//     name: `stats-months:${group}`,
+//     hours: 1,
+//     useSingleProcess: true,
+//   }
+// }))
 app.get('/next_schedule', ...handler(getSchedule, { minutes: 15 }))
 app.get('/event', ...handler(getEvents, { minutes: 5 }))
 app.get('/theater', ...handler(getTheater, { minutes: 5 }))
