@@ -144,20 +144,20 @@ app.get('/watch/:id/idn', ...handler(getIDNLive, { seconds: 13, useSingleProcess
 app.get('/first_data', ...handler(getFirstData, { days: 30 }))
 app.get('/screenshots/:id', ...handler(getScreenshots, { hours: 12 }))
 app.get('/records', ...handler(getRecords, { hours: 12 }))
-app.get('/stats', ...handler(stats, (c) => {
-  const month = c.req.query('month') || 'last'
-  const group = c.req.query('group') || 'jkt48'
-  const topFans = c.req.query('top_fans') || `${50}`
-  return {
-    name: `stats:${group}:${month}:${topFans}`,
-    minutes: 30,
-    useSingleProcess: true,
-    rateLimit: {
-      maxRequest: 120,
-      limitTimeWindow: 1000 * 60 * 10,
-    },
-  }
-}))
+// app.get('/stats', ...handler(stats, (c) => {
+//   const month = c.req.query('month') || 'last'
+//   const group = c.req.query('group') || 'jkt48'
+//   const topFans = c.req.query('top_fans') || `${50}`
+//   return {
+//     name: `stats:${group}:${month}:${topFans}`,
+//     minutes: 30,
+//     useSingleProcess: true,
+//     rateLimit: {
+//       maxRequest: 120,
+//       limitTimeWindow: 1000 * 60 * 10,
+//     },
+//   }
+// }))
 // app.get('/stats/months', ...handler(getStatsMonths, (c) => {
 //   const group = c.req.query('group') || 'jkt48'
 //   return {
