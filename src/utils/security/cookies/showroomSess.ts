@@ -8,7 +8,7 @@ const cookieSettings: CookieOptions = {
   path: '/',
   secure: !isDev,
   httpOnly: true,
-  domain: isDev ? undefined : process.env.COOKIE_DOMAIN,
+  // domain: isDev ? undefined : process.env.COOKIE_DOMAIN,
   sameSite: isDev ? undefined : 'None',
 }
 export function getShowroomSess(c: Context) {

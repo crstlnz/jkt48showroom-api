@@ -7,7 +7,7 @@ const isDev = process.env.NODE_ENV === 'development'
 const cookieSettings: CookieOptions = {
   path: '/',
   secure: !isDev,
-  domain: isDev ? undefined : process.env.COOKIE_DOMAIN,
+  // domain: isDev ? undefined : process.env.COOKIE_DOMAIN,
   sameSite: isDev ? undefined : 'None',
 }
 export function getSessId(c: Context) {
