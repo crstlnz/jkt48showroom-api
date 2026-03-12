@@ -37,6 +37,7 @@ export async function cachedJKT48VLive(): Promise<JKT48VLiveResults[]> {
 }
 
 async function searchYoutube(result: JKT48VLiveResults[] = [], nextPageToken: string | null = null) {
+  if (process.env.NODE_ENV === 'development') return []
   const data = await ofetch<YoutubeSearchResult>('https://www.googleapis.com/youtube/v3/search', {
     query: {
       part: 'snippet',

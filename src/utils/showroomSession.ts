@@ -1,11 +1,29 @@
 import type { Context } from 'hono'
 import type { ShowroomLogin } from '@/types/auth'
 import { createMiddleware } from 'hono/factory'
-import { sign, verify } from 'hono/jwt'
+import { sign, verify } from 'jsonwebtoken'
 import { ofetch } from 'ofetch'
 import { parseCookieString } from '.'
+import { createError } from './errorResponse'
 import { getShowroomSess, setShowroomSess } from './security/cookies/showroomSess'
 import { getDecodedToken } from './security/token'
+
+function verifyShowroomSessionToken(token?: string): ShowroomLogin.Session | null {
+  if (!token) {
+    return null
+  }
+
+  try {
+    const decoded = verify(token, process.env.SECRET!)
+    if (!decoded || typeof decoded === 'string') {
+      return null
+    }
+    return decoded as ShowroomLogin.Session
+  }
+  catch {
+    return null
+  }
+}
 
 export async function createShowroomSession(c: Context): Promise<ShowroomLogin.Session> {
   const user = c.get('user') || getDecodedToken(c)
@@ -32,7 +50,7 @@ export async function createShowroomSession(c: Context): Promise<ShowroomLogin.S
 }
 
 export async function getShowroomSession(c: Context): Promise<{ session: ShowroomLogin.Session, setCookie: boolean }> {
-  let sess = await verify(getShowroomSess(c) || '', process.env.SECRET!).catch(() => null) as ShowroomLogin.Session | null
+  let sess = verifyShowroomSessionToken(getShowroomSess(c))
   let setCookie = false
   const user = c.get('user')
   if (((!sess?.sr_id || !sess?.csrf_token) && !c.get('showroom_session'))) {
@@ -46,8 +64,15 @@ export async function getShowroomSession(c: Context): Promise<{ session: Showroo
     setCookie = true
   }
 
+  if (!sess?.sr_id || !sess?.csrf_token) {
+    throw createError({
+      status: 503,
+      message: 'Failed to initialize showroom session',
+    })
+  }
+
   return {
-    session: sess!,
+    session: sess,
     setCookie,
   }
 }
@@ -56,7 +81,7 @@ export function useShowroomSession() {
   return createMiddleware(async (c, next) => {
     const sess = await getShowroomSession(c)
     if (sess.setCookie) {
-      const sessToken = await sign(sess.session, process.env.SECRET!)
+      const sessToken = sign(sess.session, process.env.SECRET!)
       setShowroomSess(c, sessToken)
     }
     c.set('showroom_session', sess.session)

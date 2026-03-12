@@ -143,6 +143,7 @@ export async function getNowLiveCookies(membersData: IMember[] | null = null, gr
 
 export async function getNowLiveIndirect(membersData: IMember[] | null = null, group: string = 'jkt48'): Promise<INowLive[]> {
   const members: IMember[] = membersData ?? await getMembers(group)
+  console.log(members)
   const memberMap = new Map<string | number, IMember>()
   for (const member of members) {
     if (!member.room_id) continue

@@ -10,7 +10,6 @@ const cookieSettings: CookieOptions = {
   httpOnly: true,
   // domain: isDev ? undefined : process.env.COOKIE_DOMAIN,
   sameSite: isDev ? undefined : 'None',
-  path: '/',
 }
 
 export function getRefreshToken(c: Context) {

@@ -1,3 +1,4 @@
+import type { CombinedLives } from '@/library/combinedNowLive'
 import { Hono } from 'hono'
 import { getBanner, updateBanner } from '@/library/admin/banner'
 import { addOrEditEvent } from '@/library/admin/event/add'
@@ -27,7 +28,9 @@ import { getStage48 } from '@/library/admin/stage48'
 import { CombinedLivesListZod } from '@/library/combinedNowLive'
 import { getJKT48EventById } from '@/library/jkt48/jkt48event'
 import { getTheaterById } from '@/library/jkt48/theater'
+import { rebuildStats } from '@/library/stats'
 import { IdolGroupTypes } from '@/types/index.types'
+import { getStreamingURL } from '@/utils/api/showroom'
 import cache from '@/utils/cache'
 import { useCORS } from '@/utils/cors'
 import { ApiError, notFound } from '@/utils/errorResponse'
@@ -48,17 +51,22 @@ app.post('/update_lives', async (c) => {
   if (!lives) throw new ApiError({ status: 400, message: 'Bad request!' })
   try {
     const parsed = CombinedLivesListZod.parse(lives)
+    const fixed = []
     for (const l of parsed) {
       if (l.type === 'idn') {
-        console.log(l.streaming_url_list)
         if (!l.streaming_url_list?.[0]) throw new Error('Tidak ada streaming url')
+        fixed.push(l)
       }
       else if (l.type === 'showroom') {
-        console.log(l.streaming_url_list)
         if (!l.streaming_url_list?.[0]) throw new Error('Tidak ada streaming url')
+        let stream_urls = l.streaming_url_list.filter(i => i.type === 'hls')
+        if (stream_urls.length <= 0) {
+          stream_urls = (await getStreamingURL({ room_id: l.room_id })).streaming_url_list.filter(i => i.type === 'hls') as any
+        }
+        fixed.push({ ...l, streaming_url_list: stream_urls })
       }
     }
-    webhookUpdateLive(parsed, group)
+    webhookUpdateLive(fixed, group)
     return c.json({
       ok: true,
     })
@@ -131,6 +139,7 @@ app.post('/member/jkt48id', ...handler(editJKT48ID))
 app.post('/member/banner', ...handler(setBanner))
 app.post('/member/image', ...handler(setImage))
 app.post('/input/showroom_log', ...handler(inputShowroomLog))
+app.post('/stats/rebuild', ...handler(rebuildStats))
 
 app.post('/clear_cache', async (c) => {
   await cache.clear()

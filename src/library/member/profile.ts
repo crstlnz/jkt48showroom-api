@@ -5,9 +5,12 @@ import Theater from '@/database/showroomDB/jkt48/Theater'
 import { createError } from '@/utils/errorResponse'
 
 export async function getMemberDetails(slug: string): Promise<IMemberProfileAPI> {
-  let data = await IdolMember.findOne({ slug }).populate<{ showroom: Database.IShowroomMember }>('showroom').lean()
+  const escapedSlug = slug.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+  const slugRegex = new RegExp(`^${escapedSlug}$`, 'i')
+
+  let data = await IdolMember.findOne({ slug: slugRegex }).populate<{ showroom: Database.IShowroomMember }>('showroom').lean()
   if (!data) {
-    const sr = await Showroom.findOne({ url: slug })
+    const sr = await Showroom.findOne({ url: slugRegex })
     if (!sr) throw createError({ statusMessage: 'Data not found!', statusCode: 404 })
     data = await IdolMember.findOne({ showroom_id: sr.room_id }).populate<{ showroom: Database.IShowroomMember }>('showroom').lean()
     if (!data) throw createError({ statusMessage: 'Data not found!', statusCode: 404 })

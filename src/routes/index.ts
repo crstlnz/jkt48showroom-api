@@ -33,6 +33,7 @@ import { getStageList } from '@/library/recent/stageList'
 import { getRecords } from '@/library/records'
 import { getProfile } from '@/library/room/profile'
 import { getScreenshots } from '@/library/screenshots'
+import { getCompetitionRanking, getCompetitionRankingDetails, getCompetitionTopFans } from '@/library/showroomCompetition/ranking'
 import { getMemberBirthdays, nextBirthDay } from '@/library/stage48/birthday'
 import { getMember48List } from '@/library/stage48/memberList'
 // import { getStatsMonths, stats } from '@/library/stats'
@@ -97,10 +98,16 @@ app.route('/sousenkyo', sousenkyo)
 
 app.get('/banner', useCORS('self'), ...handler(getBanner, { minutes: 10 }))
 app.get('/leaderboard', useCORS('self'), ...handler(getLeaderboard, { minutes: 10 }))
+app.get('/showroom_competition', useCORS('self'), ...handler(getCompetitionRanking, { minutes: 15, useSingleProcess: true }))
+app.get('/showroom_competition_detail', useCORS('self'), ...handler(getCompetitionRankingDetails, { minutes: 10, useSingleProcess: true, checkApiKey: true, devCache: true }))
+app.get('/showroom_competition_top_fans', useCORS('self'), ...handler(getCompetitionTopFans, { minutes: 10, useSingleProcess: true, checkApiKey: true, devCache: true }))
 app.get('/jkt48_youtube', ...handler(getJKT48YoutubeVideo, { minutes: 30, useRateLimit: true, useSingleProcess: true }))
 app.get('/jkt48v_live', ...handler(cachedJKT48VLive, { minutes: 5 }))
 app.get('/member', ...handler(getMembers, { hours: 12 }))
 app.get('/member/:id', ...handler(c => getMemberDetails(c.req.param('id')), { minutes: 30, useRateLimit: true }))
+
+app.get('/watch/:id', ...handler(getWatchData, { seconds: 4, useSingleProcess: true }))
+app.get('/watch/:id/idn', ...handler(getIDNLive, { seconds: 13, useSingleProcess: true }))
 
 app.use('*', useCORS('all'))
 
@@ -139,8 +146,7 @@ app.get('/now_live', ...handler(async (c) => {
 
 app.get('/idn_user', ...handler(getIDNUser, { hours: 1 }))
 app.get('/next_live', ...handler(getNextLive, { hours: 1 }))
-app.get('/watch/:id', ...handler(getWatchData, { seconds: 4, useSingleProcess: true }))
-app.get('/watch/:id/idn', ...handler(getIDNLive, { seconds: 13, useSingleProcess: true }))
+
 app.get('/first_data', ...handler(getFirstData, { days: 30 }))
 app.get('/screenshots/:id', ...handler(getScreenshots, { hours: 12 }))
 app.get('/records', ...handler(getRecords, { hours: 12 }))

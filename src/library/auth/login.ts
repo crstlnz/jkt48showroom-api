@@ -23,7 +23,7 @@ export function login() {
     if (loginData.captcha_word) body.append('captcha_word', String(loginData.captcha_word))
 
     let sr_id = (sr_sess as any)?.sr_id
-    const data = await ofetch<ShowroomLogin.Data | ShowroomLogin.Error>('https://www.showroom-live.com/user/login', {
+    const data = await ofetch<ShowroomLogin.Data | ShowroomLogin.Error>(`${process.env.PROXY_URL ?? ''}https://www.showroom-live.com/user/login`, {
       method: 'POST',
       headers: {
         'Cookie': sr_id ? `sr_id=${sr_id}` : '',

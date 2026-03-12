@@ -1,23 +1,27 @@
-# Gunakan image Bun resmi
-FROM oven/bun:1.3
+FROM oven/bun:1.3 AS deps
 
-# Set workdir di container
 WORKDIR /app
 
-# Install pnpm secara global (karena image Bun tidak include pnpm)
-RUN bun install -g pm2
+COPY package.json bun.lock ./
+RUN bun install --frozen-lockfile
 
-# Copy dependency files
-COPY package.json pnpm-lock.yaml ./
 
-# Install dependencies (production=false agar build tools juga keinstall)
-RUN bun install
+FROM oven/bun:1.3 AS builder
 
-# Copy semua source code
+WORKDIR /app
+
+COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
-# Build project (pakai script kamu)
-RUN bun run build
+RUN NODE_ENV=production bun run build
 
-# Jalankan app (pakai Bun)
-CMD ["pm2-runtime", "ecosystem.config.js"]
+
+FROM oven/bun:1.3-slim
+
+WORKDIR /app
+
+COPY --from=builder /app/.output ./.output
+COPY --from=deps /app/node_modules ./node_modules
+COPY package.json bun.lock ./
+
+CMD ["bun", "run", "start"]

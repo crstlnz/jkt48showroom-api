@@ -24,5 +24,4 @@ const giftSchema = new Schema<Database.IShowroomGift>({
   },
 })
 
-giftSchema.index({ gift_id: 1 }, { unique: true })
 export default model('Showroom_Gift', giftSchema)

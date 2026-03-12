@@ -5,14 +5,15 @@ import { Hono } from 'hono'
 
 import { FetchError } from 'ofetch'
 import pkg from '../package.json'
+import { startCron } from './cron'
 import api from './routes'
-import { initLiveData, websocketUpgrade, wsHandler } from './routes/websocket'
+import { initLiveData, setServer, websocketUpgrade, wsHandler } from './routes/websocket'
 import { generateShowroomId } from './utils/api/showroom'
 import { ApiError } from './utils/errorResponse'
 import { isJWTValid } from './utils/security/jwt'
 import webhook from './webhooks'
 import 'dotenv/config'
-// import { startCron } from './cron'
+
 const app = new Hono()
 
 // dayjs.extend(utc)
@@ -20,7 +21,7 @@ const app = new Hono()
 
 // dayjs.tz.setDefault('Asia/Jakarta')
 /// start Cron
-// startCron()
+startCron()
 
 if (!process.env.SECRET) throw new Error('No Secret Environtment!')
 if (!process.env.AUTH_SECRET) throw new Error('No Auth Secret Environtment!')
@@ -29,6 +30,7 @@ if (!process.env.SHOWROOM_API) throw new Error('Showroom API not provided!')
 app.get('/', c => c.json({
   author: 'crstlnz',
   website: 'https://dc.crstlnz.my.id',
+  dev: process.env.NODE_ENV === 'development' ? true : undefined,
   version: `${pkg.version}`,
 }))
 
@@ -120,6 +122,7 @@ export function isWebSocketPath(urlStr: string): boolean {
 }
 
 Bun.serve({
+  idleTimeout: 30,
   fetch: (...args) => {
     const [req, server] = args
     if (isWebSocketPath(req.url)) {

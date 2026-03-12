@@ -1,5 +1,5 @@
 import { Schema } from 'mongoose'
-import { liveDB } from '../../../'
+import { userDB } from '../../../'
 
 const idnUserSchema = new Schema<DatabaseIDN.User>({
   id: {
@@ -21,4 +21,4 @@ const idnUserSchema = new Schema<DatabaseIDN.User>({
 })
 
 idnUserSchema.index({ slug: 1 }, { unique: true })
-export const IDNUser = liveDB.model('IDN_User', idnUserSchema)
+export const IDNUser = userDB.model('IDN_User', idnUserSchema)

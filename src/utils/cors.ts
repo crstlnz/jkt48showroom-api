@@ -9,33 +9,36 @@ interface CORSOptions {
 }
 
 type CorsLevel = 'self' | 'all'
-const origins = process.env.ORIGINS ? process.env.ORIGINS.split(',') : []
+
+const allowedOrigins = process.env.ORIGINS ? process.env.ORIGINS.split(',').map(o => o.trim()) : []
+const defaultOrigin = process.env.DEFAULT_ORIGIN ?? ''
+
+function isAllowed(requestOrigin: string): boolean {
+  return allowedOrigins.includes(requestOrigin)
+    || requestOrigin.startsWith('http://localhost')
+}
 
 export function useCORS(level: CorsLevel) {
-  const origin: string[] = []
-  if (process.env.ORIGINS) {
-    origin.push(...process.env.ORIGINS.split(','))
-  }
-
   const corsOptions: CORSOptions = {
-    allowMethods: ['POST', 'GET', 'DELETE', 'PUT'],
-    credentials: true,
+    allowMethods: ['POST', 'GET', 'DELETE', 'PUT', 'PATCH', 'OPTIONS'],
   }
 
   if (level === 'self') {
     return cors({
-      origin: (origin) => {
-        return origins.some(i => i.endsWith(origin)) ? origin : process.env.DEFAULT_ORIGIN
-      },
       ...corsOptions,
+      credentials: true,
+      origin: (requestOrigin) => {
+        return isAllowed(requestOrigin) ? requestOrigin : defaultOrigin
+      },
     })
   }
   else {
     return cors({
-      origin: (origin) => {
-        return origins.some(i => i.endsWith(origin) || i.startsWith('http://localhost')) ? origin : '*'
-      },
       ...corsOptions,
+      credentials: false,
+      origin: (requestOrigin) => {
+        return requestOrigin || defaultOrigin
+      },
     })
   }
 }

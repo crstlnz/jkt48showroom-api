@@ -5,3 +5,6 @@ node_modules
 .output
 .env
 /src/test
+
+tmp/
+/src/scripts/*

@@ -1,9 +1,10 @@
+import type { Buffer } from 'buffer'
 import type { CombinedLive, YoutubeLive } from '@/library/combinedNowLive'
 import type { IdolGroup } from '@/types/index.types'
 import { createId } from '@paralleldrive/cuid2'
+import { decode, encode } from 'cbor-x'
 import { fetchCombined } from '@/library/combinedNowLive'
 import { cachedJKT48VLive, jkt48v_cache_time } from '@/library/jkt48v'
-import { sendLog } from '@/library/sendLog'
 import { IdolGroupTypes } from '@/types/index.types'
 import { AutoTrigger } from '@/utils/autoTrigger'
 import { debounce } from '@/utils/debounce'
@@ -17,9 +18,10 @@ const updateLivesTrigger = new AutoTrigger(async () => {
   initLiveData()
 }, 1000 * 60 * 5).start()
 
+const isDev = false
 export async function initLiveData() {
-  currentLives = (await fetchCombined('all', process.env.NODE_ENV === 'development')).filter(i => i.type !== 'youtube')
-  sendLiveUpdates('all')
+  currentLives = (await fetchCombined('jkt48', isDev)).filter(i => i.type !== 'youtube')
+  sendLiveUpdates('jkt48')
 }
 
 export enum EventChannel {
@@ -51,7 +53,7 @@ export function setServer(_server: Bun.Server<WebSocketData>) {
   server = _server
 }
 
-const users = new Set()
+const users = new Map<string, string>()
 const admins = new Set()
 
 interface WebSocketData {
@@ -70,9 +72,15 @@ export function websocketUpgrade(req: Request, server: Bun.Server<WebSocketData>
 }
 
 function userCount() {
+  const paths = new Map<string, number>()
+  for (const path of users.values()) {
+    paths.set(path, (paths.get(path) ?? 0) + 1)
+  }
+
   return {
     type: AdminEvent.UserCount,
     data: {
+      paths: Object.fromEntries(paths),
       user_count: users.size,
       admin_count: admins.size,
     },
@@ -80,8 +88,18 @@ function userCount() {
 }
 
 function publish(topic: string, data: any) {
-  server?.publish(topic, typedBroadcast(topic, data))
+  if (server && topic) {
+    server.publish(topic, encode(typedBroadcast(topic, data)))
+  }
 }
+
+function sendWs(ws: Bun.ServerWebSocket<WebSocketData>, message: string) {
+  ws.send(encode(message))
+}
+
+const publishAdminUserCount = debounce(() => {
+  publish(EventChannel.Admin, userCount())
+}, 1000)
 
 setInterval(async () => {
   const data = await cachedJKT48VLive().catch(() => null)
@@ -95,7 +113,7 @@ export function combinedLives() {
   return [...currentLives, ...jkt48vLives]
 }
 
-function sendLiveUpdates(group: IdolGroup | 'all') {
+function sendLiveUpdates(group: IdolGroup | 'all' = 'jkt48') {
   if (group === 'all') {
     for (const g of IdolGroupTypes) {
       publish(g, combinedLives().filter(i => i.group === g))
@@ -111,24 +129,26 @@ export const wsHandler: Bun.WebSocketHandler<WebSocketData> = {
   data: {} as WebSocketData,
   // handler called when a message is received
   open(ws) {
-    users.add(ws.data.sessionId)
-    debounce(() => {
-      publish(EventChannel.Admin, userCount())
-    }, 500)
+    users.set(ws.data.sessionId, '/')
+    publishAdminUserCount()
   },
   message(ws, message) {
-    const msg = String(message)
+    const msg = decode(message as Buffer) as string
     if (msg.startsWith('PING')) {
-      ws.send('PONG')
+      sendWs(ws, 'PONG')
     }
     else if (msg.startsWith('listen')) {
       msg.split(' ').slice(1).forEach((id) => {
         if (Object.values(IdolGroupTypes).includes(id as IdolGroup)) {
           ws.subscribe(id)
-          ws.send(typedBroadcast(id, combinedLives().filter(i => i.group === id)))
-          ws.send('ok-listen')
+          sendWs(ws, typedBroadcast(id, combinedLives().filter(i => i.group === id)))
+          sendWs(ws, 'ok-listen')
         }
       })
+    }
+    else if (msg.startsWith('view')) {
+      users.set(ws.data.sessionId, msg.split(' ').slice(1).join(' '))
+      publishAdminUserCount()
     }
     else if (msg.startsWith(EventChannel.Admin)) {
       const auth = msg.split(' ').slice(1).join(' ')
@@ -136,15 +156,8 @@ export const wsHandler: Bun.WebSocketHandler<WebSocketData> = {
         const payload = verifyJWT(auth)
         if (payload.admin) {
           admins.add(ws.data.sessionId)
-          ws.send('Registered as admin')
           ws.subscribe(EventChannel.Admin)
-          ws.send(typedBroadcast(EventChannel.Admin, {
-            type: AdminEvent.UserCount,
-            data: {
-              user_count: users.size,
-              admin_count: admins.size,
-            },
-          }))
+          sendWs(ws, typedBroadcast(EventChannel.Admin, userCount()))
         }
       }
       catch {
@@ -158,9 +171,6 @@ export const wsHandler: Bun.WebSocketHandler<WebSocketData> = {
     for (const l of Object.values(EventChannel)) {
       ws.unsubscribe(l)
     }
-
-    debounce(() => {
-      publish(EventChannel.Admin, userCount())
-    }, 500)
+    publishAdminUserCount()
   },
 }

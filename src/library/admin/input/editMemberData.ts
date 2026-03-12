@@ -9,8 +9,8 @@ export async function editMemberData(c: Context) {
   const banner = query.banner instanceof File ? await uploadImageBuffer(await (query.banner as File).arrayBuffer()) : query.banner
   const img = query.img instanceof File ? await uploadImageBuffer(await (query.img as File).arrayBuffer()) : query.img
   const infoData: Partial<IdolMember['info']> = {
-    img,
-    banner,
+    img: String(img),
+    banner: String(banner),
     profile_video: query.profile_video?.toString(),
     jikosokai: query.jikosokai?.toString(),
     generation: query.generation?.toString(),

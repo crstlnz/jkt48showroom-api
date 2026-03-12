@@ -5,7 +5,6 @@ import { deleteCookie, getCookie, setCookie } from 'hono/cookie'
 const name = '_sr'
 const isDev = process.env.NODE_ENV === 'development'
 const cookieSettings: CookieOptions = {
-  path: '/',
   secure: !isDev,
   httpOnly: true,
   // domain: isDev ? undefined : process.env.COOKIE_DOMAIN,

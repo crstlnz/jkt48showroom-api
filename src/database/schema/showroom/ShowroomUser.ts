@@ -34,5 +34,4 @@ const userSchema = new Schema({
   },
 })
 
-userSchema.index({ user_id: 1 }, { unique: true })
 export default model('Showroom_User', userSchema)
