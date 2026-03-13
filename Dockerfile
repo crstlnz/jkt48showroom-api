@@ -4,20 +4,20 @@ FROM oven/bun:1.3
 # Set workdir di container
 WORKDIR /app
 
-# Install pnpm secara global (karena image Bun tidak include pnpm)
-RUN bun install -g pm2
-
 # Copy dependency files
-COPY package.json pnpm-lock.yaml ./
+COPY package.json bun.lockb* pnpm-lock.yaml* ./
 
-# Install dependencies (production=false agar build tools juga keinstall)
+# Install dependencies
 RUN bun install
 
 # Copy semua source code
 COPY . .
 
-# Build project (pakai script kamu)
+# Build project
 RUN bun run build
 
-# Jalankan app (pakai Bun)
-CMD ["pm2-runtime", "ecosystem.config.js"]
+# Expose port (opsional tapi good practice)
+EXPOSE 3000
+
+# Jalankan langsung pakai Bun, tanpa PM2
+CMD ["bun", ".output/index.js"]
