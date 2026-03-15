@@ -64,7 +64,6 @@ export async function getJKT48YoutubeVideo() {
 }
 
 async function searchYoutube(channelId: string, result: JKT48Video[] = [], nextPageToken: string | null = null) {
-  if (process.env.NODE_ENV === 'development') return []
   const data = await ofetch<YoutubeSearchResult>('https://www.googleapis.com/youtube/v3/search', {
     query: {
       part: 'snippet',

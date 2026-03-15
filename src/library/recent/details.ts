@@ -56,7 +56,7 @@ export async function parseShowroom(data: Log.Showroom): Promise<LogDetail.Showr
     }
   })
   const stageListData = await StageList.findOne({ data_id: data.data_id }).lean()
-  const fansRank = calculateFansPoints(data?.users ?? [], stageListData?.stage_list ?? [])
+  const fansRank = calculateFansPoints(data?.users ?? [], stageListData?.stage_list ?? [], data?.gift_data?.gift_log ?? [])
   const giftList = await ShowroomGift.find({ gift_id: data.gift_data.gift_id_list }).lean()
 
   const giftMap = new Map<number, LogDetail.ShowroomGift>()

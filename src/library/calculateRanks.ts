@@ -53,8 +53,13 @@ export function calculateRanks(logs: Log.Showroom[], stageListData: Database.ISt
     return a
   }, [] as RecentDetails.IStageList[])
 
+  const giftLog = logs.reduce<Log.ShowroomUserGifts[]>((a, b) => {
+    a.push(...(b.gift_data?.gift_log ?? []) as Log.ShowroomUserGifts[])
+    return a
+  }, [])
+
   return {
     member: Array.from(memberRanks.values()).sort((a, b) => b.point - a.point),
-    fans: calculateFansPoints(users, stageList),
+    fans: calculateFansPoints(users, stageList, giftLog),
   }
 }

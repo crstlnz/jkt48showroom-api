@@ -11,7 +11,7 @@ import { debounce } from '@/utils/debounce'
 import { verifyJWT } from '@/utils/security/jwt'
 
 let server: Bun.Server<WebSocketData> | null = null
-let currentLives: CombinedLive[] = []
+const currentLives = new Map<IdolGroup, CombinedLive[]>(IdolGroupTypes.map(group => [group, []]))
 let jkt48vLives: YoutubeLive[] = []
 
 const updateLivesTrigger = new AutoTrigger(async () => {
@@ -20,8 +20,10 @@ const updateLivesTrigger = new AutoTrigger(async () => {
 
 const isDev = false
 export async function initLiveData() {
-  currentLives = (await fetchCombined('jkt48', isDev)).filter(i => i.type !== 'youtube')
-  sendLiveUpdates('jkt48')
+  await Promise.all(IdolGroupTypes.map(async (group) => {
+    currentLives.set(group, (await fetchCombined(group, isDev)).filter(i => i.type !== 'youtube'))
+  }))
+  sendLiveUpdates('all')
 }
 
 export enum EventChannel {
@@ -45,8 +47,16 @@ function typedBroadcast(type: string, data: any) {
 
 export function webhookUpdateLive(data: CombinedLive[], group?: IdolGroup) {
   updateLivesTrigger.touch()
-  currentLives = data
-  sendLiveUpdates(group ?? 'all')
+  if (group) {
+    currentLives.set(group, data.filter(i => i.group === group))
+    sendLiveUpdates(group)
+    return
+  }
+
+  for (const g of IdolGroupTypes) {
+    currentLives.set(g, data.filter(i => i.group === g))
+  }
+  sendLiveUpdates('all')
 }
 
 export function setServer(_server: Bun.Server<WebSocketData>) {
@@ -110,7 +120,7 @@ setInterval(async () => {
 }, jkt48v_cache_time + 1)
 
 export function combinedLives() {
-  return [...currentLives, ...jkt48vLives]
+  return [...Array.from(currentLives.values()).flat(), ...jkt48vLives]
 }
 
 function sendLiveUpdates(group: IdolGroup | 'all' = 'jkt48') {

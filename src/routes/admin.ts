@@ -48,6 +48,7 @@ app.post('/update_lives', async (c) => {
   if (!data?.api_key || data.api_key !== process.env.API_KEY) throw new ApiError({ status: 401, message: 'Unauthorized!' })
   const lives = data?.lives
   const group = IdolGroupTypes.includes(data?.group) ? data?.group : undefined
+  console.log('Data group', group)
   if (!lives) throw new ApiError({ status: 400, message: 'Bad request!' })
   try {
     const parsed = CombinedLivesListZod.parse(lives)
