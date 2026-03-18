@@ -4,9 +4,7 @@ import { ofetch } from 'ofetch'
 import { parseCookieString } from '@/utils'
 import { createError } from '@/utils/errorResponse'
 import { createHandlers } from '@/utils/factory'
-import { deleteSessId } from '@/utils/security/cookies/sessId'
-import { deleteShowroomSess } from '@/utils/security/cookies/showroomSess'
-import { clearToken, createToken } from '@/utils/security/token'
+import { createToken } from '@/utils/security/token'
 import { getShowroomSession } from '@/utils/showroomSession'
 
 export function login() {
@@ -37,28 +35,19 @@ export function login() {
     }).catch(e => e.data)
 
     if (data?.error) {
-      clearToken(c)
-      deleteSessId(c)
-      if (data?.error === 'Already logged in.') {
-        deleteShowroomSess(c)
-      }
       return c.json(data, 401)
     }
 
     if (sr_id && (data as ShowroomLogin.Data)?.ok === 1) {
-      deleteShowroomSess(c)
       const userData = data as ShowroomLogin.Data
-      const { sessionData } = await createToken(c, String(userData.user_id), sr_id)
+      const { accessToken, refreshToken, sessionData } = await createToken(c, String(userData.user_id), sr_id)
       return c.json({
-        id: sessionData.id,
-        name: sessionData.name,
-        account_id: sessionData.account_id,
+        access_token: accessToken,
+        refresh_token: refreshToken,
+        user: sessionData,
       })
     }
 
-    clearToken(c)
-    deleteShowroomSess(c)
-    deleteSessId(c)
     return c.json({ error: 'Please refresh and try again!' }, 401)
   })
 }
@@ -78,9 +67,6 @@ export async function logoutHandler(c: Context, sr_id?: string) {
       body: body.toString(),
     })
 
-    clearToken(c)
-    deleteShowroomSess(c)
-    deleteSessId(c)
     return c.json({ success: true })
   }
   catch {

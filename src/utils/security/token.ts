@@ -8,7 +8,7 @@ import { isAdmin } from '.'
 import { parseCookieString } from '..'
 import { createError } from '../errorResponse'
 import { accessTokenTime, deleteAccessToken, getAccessToken, setAccessToken } from './cookies/accessToken'
-import { deleteRefreshToken, getRefreshToken, refreshTokenTime, setRefreshToken } from './cookies/refreshToken'
+import { getRefreshToken, refreshTokenTime, setRefreshToken } from './cookies/refreshToken'
 import { getSessId } from './cookies/sessId'
 
 function decodeToken<T extends object>(token: string): T | null {
@@ -103,7 +103,13 @@ export async function getRefreshedToken(c: Context, refreshToken: string) {
   throw new Error('Failed to refresh token!')
 }
 
-export async function createToken(c: Context, user_id: string, sr_id: string) {
+export async function createToken(
+  c: Context,
+  user_id: string,
+  sr_id: string,
+  // options: { useCookie?: boolean } = {},
+) {
+  // const useCookie = options.useCookie ?? true
   const sessId = getSessId(c)
   const userProfile = await ofetch<ShowroomAPI.UserProfile>('https://www.showroom-live.com/api/user/profile', {
     params: { user_id },
@@ -167,7 +173,7 @@ export async function createToken(c: Context, user_id: string, sr_id: string) {
   }
 }
 
-export function clearToken(c: Context) {
-  deleteAccessToken(c)
-  deleteRefreshToken(c)
-}
+// export function clearToken(c: Context) {
+//   deleteAccessToken(c)
+//   deleteRefreshToken(c)
+// }

@@ -27,6 +27,7 @@ export function useCORS(level: CorsLevel) {
     return cors({
       ...corsOptions,
       credentials: true,
+      exposeHeaders: ['X-Access-Token', 'X-Refresh-Token'],
       origin: (requestOrigin) => {
         return isAllowed(requestOrigin) ? requestOrigin : defaultOrigin
       },

@@ -1,6 +1,5 @@
 import type { Context } from 'hono'
 import type { CookieOptions } from 'hono/utils/cookie'
-import { deleteCookie, getCookie, setCookie } from 'hono/cookie'
 import { ONE_MONTH } from '@/const'
 
 const name = '_rt'
@@ -13,18 +12,19 @@ const cookieSettings: CookieOptions = {
 }
 
 export function getRefreshToken(c: Context) {
-  return getCookie(c, name)
+  const refreshToken = c.req.header('X-Refresh-Token')
+  if (!refreshToken) {
+    return null
+  }
+  return refreshToken
 }
 
 export function setRefreshToken(c: Context, token: string) {
-  setCookie(c, name, token, {
-    ...cookieSettings,
-    maxAge: ONE_MONTH,
-  })
+  c.header('X-Refresh-Token', token)
 }
 
-export function deleteRefreshToken(c: Context) {
-  deleteCookie(c, name, { ...cookieSettings })
-}
+// export function deleteRefreshToken(c: Context) {
+//   deleteCookie(c, name, { ...cookieSettings })
+// }
 
 export const refreshTokenTime = ONE_MONTH // 1 month

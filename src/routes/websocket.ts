@@ -20,9 +20,9 @@ const updateLivesTrigger = new AutoTrigger(async () => {
 
 const isDev = false
 export async function initLiveData() {
-  await Promise.all(IdolGroupTypes.map(async (group) => {
+  await Promise.all([fetchJKT48v(), ...IdolGroupTypes.map(async (group) => {
     currentLives.set(group, (await fetchCombined(group, isDev)).filter(i => i.type !== 'youtube'))
-  }))
+  })])
   sendLiveUpdates('all')
 }
 
@@ -111,12 +111,17 @@ const publishAdminUserCount = debounce(() => {
   publish(EventChannel.Admin, userCount())
 }, 1000)
 
-setInterval(async () => {
+async function fetchJKT48v() {
   const data = await cachedJKT48VLive().catch(() => null)
   if (data) {
     jkt48vLives = (await cachedJKT48VLive()).map(i => ({ ...i, type: 'youtube' }))
+    console.log('JKT48 v', jkt48vLives)
     sendLiveUpdates('jkt48')
   }
+}
+
+setInterval(async () => {
+  fetchJKT48v()
 }, jkt48v_cache_time + 1)
 
 export function combinedLives() {
