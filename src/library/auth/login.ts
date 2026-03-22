@@ -47,8 +47,7 @@ export function login() {
         user: sessionData,
       })
     }
-
-    return c.json({ error: 'Please refresh and try again!' }, 401)
+    return c.json({ error: 'Please refresh and try again!', session: sr_sess }, 401)
   })
 }
 

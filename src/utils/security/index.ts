@@ -2,7 +2,6 @@ import type { Context } from 'hono'
 import { Buffer } from 'node:buffer'
 import crypto from 'node:crypto'
 import { createMiddleware } from 'hono/factory'
-import { getSessId, setSessId } from './cookies/sessId'
 
 function generateIV(): Buffer {
   return crypto.randomBytes(16)
@@ -42,17 +41,17 @@ export function generateUUID() {
   return crypto.randomUUID()
 }
 
-export function useSessionID() {
-  return createMiddleware((c, next) => {
-    const sessIdCookie = getSessId(c)
-    const sessId = sessIdCookie || generateUUID()
-    c.set('sid', sessId)
-    if (sessIdCookie == null) {
-      setSessId(c, sessId)
-    }
-    return next()
-  })
-}
+// export function useSessionID() {
+//   return createMiddleware((c, next) => {
+//     const sessIdCookie = getSessId(c)
+//     const sessId = sessIdCookie || generateUUID()
+//     c.set('sid', sessId)
+//     if (sessIdCookie == null) {
+//       setSessId(c, sessId)
+//     }
+//     return next()
+//   })
+// }
 
 export function isAdmin(userId: string | number) {
   const ids = (process.env.ADMIN_IDS || '').split(',')

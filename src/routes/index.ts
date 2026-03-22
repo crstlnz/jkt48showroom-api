@@ -45,7 +45,7 @@ import getWeekly from '@/library/weekly'
 import { cachedFetch } from '@/utils/cache/cachedFetch'
 import { useCORS } from '@/utils/cors'
 import { handler } from '@/utils/factory'
-import { getIp, useSessionID } from '@/utils/security'
+import { getIp } from '@/utils/security'
 import { getSessId } from '@/utils/security/cookies/sessId'
 import { useShowroomSession } from '@/utils/showroomSession'
 import admin from './admin'
@@ -89,7 +89,7 @@ app.use('*', csrf({
   origin: origins,
 }))
 
-app.use('*', useSessionID())
+// app.use('*', useSessionID())
 
 app.route('/admin', admin)
 app.route('/auth', auth)
@@ -186,12 +186,17 @@ app.get('/news/:id', ...handler(c => getNewsDetail(c.req.param('id')), { days: 1
 app.get('/birthday', ...handler(getMemberBirthdays, { hours: 1 }))
 app.get('/48/member', ...handler(getMember48List, { days: 1 }))
 app.get('/profile', useShowroomSession(), ...handler(getProfile, (c) => {
-  const key = `${getSessId(c)}-profile-${c.req.query('room_id')}`
+  const user = c.get('user')
+  const key = `${user ? user.sr_id : 'profile'}-${c.req.query('room_id')}`
   return {
     name: key,
     hours: 1,
   }
 }))
+
+app.get('/showroom_session', useShowroomSession(), (ctx: Context) => {
+  return ctx.json(ctx.get('showroom_session'))
+})
 
 app.get('/next_birthday', ...handler(nextBirthDay, { minutes: 30 }))
 app.get('/idn_lives', ...handler(() => fetchIDN(false), { seconds: 30, minutes: 1, useSingleProcess: true }))

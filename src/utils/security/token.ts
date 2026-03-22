@@ -8,8 +8,7 @@ import { isAdmin } from '.'
 import { parseCookieString } from '..'
 import { createError } from '../errorResponse'
 import { accessTokenTime, deleteAccessToken, getAccessToken, setAccessToken } from './cookies/accessToken'
-import { getRefreshToken, refreshTokenTime, setRefreshToken } from './cookies/refreshToken'
-import { getSessId } from './cookies/sessId'
+import { deleteRefreshToken, getRefreshToken, refreshTokenTime, setRefreshToken } from './cookies/refreshToken'
 
 function decodeToken<T extends object>(token: string): T | null {
   const decoded = jwt.decode(token)
@@ -58,13 +57,10 @@ export function checkToken(mustAuth: boolean = true) {
           })()
         : null
       if (!decodedToken && refreshToken) {
-        console.log('Masuk refresh token')
         decodedToken = await getRefreshedToken(c, refreshToken).catch(() => null)
       }
 
       if (decodedToken) {
-        console.log('USER', decodedToken)
-        console.log('Token', token)
         c.set('user', decodedToken)
         return await next()
       }
@@ -79,7 +75,7 @@ export function checkToken(mustAuth: boolean = true) {
         logout(c).catch(() => null)
       }
 
-      // clearToken(c)
+      clearToken(c)
     }
 
     if (mustAuth) {
@@ -137,7 +133,6 @@ export async function createToken(
   }
 
   if (!sessionData.account_id) throw createError({ status: 401, message: 'Unauthorized!' })
-  console.log('REFRESHED', sessionData)
   const accessToken = jwt.sign(sessionData, process.env.AUTH_SECRET!)
 
   const refreshToken = jwt.sign({
@@ -175,7 +170,7 @@ export async function createToken(
   }
 }
 
-// export function clearToken(c: Context) {
-//   deleteAccessToken(c)
-//   deleteRefreshToken(c)
-// }
+export function clearToken(c: Context) {
+  deleteAccessToken(c)
+  deleteRefreshToken(c)
+}

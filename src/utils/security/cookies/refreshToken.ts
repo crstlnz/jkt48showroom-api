@@ -11,8 +11,10 @@ const cookieSettings: CookieOptions = {
   sameSite: isDev ? undefined : 'None',
 }
 
+const HEADER_NAME = 'X-Refresh-Token'
+
 export function getRefreshToken(c: Context) {
-  const refreshToken = c.req.header('X-Refresh-Token')
+  const refreshToken = c.req.header(HEADER_NAME)
   if (!refreshToken) {
     return null
   }
@@ -20,11 +22,11 @@ export function getRefreshToken(c: Context) {
 }
 
 export function setRefreshToken(c: Context, token: string) {
-  c.header('X-Refresh-Token', token)
+  c.header(HEADER_NAME, token)
 }
 
-// export function deleteRefreshToken(c: Context) {
-//   deleteCookie(c, name, { ...cookieSettings })
-// }
+export function deleteRefreshToken(c: Context) {
+  c.header(HEADER_NAME, '')
+}
 
 export const refreshTokenTime = ONE_MONTH // 1 month

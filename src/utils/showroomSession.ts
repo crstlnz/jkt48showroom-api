@@ -5,17 +5,17 @@ import { sign, verify } from 'jsonwebtoken'
 import { ofetch } from 'ofetch'
 import { parseCookieString } from '.'
 import { createError } from './errorResponse'
-import { getShowroomSess, setShowroomSess } from './security/cookies/showroomSess'
+import { getShowroomSess, setShowroomSess, showroomTokenTime } from './security/cookies/showroomSess'
 import { getDecodedToken } from './security/token'
 
-function verifyShowroomSessionToken(token?: string): ShowroomLogin.Session | null {
+function verifyShowroomSessionToken(token?: string | null): ShowroomLogin.Session | null {
   if (!token) {
     return null
   }
 
   try {
     const decoded = verify(token, process.env.SECRET!)
-    if (!decoded || typeof decoded === 'string') {
+    if (!decoded || typeof decoded === 'string' || !decoded.exp) {
       return null
     }
     return decoded as ShowroomLogin.Session
@@ -53,13 +53,13 @@ export async function getShowroomSession(c: Context): Promise<{ session: Showroo
   let sess = verifyShowroomSessionToken(getShowroomSess(c))
   let setCookie = false
   const user = c.get('user')
-  if (((!sess?.sr_id || !sess?.csrf_token) && !c.get('showroom_session'))) {
-    sess = await createShowroomSession(c).catch(() => null)
-    setCookie = true
-  }
+  // if (((!sess?.sr_id || !sess?.csrf_token) && !c.get('showroom_session'))) {
+  //   sess = await createShowroomSession(c).catch(() => null)
+  //   setCookie = true
+  // }
 
-  const sr_id = sess?.sr_id || c.get('showroom_session')
-  if (user?.sr_id && user.sr_id !== sr_id) {
+  const sr_id = sess?.sr_id || c.get('showroom_session')?.sr_id
+  if ((user?.sr_id && user.sr_id !== sr_id) || (sr_id == null)) {
     sess = await createShowroomSession(c).catch(() => null)
     setCookie = true
   }
@@ -81,7 +81,8 @@ export function useShowroomSession() {
   return createMiddleware(async (c, next) => {
     const sess = await getShowroomSession(c)
     if (sess.setCookie) {
-      const sessToken = sign(sess.session, process.env.SECRET!)
+      const currentTime = Math.floor(Date.now() / 1000)
+      const sessToken = sign({ ...sess.session, exp: currentTime + showroomTokenTime }, process.env.SECRET!)
       setShowroomSess(c, sessToken)
     }
     c.set('showroom_session', sess.session)

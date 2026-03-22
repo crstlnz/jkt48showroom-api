@@ -1,27 +1,28 @@
 import type { Context } from 'hono'
-import type { CookieOptions } from 'hono/utils/cookie'
-import { deleteCookie, getCookie, setCookie } from 'hono/cookie'
+// import type { CookieOptions } from 'hono/utils/cookie'
 
-const name = '_sr'
-const isDev = process.env.NODE_ENV === 'development'
-const cookieSettings: CookieOptions = {
-  secure: !isDev,
-  httpOnly: true,
-  // domain: isDev ? undefined : process.env.COOKIE_DOMAIN,
-  sameSite: isDev ? undefined : 'None',
-}
+// const name = '_sr'
+// const isDev = process.env.NODE_ENV === 'development'
+// const cookieSettings: CookieOptions = {
+//   secure: !isDev,
+//   httpOnly: true,
+//   // domain: isDev ? undefined : process.env.COOKIE_DOMAIN,
+//   sameSite: isDev ? undefined : 'None',
+// }
+export const showroomTokenTime = 1800
+const HEADER_NAME = 'X-SR-Token'
 export function getShowroomSess(c: Context) {
-  return getCookie(c, name)
+  const refreshToken = c.req.header(HEADER_NAME)
+  if (!refreshToken) {
+    return null
+  }
+  return refreshToken
 }
 
 export function setShowroomSess(c: Context, token: string) {
-  setCookie(c, name, token, {
-    ...cookieSettings,
-  })
+  c.header(HEADER_NAME, token)
 }
 
 export function deleteShowroomSess(c: Context) {
-  deleteCookie(c, name, {
-    ...cookieSettings,
-  })
+  c.header(HEADER_NAME, '')
 }
