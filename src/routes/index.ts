@@ -194,10 +194,6 @@ app.get('/profile', useShowroomSession(), ...handler(getProfile, (c) => {
   }
 }))
 
-app.get('/showroom_session', useShowroomSession(), (ctx: Context) => {
-  return ctx.json(ctx.get('showroom_session'))
-})
-
 app.get('/next_birthday', ...handler(nextBirthDay, { minutes: 30 }))
 app.get('/idn_lives', ...handler(() => fetchIDN(false), { seconds: 30, minutes: 1, useSingleProcess: true }))
 // TODO fix pagination
