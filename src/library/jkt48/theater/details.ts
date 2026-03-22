@@ -1,12 +1,15 @@
 import type { Context } from 'hono'
 import type { FilterQuery } from 'mongoose'
+import comparator from 'string-comparison'
 import IdolMember from '@/database/schema/48group/IdolMember'
-import Theater from '@/database/showroomDB/jkt48/Theater'
-import { createError } from '@/utils/errorResponse'
+import JKT48NewSchedule from '@/database/showroomDB/jkt48/JKT48NewSchedule'
+import Setlist from '@/database/showroomDB/jkt48/Setlist'
+import { createError, notFound } from '@/utils/errorResponse'
 
-export async function getTheaterDetail(c: Context): Promise<IApiTheaterDetailList> {
+// export async function getTheaterDetail(c: Context): Promise<IApiTheaterDetailList> {
+export async function getTheaterDetail(c: Context) {
   const id = c.req.param('id')
-  const query: FilterQuery<JKT48.Theater>[] = [{ id: { $regex: new RegExp(`^(${id}|^${id}(?:-\\d+))$`) } }]
+  const query: FilterQuery<JKT48.Theater>[] = [{ code: id }]
   if (!Number.isNaN(Number(id))) {
     query.push({ 'showroomTheater.paid_live_id': id })
   }
@@ -14,21 +17,22 @@ export async function getTheaterDetail(c: Context): Promise<IApiTheaterDetailLis
     query.push({ 'idnTheater.slug': id })
   }
 
-  const data = await Theater.find({ $or: query })
-    .populate<{ members: JKT48.Member[] }>('members')
-    .populate<{ setlist: JKT48.Setlist }>('setlist')
-    .populate<{ seitansai: JKT48.Member[] }>('seitansai')
-    .populate<{ graduation: JKT48.Member[] }>('graduation')
+  const data = await JKT48NewSchedule.findOne({ type: 'show', $or: query })
+    // .populate<{ members: JKT48.Member[] }>('members')
+    // .populate<{ setlist: JKT48.Setlist }>('setlist')
+    // .populate<{ seitansai: JKT48.Member[] }>('seitansai')
+    // .populate<{ graduation: JKT48.Member[] }>('graduation')
     .lean()
 
-  const memberList = data.reduce<JKT48.Member[]>((a, b) => {
-    a.push(...b.members)
-    a.push(...b.graduation)
-    a.push(...b.seitansai)
-    return a
-  }, [])
+  if (!data) throw createError({ statusMessage: 'Data not found!', statusCode: 404 })
 
-  const memberDetails = await IdolMember.find({ jkt48id: { $in: memberList.map(i => i.id) } }).select({
+  const memberList = data.jkt48_member
+
+  let setlist = await Setlist.findOne({ setlist_id: data.set_list })
+  if (comparator.levenshtein.similarity(setlist?.title ?? '', data.title) < 0.75) {
+    setlist = await Setlist.findOne({ id: data.title.toLowerCase().trim().replaceAll(' ', '') })
+  }
+  const memberDetails = await IdolMember.find({ jkt48id: { $in: memberList.map(i => i.member_id) } }).select({
     name: 1,
     info: {
       nicknames: 1,
@@ -39,53 +43,51 @@ export async function getTheaterDetail(c: Context): Promise<IApiTheaterDetailLis
     jkt48id: 1,
   }).populate('showroom').lean()
 
-  if (!data?.length) throw createError({ statusMessage: 'Data not found!', statusCode: 404 })
   return {
-    shows: data.map((i) => {
-      return {
-        id: i.id,
-        title: i.title,
-        url: i.url,
-        setlist: i.setlist,
-        members: i.members.map((i) => {
+    shows: [
+      {
+        id: data.code,
+        title: data.title,
+        url: `https://jkt48.com/purchase/schedule/show?code=${data.code}`,
+        setlist,
+        members: data.jkt48_member.map((i) => {
           const detailedMember = memberDetails.find((m) => {
-            return m.jkt48id?.includes(i.id)
+            return m.jkt48id?.includes(String(i.member_id))
           })
           return {
-            id: i.id,
+            id: i.member_id,
             name: detailedMember?.info?.nicknames?.[0] || i.name,
             img: detailedMember?.info?.img ?? undefined,
             url_key: detailedMember?.slug,
           }
         }),
-        seitansai: i.seitansai.map((i) => {
+        seitansai: data.birthday_member.map((i) => {
           const detailedMember = memberDetails.find((m) => {
-            return m.jkt48id?.includes(i.id)
+            return m.jkt48id?.includes(String(i.member_id))
           })
           return {
-            id: i.id,
+            id: i.member_id,
             name: detailedMember?.info?.nicknames?.[0] || i.name,
             img: detailedMember?.info?.img ?? undefined,
             url_key: detailedMember?.slug,
           }
         }),
-        graduation: i.graduation.map((i) => {
-          const detailedMember = memberDetails.find((m) => {
-            return m.jkt48id?.includes(i.id)
-          })
-          return {
-            id: i.id,
-            name: detailedMember?.info?.nicknames?.[0] || i.name,
-            img: detailedMember?.info?.img ?? undefined,
-            url_key: detailedMember?.slug,
-          }
-        }),
-        date: i.date,
-        team: i.team,
-        showroomTheater: i.showroomTheater,
-        idnTheater: i.idnTheater,
-      }
-    }),
-    date: new Date(data[0]?.date).toISOString(),
+        // graduation: i.graduation.map((i) => {
+        //   const detailedMember = memberDetails.find((m) => {
+        //     return m.jkt48id?.includes(i.id)
+        //   })
+        //   return {
+        //     id: i.id,
+        //     name: detailedMember?.info?.nicknames?.[0] || i.name,
+        //     img: detailedMember?.info?.img ?? undefined,
+        //     url_key: detailedMember?.slug,
+        //   }
+        // }),
+        date: data.date,
+        showroomTheater: data.showroom,
+        idnTheater: data.idn_live,
+      },
+    ],
+    date: new Date(data?.date ?? 0).toISOString(),
   }
 }

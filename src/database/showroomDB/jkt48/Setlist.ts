@@ -8,6 +8,7 @@ const eventSchema = new Schema<JKT48.Setlist>({
     required: true,
     type: String,
   },
+  setlist_id: String, // id yang ada di web jkt48 yang baru
   title: String,
   title_alt: String,
   description: String,

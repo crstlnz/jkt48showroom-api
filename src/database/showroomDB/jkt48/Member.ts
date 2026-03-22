@@ -3,10 +3,11 @@ import { jkt48DB } from '@/database'
 
 const memberSchema = new Schema<JKT48.Member>({
   id: {
-    unique: true,
     required: true,
+    unique: true,
     type: String,
   },
+  old_id: String,
   name: {
     type: String,
     default: '',

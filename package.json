@@ -30,6 +30,7 @@
     "node-html-parser": "^6.1.13",
     "ofetch": "^1.3.4",
     "sharp": "^0.34.5",
+    "string-comparison": "^1.3.0",
     "vue-virtual-sortable": "^3.0.3",
     "zod": "^4.1.12"
   },

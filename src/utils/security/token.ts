@@ -40,10 +40,8 @@ export const tokenCaches = new Map<string, { accessToken: string, refreshToken: 
 
 export function checkToken(mustAuth: boolean = true) {
   return createMiddleware(async (c, next) => {
-    const sessId = getSessId(c)
-    const cachedToken = sessId ? tokenCaches.get(sessId) : null
-    const token = cachedToken?.accessToken || getAccessToken(c)
-    const refreshToken = cachedToken?.refreshToken || getRefreshToken(c)
+    const token = getAccessToken(c)
+    const refreshToken = getRefreshToken(c)
     let decodedToken
     let err = ''
     if (token || refreshToken) {
@@ -53,16 +51,20 @@ export function checkToken(mustAuth: boolean = true) {
               return verifyToken<ShowroomLogin.User>(token, process.env.AUTH_SECRET!)
             }
             catch (e) {
+              console.error(e)
               err = String(e)
               return null
             }
           })()
         : null
       if (!decodedToken && refreshToken) {
+        console.log('Masuk refresh token')
         decodedToken = await getRefreshedToken(c, refreshToken).catch(() => null)
       }
 
       if (decodedToken) {
+        console.log('USER', decodedToken)
+        console.log('Token', token)
         c.set('user', decodedToken)
         return await next()
       }
@@ -110,7 +112,6 @@ export async function createToken(
   // options: { useCookie?: boolean } = {},
 ) {
   // const useCookie = options.useCookie ?? true
-  const sessId = getSessId(c)
   const userProfile = await ofetch<ShowroomAPI.UserProfile>('https://www.showroom-live.com/api/user/profile', {
     params: { user_id },
     headers: {
@@ -136,6 +137,7 @@ export async function createToken(
   }
 
   if (!sessionData.account_id) throw createError({ status: 401, message: 'Unauthorized!' })
+  console.log('REFRESHED', sessionData)
   const accessToken = jwt.sign(sessionData, process.env.AUTH_SECRET!)
 
   const refreshToken = jwt.sign({
@@ -152,19 +154,19 @@ export async function createToken(
   setAccessToken(c, accessToken)
   setRefreshToken(c, refreshToken)
 
-  if (sessId) {
-    const token = tokenCaches.get(sessId)
-    if (token?.to) {
-      clearTimeout(token.to)
-    }
-    tokenCaches.set(sessId, {
-      accessToken,
-      refreshToken,
-      to: setTimeout(() => {
-        tokenCaches.delete(sessId)
-      }, 10000),
-    })
-  }
+  // if (sessId) {
+  //   const token = tokenCaches.get(sessId)
+  //   if (token?.to) {
+  //     clearTimeout(token.to)
+  //   }
+  //   tokenCaches.set(sessId, {
+  //     accessToken,
+  //     refreshToken,
+  //     to: setTimeout(() => {
+  //       tokenCaches.delete(sessId)
+  //     }, 10000),
+  //   })
+  // }
 
   return {
     accessToken,

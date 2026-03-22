@@ -1,6 +1,7 @@
 declare namespace JKT48 {
   interface Member {
     id: string
+    old_id?: string[]
     name: string
     url?: string
   }
@@ -98,6 +99,7 @@ declare namespace JKT48 {
   interface Setlist {
     id: string
     title: string
+    setlist_id?: string // id yang ada di web jkt48 yang baru
     title_alt?: string
     description?: string
     poster?: string

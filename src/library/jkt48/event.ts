@@ -24,8 +24,8 @@ export default async function getEvents(): Promise<IApiEvent> {
 
   return {
     theater: {
-      upcoming: theaterList.sort((a, b) => a.date.getTime() - b.date.getTime()),
-      recent: recentTheater,
+      upcoming: theaterList.theater.sort((a, b) => a.date.getTime() - b.date.getTime()),
+      recent: recentTheater.theater,
     },
     other_schedule: nextSchedule,
   }

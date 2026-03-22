@@ -112,10 +112,10 @@ const publishAdminUserCount = debounce(() => {
 }, 1000)
 
 async function fetchJKT48v() {
+  if (process.env.NODE_ENV === 'development') return
   const data = await cachedJKT48VLive().catch(() => null)
   if (data) {
     jkt48vLives = (await cachedJKT48VLive()).map(i => ({ ...i, type: 'youtube' }))
-    console.log('JKT48 v', jkt48vLives)
     sendLiveUpdates('jkt48')
   }
 }
