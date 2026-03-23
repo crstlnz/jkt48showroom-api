@@ -376,23 +376,34 @@ const scheduleSchema = new Schema<JKT48Schedule, JKT48NewScheduleModel>({
   set_list: {
     type: String,
   },
-  birthday_member: {
-    type: [{
-      name: {
-        type: String,
-        default: '',
-      },
-      type: {
-        type: String,
-        default: '',
-      },
-      member_id: {
-        type: Number,
-        required: true,
-      },
-    }],
-    default: [],
-  },
+  graduation_member: [{
+    name: {
+      type: String,
+      default: '',
+    },
+    type: {
+      type: String,
+      default: '',
+    },
+    member_id: {
+      type: Number,
+      required: true,
+    },
+  }],
+  birthday_member: [{
+    name: {
+      type: String,
+      default: '',
+    },
+    type: {
+      type: String,
+      default: '',
+    },
+    member_id: {
+      type: Number,
+      required: true,
+    },
+  }],
   is_birthday: {
     type: Boolean,
     default: false,

@@ -50,7 +50,8 @@ declare namespace JKT48Web {
     type: 'show'
     theater_show_id: number
     set_list: string
-    birthday_member: JKT48Member[]
+    birthday_member?: JKT48Member[]
+    graduation_member?: JKT48Member[]
     showroom?: ShowroomPremiumLiveWithPrice
     idn_live?: JKT48.IDNPremiumLive
   }

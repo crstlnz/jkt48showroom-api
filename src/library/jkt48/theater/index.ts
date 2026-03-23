@@ -4,6 +4,7 @@ import IdolMember from '@/database/schema/48group/IdolMember'
 import JKT48NewSchedule from '@/database/showroomDB/jkt48/JKT48NewSchedule'
 import Setlist from '@/database/showroomDB/jkt48/Setlist'
 import Theater from '@/database/showroomDB/jkt48/Theater'
+import { notFound } from '@/utils/errorResponse'
 
 export async function getTheaterList(page: number, perpage: number, query?: FilterQuery<JKT48Web.Schedule>): Promise<{ theater: IApiTheaterInfo[], page: number, perpage: number, total_count: number }> {
   const q: FilterQuery<JKT48Web.Schedule> = { type: 'show', ...query }
@@ -80,5 +81,17 @@ export async function getTheater(c: Context): Promise<IApiTheater> {
 }
 
 export async function getTheaterById(id: string): Promise<JKT48.Theater | null> {
-  return await Theater.findOne({ id }).lean()
+  const data = await JKT48NewSchedule.findOne({ code: id }).lean()
+  if (!data) throw notFound()
+  return {
+    id: data.code,
+    date: data?.start_time ?? new Date(0),
+    title: data?.title,
+    url: `https://jkt48.com/purchase/schedule/show?code=${data.code}`,
+    setlistId: data?.set_list ?? '',
+    team: undefined,
+    memberIds: data.jkt48_member.map(i => String(i.member_id)),
+    seitansaiIds: data.birthday_member?.map(i => String(i.member_id)),
+    graduationIds: data.graduation_member?.map(i => String(i.member_id)),
+  }
 }

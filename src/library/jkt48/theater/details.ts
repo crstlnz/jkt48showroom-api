@@ -72,17 +72,17 @@ export async function getTheaterDetail(c: Context) {
             url_key: detailedMember?.slug,
           }
         }),
-        // graduation: i.graduation.map((i) => {
-        //   const detailedMember = memberDetails.find((m) => {
-        //     return m.jkt48id?.includes(i.id)
-        //   })
-        //   return {
-        //     id: i.id,
-        //     name: detailedMember?.info?.nicknames?.[0] || i.name,
-        //     img: detailedMember?.info?.img ?? undefined,
-        //     url_key: detailedMember?.slug,
-        //   }
-        // }),
+        graduation: data.graduation_member?.map((i) => {
+          const detailedMember = memberDetails.find((m) => {
+            return m.jkt48id?.includes(String(i.member_id))
+          })
+          return {
+            id: i.member_id,
+            name: detailedMember?.info?.nicknames?.[0] || i.name,
+            img: detailedMember?.info?.img ?? undefined,
+            url_key: detailedMember?.slug,
+          }
+        }),
         date: data.start_time ?? data.date,
         showroomTheater: data.showroom,
         idnTheater: data.idn_live,
