@@ -4,17 +4,17 @@ import comparator from 'string-comparison'
 import IdolMember from '@/database/schema/48group/IdolMember'
 import JKT48NewSchedule from '@/database/showroomDB/jkt48/JKT48NewSchedule'
 import Setlist from '@/database/showroomDB/jkt48/Setlist'
-import { createError, notFound } from '@/utils/errorResponse'
+import { createError } from '@/utils/errorResponse'
 
 // export async function getTheaterDetail(c: Context): Promise<IApiTheaterDetailList> {
 export async function getTheaterDetail(c: Context) {
   const id = c.req.param('id')
-  const query: FilterQuery<JKT48.Theater>[] = [{ code: id }]
+  const query: FilterQuery<JKT48.Theater>[] = [{ code: id }, { code: `OSH1-${id}` }, { code: `OSH2-${id}` }]
   if (!Number.isNaN(Number(id))) {
-    query.push({ 'showroomTheater.paid_live_id': id })
+    query.push({ 'showroom.paid_live_id': id })
   }
   else {
-    query.push({ 'idnTheater.slug': id })
+    query.push({ 'idn_live.slug': id })
   }
 
   const data = await JKT48NewSchedule.findOne({ type: 'show', $or: query })
