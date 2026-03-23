@@ -83,7 +83,7 @@ export async function getTheaterDetail(c: Context) {
         //     url_key: detailedMember?.slug,
         //   }
         // }),
-        date: data.date,
+        date: data.start_time ?? data.date,
         showroomTheater: data.showroom,
         idnTheater: data.idn_live,
       },
