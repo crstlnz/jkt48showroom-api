@@ -3,20 +3,24 @@ import type { FilterQuery } from 'mongoose'
 import IdolMember from '@/database/schema/48group/IdolMember'
 import JKT48NewSchedule from '@/database/showroomDB/jkt48/JKT48NewSchedule'
 import Setlist from '@/database/showroomDB/jkt48/Setlist'
-import Theater from '@/database/showroomDB/jkt48/Theater'
 import { notFound } from '@/utils/errorResponse'
 
 export async function getTheaterList(page: number, perpage: number, query?: FilterQuery<JKT48Web.Schedule>): Promise<{ theater: IApiTheaterInfo[], page: number, perpage: number, total_count: number }> {
   const q: FilterQuery<JKT48Web.Schedule> = { type: 'show', ...query }
   const total = await JKT48NewSchedule.countDocuments(q)
-  const theater = await JKT48NewSchedule.find(q).limit(perpage).skip((page - 1) * perpage).sort('-date').select('title date id jkt48_member birthday_member code').lean()
+  const theater = await JKT48NewSchedule.find(q).limit(perpage).skip((page - 1) * perpage).sort('-start_time').select('title date id jkt48_member birthday_member code  graduation_member start_time end_time').lean()
   const setlists = theater.reduce((a, b) => a.add(b.set_list ?? b.title.toLowerCase().replaceAll(' ', '')), new Set<string>())
   const setlistData = await Setlist.find({ $or: [{ id: [...setlists.values()] }, { setlist_id: [...setlists.values()] }] }).lean()
   const seitansai = theater.reduce((a, b) => {
-    if (b.birthday_member?.length) {
-      for (const m of b.birthday_member) {
-        a.add(String(m.member_id))
-      }
+    for (const m of (b.birthday_member ?? [])) {
+      a.add(String(m.member_id))
+    }
+    for (const m of (b.graduation_member ?? [])) {
+      a.add(String(m.member_id))
+    }
+
+    for (const m of (b.jkt48_member ?? [])) {
+      a.add(String(m.member_id))
     }
     return a
   }, new Set())
@@ -46,19 +50,42 @@ export async function getTheaterList(page: number, perpage: number, query?: Filt
         return {
           id: String(s.member_id),
           name: data?.info.nicknames?.[0] ?? s.name,
-          img: data?.info?.img ?? '',
           url_key: data?.slug ?? '',
         }
       })
+
+      const graduationMember = i.graduation_member?.map((s) => {
+        const data = memberDetailData.find(m => m.jkt48id?.includes(String(s.member_id)))
+        return {
+          id: String(s.member_id),
+          name: data?.info.nicknames?.[0] ?? s.name,
+          url_key: data?.slug ?? '',
+        }
+      })
+
+      const memberList = i.jkt48_member?.map((s) => {
+        const data = memberDetailData.find(m => m.jkt48id?.includes(String(s.member_id)))
+        return {
+          id: String(s.member_id),
+          name: data?.info.nicknames?.[0] ?? s.name,
+          url_key: data?.slug ?? '',
+        }
+      })
+
       return {
         id: i.code,
         title: i.title.trim(),
         banner: setlist?.banner,
         poster: setlist?.poster,
         member_count: i.jkt48_member?.length ?? 0,
-        seitansai: birthdayMember?.length > 0 ? birthdayMember : undefined,
+        member: i.jkt48_member?.length ?? 0,
+        start_date: i.start_time,
+        end_date: i.end_time,
+        seitansai: (birthdayMember?.length ?? 0) > 0 ? birthdayMember : undefined,
+        graduation: (graduationMember?.length ?? 0) > 0 ? graduationMember : undefined,
+        members: (memberList?.length ?? 0) > 0 ? memberList : undefined,
         url: i.code,
-        date: i.date ?? new Date(0),
+        date: i.start_time ?? i.date ?? new Date(0),
       }
     }),
     page,
