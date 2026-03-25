@@ -91,7 +91,9 @@ declare namespace JKT48 {
     id: string
     title: string
     label?: string
+    category?: string
     url: string
+    slug?: string
     date: Date
     content?: string
   }

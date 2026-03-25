@@ -85,7 +85,7 @@ export async function getTheaterList(page: number, perpage: number, query?: Filt
         graduation: (graduationMember?.length ?? 0) > 0 ? graduationMember : undefined,
         members: (memberList?.length ?? 0) > 0 ? memberList : undefined,
         url: i.code,
-        date: i.start_time ?? i.date ?? new Date(0),
+        date: i.date ?? new Date(0),
       }
     }),
     page,

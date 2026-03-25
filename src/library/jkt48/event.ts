@@ -9,7 +9,7 @@ export default async function getEvents(): Promise<IApiEvent> {
     },
   })
 
-  const recentTheater = await getTheaterList(1, 4, {
+  const recentTheater = await getTheaterList(1, 6, {
     date: {
       $lt: dayjs().subtract(2, 'hour'),
     },
