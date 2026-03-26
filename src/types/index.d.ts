@@ -25,6 +25,7 @@ declare global {
 
   interface IMember {
     name: string
+    jkt48_id?: string
     nicknames: string[]
     img: string
     img_alt?: string

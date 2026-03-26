@@ -18,7 +18,7 @@ const updateLivesTrigger = new AutoTrigger(async () => {
   initLiveData()
 }, 1000 * 60 * 5).start()
 
-const isDev = false
+const isDev = process.env.NODE_ENV === 'development'
 export async function initLiveData() {
   await Promise.all([fetchJKT48v(), ...IdolGroupTypes.map(async (group) => {
     currentLives.set(group, (await fetchCombined(group, isDev)).filter(i => i.type !== 'youtube'))

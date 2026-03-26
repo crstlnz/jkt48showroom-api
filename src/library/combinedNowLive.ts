@@ -153,7 +153,7 @@ async function getJKT48V(_debug: boolean = false): Promise<YoutubeLive[]> {
 }
 
 export async function fetchCombined(group: string, debug = false): Promise<CombinedLive[]> {
-  const sr = await showroomNowlive(group)
+  const sr = await showroomNowlive(group, debug)
   const res: CombinedLive[] = [...sr]
   if (group === 'jkt48' || group === 'all') {
     const isDebug = debug

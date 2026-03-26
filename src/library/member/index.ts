@@ -8,7 +8,7 @@ export async function getMembers(c?: Context): Promise<IMember[]>
 export async function getMembers(c?: Context | string | null): Promise<IMember[]> {
   const group = c == null ? '' : typeof c === 'string' ? c : c.req.query('group')
   if (process.env.NODE_ENV === 'development') return await fetch(group)
-  return await cache.fetch(group ? `${group}-memberv5` : 'memberv5', () => fetch(group), 86400000)
+  return await cache.fetch(group ? `${group}-memberv6` : 'memberv6', () => fetch(group), 86400000)
 }
 
 async function fetch(group: string | null = null): Promise<IMember[]> {
@@ -27,6 +27,7 @@ async function fetch(group: string | null = null): Promise<IMember[]> {
       .map((member) => {
         return {
           _id: member._id,
+          jkt48_id: member.jkt48id?.[0] ?? undefined,
           name: member.name,
           nicknames: member?.info?.nicknames || [],
           img: member?.showroom?.img ?? member.info?.img ?? config.errorPicture,
