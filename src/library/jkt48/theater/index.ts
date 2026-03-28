@@ -1,16 +1,40 @@
 import type { Context } from 'hono'
 import type { FilterQuery } from 'mongoose'
+import defu from 'defu'
 import IdolMember from '@/database/schema/48group/IdolMember'
+import EventDetail from '@/database/showroomDB/jkt48/EventDetail'
 import JKT48NewSchedule from '@/database/showroomDB/jkt48/JKT48NewSchedule'
 import Setlist from '@/database/showroomDB/jkt48/Setlist'
 import { notFound } from '@/utils/errorResponse'
+import { findSetlist, getNewTheaterUrl } from './details'
 
 export async function getTheaterList(page: number, perpage: number, query?: FilterQuery<JKT48Web.Schedule>): Promise<{ theater: IApiTheaterInfo[], page: number, perpage: number, total_count: number }> {
-  const q: FilterQuery<JKT48Web.Schedule> = { type: 'show', ...query }
+  const q: FilterQuery<JKT48Web.Schedule> = defu(query, { type: 'show' })
   const total = await JKT48NewSchedule.countDocuments(q)
-  const theater = await JKT48NewSchedule.find(q).limit(perpage).skip((page - 1) * perpage).sort('-start_time').select('title date id jkt48_member birthday_member code  graduation_member start_time end_time').lean()
-  const setlists = theater.reduce((a, b) => a.add(b.set_list ?? b.title.toLowerCase().replaceAll(' ', '')), new Set<string>())
-  const setlistData = await Setlist.find({ $or: [{ id: [...setlists.values()] }, { setlist_id: [...setlists.values()] }] }).lean()
+  const theater = await JKT48NewSchedule.find(q).limit(perpage).skip((page - 1) * perpage).sort('-start_time').select('title date id jkt48_member birthday_member type code graduation_member set_list start_time end_time').lean()
+  const theaterSetlistIds = new Set<string>()
+  const eventSetlistIds = new Set<string>()
+  for (const item of theater) {
+    const titleId = item.title.toLowerCase().replaceAll(' ', '')
+    if (item.type === 'event') {
+      eventSetlistIds.add(titleId)
+      if (item.set_list) eventSetlistIds.add(item.set_list)
+      continue
+    }
+
+    theaterSetlistIds.add(titleId)
+    if (item.set_list) theaterSetlistIds.add(item.set_list)
+  }
+
+  const theaterSetlists = [...theaterSetlistIds]
+  const eventSetlists = [...eventSetlistIds]
+  const setlistData = theaterSetlists.length > 0
+    ? await Setlist.find({ $or: [{ id: { $in: theaterSetlists } }, { setlist_id: { $in: theaterSetlists } }] }).lean()
+    : []
+  const eventsData = eventSetlists.length > 0
+    ? await EventDetail.find({ $or: [{ id: { $in: eventSetlists } }, { setlist_id: { $in: eventSetlists } }] }).lean()
+    : []
+  const allData = [...setlistData, ...eventsData]
   const seitansai = theater.reduce((a, b) => {
     for (const m of (b.birthday_member ?? [])) {
       a.add(String(m.member_id))
@@ -25,7 +49,7 @@ export async function getTheaterList(page: number, perpage: number, query?: Filt
     return a
   }, new Set())
 
-  let memberDetailData: IdolMember[]
+  let memberDetailData: IdolMember[] = []
   if (seitansai.size > 0) {
     memberDetailData = await IdolMember.find({ jkt48id: { $in: [...seitansai.values()] } })
       .select({
@@ -44,7 +68,7 @@ export async function getTheaterList(page: number, perpage: number, query?: Filt
 
   return {
     theater: theater.map((i) => {
-      const setlist = setlistData.find(s => s.id === i.title.toLowerCase().replaceAll(' ', '') || s.setlist_id === i.set_list)
+      const setlist = findSetlist(allData, i.title, i.set_list ?? '')
       const birthdayMember = i.birthday_member?.map((s) => {
         const data = memberDetailData.find(m => m.jkt48id?.includes(String(s.member_id)))
         return {
@@ -101,7 +125,7 @@ export async function getTheater(c: Context): Promise<IApiTheater> {
   if (perpage > maxPerpage) perpage = maxPerpage
   const query: Parameters<typeof JKT48NewSchedule.countDocuments> = [{ type: 'show' }]
   const total = await JKT48NewSchedule.countDocuments(...query)
-  const maxPage = Math.ceil(total / perpage)
+  const maxPage = Math.max(1, Math.ceil(total / perpage))
   if (page < 1) page = 1
   if (page > maxPage) page = maxPage
   return await getTheaterList(page, perpage)
@@ -114,7 +138,7 @@ export async function getTheaterById(id: string): Promise<JKT48.Theater | null> 
     id: data.code,
     date: data?.start_time ?? new Date(0),
     title: data?.title,
-    url: `https://jkt48.com/purchase/schedule/show?code=${data.code}`,
+    url: getNewTheaterUrl(data.code),
     setlistId: data?.set_list ?? '',
     team: undefined,
     memberIds: data.jkt48_member.map(i => String(i.member_id)),

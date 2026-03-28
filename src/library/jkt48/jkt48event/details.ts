@@ -24,7 +24,6 @@ export async function getJKT48EventDetail(c: Context): Promise<IApiJKT48EventDet
     return a
   }, [])
 
-  console.log('Members', memberList.map(i => i.id))
   const memberDetails = await IdolMember.find({ jkt48id: { $in: memberList.map(i => i.id) } }).select({
     name: 1,
     info: {

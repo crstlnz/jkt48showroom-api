@@ -2,6 +2,7 @@ import type { Model } from 'mongoose'
 import dayjs from 'dayjs'
 import { Schema } from 'mongoose'
 import { jkt48DB } from '../..'
+import Setlist from './Setlist'
 
 type NullableOptional<T> = { [K in keyof T]?: T[K] | null }
 

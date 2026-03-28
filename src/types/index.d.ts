@@ -345,8 +345,8 @@ declare global {
     birthdate?: Date
     bloodType?: string
     height?: string
-    recentTheater?: ITheaterAPI[]
-    upcomingTheater?: ITheaterAPI[]
+    recentTheater?: IApiTheaterInfo[]
+    upcomingTheater?: IApiTheaterInfo[]
     sousenkyo?: SousenkyoMember
   }
 
