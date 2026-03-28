@@ -24,8 +24,8 @@ export async function getMemberDetails(slug: string): Promise<IMemberProfileAPI>
   if (data.group === 'jkt48' && data.jkt48id) {
     const next = await getTheaterList(1, 4, { 'jkt48_member.member_id': { $in: data.jkt48id }, 'type': { $in: ['show', 'event'] }, 'start_time': { $gte: new Date() } }).catch(() => null)
     const recent = await getTheaterList(1, 4, { 'jkt48_member.member_id': { $in: data.jkt48id }, 'type': { $in: ['show', 'event'] }, 'start_time': { $lte: new Date() } }).catch(() => null)
-    if (next) recentTheater = next.theater
-    if (recent) upcomingTheater = recent.theater
+    if (next) upcomingTheater = next.theater
+    if (recent) recentTheater = recent.theater
 
     // recentTheater = theater.map<ITheaterAPI>((i) => {
     //   const setlist = setlists.get(i.set_list ?? '') ?? setlists.get(i.title?.trim()?.replaceAll(' ', '').toLowerCase())
