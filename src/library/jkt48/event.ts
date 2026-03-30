@@ -1,5 +1,5 @@
 import dayjs from 'dayjs'
-import Schedule from '@/database/showroomDB/jkt48/Schedule'
+import JKT48NewSchedule from '@/database/showroomDB/jkt48/JKT48NewSchedule'
 import { getTheaterList } from './theater'
 
 export default async function getEvents(): Promise<IApiEvent> {
@@ -15,18 +15,25 @@ export default async function getEvents(): Promise<IApiEvent> {
     },
   })
 
-  const nextSchedule = await Schedule.find({
-    url: {
-      $not: /^\/theater\//,
-    },
+  const nextSchedule = await JKT48NewSchedule.find({
+    type: { $nin: ['show'] },
     date: { $gte: dayjs().startOf('day') },
-  }).sort('date').select('-_id -__v').limit(10).lean()
+  }).sort('date').limit(10).lean()
 
   return {
     theater: {
       upcoming: theaterList.theater.sort((a, b) => a.date.getTime() - b.date.getTime()),
       recent: recentTheater.theater,
     },
-    other_schedule: nextSchedule,
+    other_schedule: nextSchedule.map((data) => {
+      return {
+        id: String(data.schedule_id),
+        date: data.start_time ?? data.date ?? new Date(0),
+        code: data.code ?? undefined,
+        category: data.type,
+        title: data.title,
+        url: data.link,
+      }
+    }),
   }
 }
