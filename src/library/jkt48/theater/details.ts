@@ -69,7 +69,7 @@ export async function getTheaterDetail(c: Context) {
     query.push({ 'idn_live.slug': id })
   }
 
-  const data = await JKT48NewSchedule.findOne({ type: 'show', $or: query })
+  const data = await JKT48NewSchedule.findOne({ type: { $in: ['show', 'event'] }, $or: query })
     // .populate<{ members: JKT48.Member[] }>('members')
     // .populate<{ setlist: JKT48.Setlist }>('setlist')
     // .populate<{ seitansai: JKT48.Member[] }>('seitansai')
