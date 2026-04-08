@@ -7,6 +7,7 @@ export async function addOrEditSetlist(c: Context) {
   const data = await c.req.parseBody()
   const dataId = data._id
   const poster = data.poster as File
+  const setlist_id = data.setlist_id ? String(data.setlist_id) : undefined
   const banner = data.banner as File
   const id = String(data.id)
   const title = String(data.title)
@@ -18,6 +19,7 @@ export async function addOrEditSetlist(c: Context) {
   try {
     const dataJson: JKT48.Setlist = {
       id,
+      setlist_id,
       title,
       title_alt,
       description,

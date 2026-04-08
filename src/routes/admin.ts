@@ -1,4 +1,3 @@
-import type { CombinedLives } from '@/library/combinedNowLive'
 import { Hono } from 'hono'
 import { getBanner, updateBanner } from '@/library/admin/banner'
 import { addOrEditEvent } from '@/library/admin/event/add'
