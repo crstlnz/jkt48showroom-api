@@ -11,7 +11,7 @@ import { findSetlist, getNewTheaterUrl } from './details'
 export async function getTheaterList(page: number, perpage: number, query?: FilterQuery<JKT48Web.Schedule>): Promise<{ theater: IApiTheaterInfo[], page: number, perpage: number, total_count: number }> {
   const q: FilterQuery<JKT48Web.Schedule> = defu(query, { type: 'show' })
   const total = await JKT48NewSchedule.countDocuments(q)
-  const theater = await JKT48NewSchedule.find(q).limit(perpage).skip((page - 1) * perpage).sort('-start_time').select('title date id jkt48_member birthday_member type code graduation_member set_list start_time end_time').lean()
+  const theater = await JKT48NewSchedule.find(q).limit(perpage).skip((page - 1) * perpage).sort('-start_time').select('title date id jkt48_member jkt48_member_type birthday_member type code graduation_member set_list start_time end_time').lean()
   const theaterSetlistIds = new Set<string>()
   const eventSetlistIds = new Set<string>()
   for (const item of theater) {
@@ -103,6 +103,7 @@ export async function getTheaterList(page: number, perpage: number, query?: Filt
         poster: setlist?.poster,
         member_count: i.jkt48_member?.length ?? 0,
         member: i.jkt48_member?.length ?? 0,
+        team: i.jkt48_member_type,
         start_date: i.start_time,
         end_date: i.end_time,
         seitansai: (birthdayMember?.length ?? 0) > 0 ? birthdayMember : undefined,
@@ -140,7 +141,7 @@ export async function getTheaterById(id: string): Promise<JKT48.Theater | null> 
     title: data?.title,
     url: getNewTheaterUrl(data.code),
     setlistId: data?.set_list ?? '',
-    team: undefined,
+    team: data.jkt48_member_type,
     memberIds: data.jkt48_member.map(i => String(i.member_id)),
     seitansaiIds: data.birthday_member?.map(i => String(i.member_id)),
     graduationIds: data.graduation_member?.map(i => String(i.member_id)),

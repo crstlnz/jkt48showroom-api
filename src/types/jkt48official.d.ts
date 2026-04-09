@@ -32,10 +32,7 @@ declare namespace JKT48 {
     seitansaiIds: string[]
     graduationIds?: string[]
     date: Date
-    team?: {
-      id: string
-      img: string
-    }
+    team?: string
     showroomTheater?: ShowroomPremiumLiveWithPrice
     idnTheater?: IDNPremiumLive
   }

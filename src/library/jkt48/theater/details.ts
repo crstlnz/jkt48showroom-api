@@ -134,6 +134,7 @@ export async function getTheaterDetail(c: Context) {
           }
         }),
         date: data.start_time ?? data.date,
+        team: data.jkt48_member_type,
         showroomTheater: data.showroom,
         idnTheater: data.idn_live,
       },
