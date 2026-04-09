@@ -4,13 +4,13 @@ import { getTheaterList } from './theater'
 
 export default async function getEvents(): Promise<IApiEvent> {
   const theaterList = await getTheaterList(1, 20, {
-    date: {
+    start_time: {
       $gte: dayjs().subtract(2, 'hour'),
     },
   })
 
   const recentTheater = await getTheaterList(1, 6, {
-    date: {
+    start_time: {
       $lt: dayjs().subtract(2, 'hour'),
     },
   })
