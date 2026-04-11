@@ -32,6 +32,7 @@ declare global {
     url: string
     description?: string
     group?: GroupType
+    team?: string
     room_id?: number
     sr_exists: boolean
     socials?: SocialNetwork[]
@@ -201,8 +202,8 @@ declare global {
     poster?: string
     banner?: string
     member_count: number
-    start_date?: Date
-    end_date?: Date
+    start_date?: Date | string
+    end_date?: Date | string
     members?: JKT48MemberExtend[]
     seitansai?: JKT48MemberExtend[]
     graduation?: JKT48MemberExtend[]
@@ -333,6 +334,7 @@ declare global {
     img_alt: string
     banner: string
     group: string
+    team?: string
     url: string
     showroom_id?: number
     showroom_exists: boolean

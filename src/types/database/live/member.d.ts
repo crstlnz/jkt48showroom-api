@@ -28,6 +28,7 @@ interface IdolMember {
     }
   }
   group: GroupType
+  team?: string
   idn?: {
     id?: string
     username?: string

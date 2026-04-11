@@ -29,6 +29,7 @@ const memberSchema = new Schema<IdolMember>({
     },
   },
   group: String,
+  team: String,
   idn: {
     id: String,
     username: String,

@@ -114,6 +114,7 @@ export async function getMemberDetails(slug: string): Promise<IMemberProfileAPI>
     banner: data.info?.banner ?? '',
     description: data?.showroom?.description ?? data.info?.description ?? '',
     group: data.group ?? '',
+    team: data.team,
     jikosokai: data.info?.jikosokai ?? '',
     generation: data.info?.generation,
     showroom_id: data.showroom_id,
