@@ -16,7 +16,6 @@ declare namespace JKT48Web {
 
     created_by: number
     modified_by?: number
-    is_birthday: boolean
 
     date?: Date
     start_time?: Date

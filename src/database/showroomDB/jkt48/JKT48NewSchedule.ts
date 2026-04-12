@@ -1,13 +1,17 @@
 import type { Model } from 'mongoose'
 import dayjs from 'dayjs'
+import timezone from 'dayjs/plugin/timezone'
+import utc from 'dayjs/plugin/utc'
 import { Schema } from 'mongoose'
 import { jkt48DB } from '../..'
-import Setlist from './Setlist'
 
 type NullableOptional<T> = { [K in keyof T]?: T[K] | null }
 
+dayjs.extend(utc)
+dayjs.extend(timezone)
+
 export type JKT48Schedule = JKT48Web.BaseEvent & {
-  type: JKT48Web.Event['type'] | JKT48Web.TheaterShow['type'] | 'schedule'
+  type: JKT48Web.Event['type'] | JKT48Web.TheaterShow['type'] | 'schedule' | string
 } & Omit<
   NullableOptional<
     Omit<JKT48Web.Event, keyof JKT48Web.BaseEvent | 'type'>
@@ -15,7 +19,7 @@ export type JKT48Schedule = JKT48Web.BaseEvent & {
   >,
   'birthday_member'
 > & {
-  birthday_member: JKT48Web.JKT48Member[]
+  birthday_member?: JKT48Web.JKT48Member[]
 }
 
 export interface JKT48NewScheduleModel extends Model<JKT48Schedule> {
@@ -27,15 +31,11 @@ export interface JKT48NewScheduleModel extends Model<JKT48Schedule> {
   }
 }
 
-function normalizeScheduleType(type: unknown): JKT48Web.Event['type'] | JKT48Web.TheaterShow['type'] | 'schedule' {
+function normalizeScheduleType(type: unknown): JKT48Web.Event['type'] | JKT48Web.TheaterShow['type'] | 'schedule' | string {
   if (typeof type !== 'string') {
     return 'schedule'
   }
-  const normalized = type.trim().toLowerCase()
-  if (normalized === 'event' || normalized === 'show' || normalized === 'schedule') {
-    return normalized
-  }
-  return 'schedule'
+  return type.trim().toLowerCase()
 }
 
 export function isEventSchedule(schedule: Pick<JKT48Schedule, 'type'>): schedule is JKT48Schedule & { type: 'event' } {
@@ -131,14 +131,15 @@ function mapSalesPeriod(period: unknown): JKT48Web.SalesPeriod | null {
   }
 }
 
-function replaceTime(isoString: string, timeString: string) {
+export function replaceTime(isoString: string, timeString: string) {
   const [hours, minutes] = timeString.split(':').map(Number)
-
   return dayjs(isoString)
     .hour(hours)
     .minute(minutes)
     .second(0)
     .millisecond(0)
+    .tz('Asia/Jakarta')
+    .utc()
     .toDate()
 }
 
@@ -155,14 +156,7 @@ export function mapJKT48ScheduleFromApi(raw: JKT48Web.ScheduleApi & { schedule_i
         .filter((period): period is JKT48Web.SalesPeriod => period !== null)
     : []
 
-  const normalizedApiType = normalizeScheduleType(raw.type)
-  const inferredType: JKT48Web.Event['type'] | JKT48Web.TheaterShow['type'] | 'schedule' = normalizedApiType !== 'schedule'
-    ? normalizedApiType
-    : typeof raw.theater_show_id === 'number'
-      ? 'show'
-      : typeof raw.event_id === 'number'
-        ? 'event'
-        : 'schedule'
+  const type = normalizeScheduleType(raw.type)
 
   const birthday_member: JKT48Web.JKT48Member[] = []
   for (const member_name of (raw.birthday_member_name ?? [])) {
@@ -195,18 +189,19 @@ export function mapJKT48ScheduleFromApi(raw: JKT48Web.ScheduleApi & { schedule_i
     content_body: toStringOrUndefined(raw.content_body),
     jkt48_member: members,
     sales_period: salesPeriod,
-    is_birthday: String(raw.birthday_member).toLowerCase() === 'birthday' || (raw.birthday_member_name?.length ?? 0) > 0,
-    type: inferredType,
+    type,
     event_id: typeof raw.event_id === 'number' ? raw.event_id : undefined,
     is_in_theater: toBooleanOrUndefined(raw.is_in_theater),
     is_external_ticketing: toBooleanOrUndefined(raw.is_external_ticketing),
     external_ticketing_url: typeof raw.external_ticketing_url === 'string' ? raw.external_ticketing_url : undefined,
     theater_show_id: typeof raw.theater_show_id === 'number' ? raw.theater_show_id : undefined,
     set_list: raw.set_list && typeof raw.set_list === 'string' ? raw.set_list : undefined,
-    birthday_member,
+    birthday_member: birthday_member || undefined,
   }
 
-  return mapped
+  return Object.fromEntries(
+    Object.entries(mapped).filter(([_, v]) => v !== undefined),
+  ) as JKT48Schedule
 }
 
 const scheduleSchema = new Schema<JKT48Schedule, JKT48NewScheduleModel>({
@@ -265,10 +260,8 @@ const scheduleSchema = new Schema<JKT48Schedule, JKT48NewScheduleModel>({
   date: {
     type: Date,
   },
-
   type: {
     type: String,
-    enum: ['event', 'show', 'schedule'],
     default: 'schedule',
   },
   start_time: {
@@ -405,10 +398,6 @@ const scheduleSchema = new Schema<JKT48Schedule, JKT48NewScheduleModel>({
       required: true,
     },
   }],
-  is_birthday: {
-    type: Boolean,
-    default: false,
-  },
   showroom: {
     entrance_url: String,
     room_url: String,
