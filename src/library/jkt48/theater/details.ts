@@ -89,6 +89,7 @@ export async function getTheaterDetail(c: Context) {
       img: 1,
     },
     slug: 1,
+    team: 1,
     showroom_id: 1,
     jkt48id: 1,
   }).populate('showroom').lean()
@@ -108,10 +109,11 @@ export async function getTheaterDetail(c: Context) {
             id: i.member_id,
             name: detailedMember?.info?.nicknames?.[0] || i.name,
             img: detailedMember?.info?.img ?? undefined,
+            team: detailedMember?.team,
             url_key: detailedMember?.slug,
           }
         }),
-        seitansai: data.birthday_member.map((i) => {
+        seitansai: data.birthday_member?.map((i) => {
           const detailedMember = memberDetails.find((m) => {
             return m.jkt48id?.includes(String(i.member_id))
           })
@@ -119,6 +121,7 @@ export async function getTheaterDetail(c: Context) {
             id: i.member_id,
             name: detailedMember?.info?.nicknames?.[0] || i.name,
             img: detailedMember?.info?.img ?? undefined,
+            team: detailedMember?.team,
             url_key: detailedMember?.slug,
           }
         }),
@@ -130,6 +133,7 @@ export async function getTheaterDetail(c: Context) {
             id: i.member_id,
             name: detailedMember?.info?.nicknames?.[0] || i.name,
             img: detailedMember?.info?.img ?? undefined,
+            team: detailedMember?.team,
             url_key: detailedMember?.slug,
           }
         }),
