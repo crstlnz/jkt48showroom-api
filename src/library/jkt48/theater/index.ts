@@ -9,7 +9,8 @@ import { notFound } from '@/utils/errorResponse'
 import { findSetlist, getNewTheaterUrl } from './details'
 
 export async function getTheaterList(page: number, perpage: number, query?: FilterQuery<JKT48Web.Schedule>): Promise<{ theater: IApiTheaterInfo[], page: number, perpage: number, total_count: number }> {
-  const q: FilterQuery<JKT48Web.Schedule> = defu(query)
+  const q: FilterQuery<JKT48Web.Schedule> = defu(query, { type: 'show' })
+  console.log('QUERY', q)
   const total = await JKT48NewSchedule.countDocuments(q)
   const theater = await JKT48NewSchedule.find(q).limit(perpage).skip((page - 1) * perpage).sort('-start_time').select('title date id jkt48_member jkt48_member_type birthday_member type code graduation_member set_list start_time end_time').lean()
   const theaterSetlistIds = new Set<string>()
@@ -131,7 +132,7 @@ export async function getTheater(c: Context): Promise<IApiTheater> {
   const maxPage = Math.max(1, Math.ceil(total / perpage))
   if (page < 1) page = 1
   if (page > maxPage) page = maxPage
-  return await getTheaterList(page, perpage, query)
+  return await getTheaterList(page, perpage, { type })
 }
 
 export async function getTheaterById(id: string): Promise<JKT48.Theater | null> {
