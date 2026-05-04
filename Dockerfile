@@ -12,7 +12,7 @@ RUN bun run build
 FROM oven/bun:1.3.1-alpine AS production
 WORKDIR /app
 
-COPY --from=base /app/dist ./dist
+COPY --from=base /app/.output ./.output
 
 EXPOSE 3000
 CMD ["bun", "run", "dist/index.js"]
