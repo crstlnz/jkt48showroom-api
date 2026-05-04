@@ -15,4 +15,4 @@ WORKDIR /app
 COPY --from=base /app/.output ./.output
 
 EXPOSE 3000
-CMD ["bun", "run", "dist/index.js"]
+CMD ["bun", "run", ".output/index.js"]
