@@ -35,6 +35,7 @@ const memberSchema = new Schema<IdolMember>({
     username: String,
   },
   jkt48id: [String],
+  code: String,
   showroom_id: Number,
   stage48: String,
   live_data: {

@@ -36,6 +36,7 @@ interface IdolMember {
   jkt48id?: string[]
   showroom_id?: number
   stage48: string
+  code?: string // code atau id official di web jeketi
   live_data?: {
     missing: {
       showroom: number

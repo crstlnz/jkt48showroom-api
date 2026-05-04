@@ -1,27 +1,18 @@
-FROM oven/bun:1.3 AS deps
-
+FROM oven/bun:1.3.1-alpine AS base
 WORKDIR /app
 
-COPY package.json bun.lock ./
+COPY package.json bun.lockb* ./
 RUN bun install --frozen-lockfile
 
+COPY src/ ./src/
+COPY tsconfig.json ./
 
-FROM oven/bun:1.3 AS builder
+RUN bun run build
 
+FROM oven/bun:1.3.1-alpine AS production
 WORKDIR /app
 
-COPY --from=deps /app/node_modules ./node_modules
-COPY . .
+COPY --from=base /app/dist ./dist
 
-RUN NODE_ENV=production bun run build
-
-
-FROM oven/bun:1.3-slim
-
-WORKDIR /app
-
-COPY --from=builder /app/.output ./.output
-COPY --from=deps /app/node_modules ./node_modules
-COPY package.json bun.lock ./
-
-CMD ["bun", "run", "start"]
+EXPOSE 3000
+CMD ["bun", "run", "dist/index.js"]

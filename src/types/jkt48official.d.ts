@@ -33,8 +33,8 @@ declare namespace JKT48 {
     graduationIds?: string[]
     date: Date
     team?: string
-    showroomTheater?: ShowroomPremiumLiveWithPrice
-    idnTheater?: IDNPremiumLive
+    showroom?: ShowroomPremiumLiveWithPrice
+    idn_live?: IDNPremiumLive
   }
 
   interface Event {
@@ -48,8 +48,8 @@ declare namespace JKT48 {
       id: string
       img: string
     }
-    showroomTheater?: ShowroomPremiumLiveWithPrice
-    idnTheater?: IDNPremiumLive
+    showroom?: ShowroomPremiumLiveWithPrice
+    idn_live?: IDNPremiumLive
   }
 
   interface IDNPremiumLive {
@@ -74,8 +74,8 @@ declare namespace JKT48 {
       id: string
       img: string
     }
-    showroomTheater?: ShowroomPremiumLive
-    idnTheater?: IDNPremiumLive
+    showroom?: ShowroomPremiumLive
+    idn_live?: IDNPremiumLive
   }
 
   interface Song {
