@@ -99,7 +99,7 @@ export async function getTheaterDetail(c: Context) {
       {
         id: data.code,
         title: data.title,
-        url: getNewTheaterUrl(data.code),
+        url: data.link == null || data.link === '' ? null : getNewTheaterUrl(data.code),
         setlist,
         members: data.jkt48_member.map((i) => {
           const detailedMember = memberDetails.find((m) => {
