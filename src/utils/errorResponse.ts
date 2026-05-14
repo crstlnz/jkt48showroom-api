@@ -26,3 +26,10 @@ export function notFound() {
     message: 'Not found!',
   })
 }
+
+export function unauthorized() {
+  return createError({
+    status: 401,
+    message: 'Unauthorized!',
+  })
+}

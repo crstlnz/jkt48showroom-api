@@ -10,7 +10,15 @@ interface CORSOptions {
 
 type CorsLevel = 'self' | 'all'
 
-const allowedOrigins = process.env.ORIGINS ? process.env.ORIGINS.split(',').map(o => o.trim()) : []
+function getAllowedOrigins() {
+  return [process.env.ORIGINS, process.env.SECONDARY_ORIGINS]
+    .filter(Boolean)
+    .flatMap(origins => origins!.split(','))
+    .map(i => i.trim())
+    .filter(Boolean)
+}
+
+const allowedOrigins = getAllowedOrigins()
 const defaultOrigin = process.env.DEFAULT_ORIGIN ?? ''
 
 function isAllowed(requestOrigin: string): boolean {

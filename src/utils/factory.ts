@@ -4,9 +4,10 @@ import dayjs from 'dayjs'
 
 import defu from 'defu'
 import { createFactory } from 'hono/factory'
-import { ApiError } from './errorResponse'
+import { ApiError, unauthorized } from './errorResponse'
 import { isJWTValid } from './security/jwt'
 import { isTooManyRequest } from './security/rateLimitter'
+import { sign } from './security/signature'
 import { getDurationObject, useCache } from './useCache'
 import { useRateLimitSingleProcess } from './useSingleProcess'
 
@@ -22,6 +23,7 @@ export interface CacheOptions extends Utils.DurationUnits {
   useJson?: boolean
   cacheClientOnly?: boolean
   checkApiKey?: boolean
+  checkSignature?: boolean
   devCache?: boolean
   rateLimit?: { // rate limit by ip
     maxRequest: number
@@ -36,6 +38,7 @@ const defaultConfig = {
   cacheClientOnly: false,
   checkApiKey: false,
   devCache: false,
+  checkSignature: false,
 }
 
 async function delayInvalidApiKey() {
@@ -47,6 +50,35 @@ function isValidApiKeyToken(token?: string | null) {
   const jwtSecret = process.env.JWT_SECRET
   if (!jwtSecret) return false
   return isJWTValid(token, jwtSecret)
+}
+
+const nonceMap = new Set()
+
+function getAllowedOrigins() {
+  return (process.env.SECONDARY_ORIGINS ?? '')
+    .split(',')
+    .map(i => i.trim())
+    .filter(Boolean)
+}
+
+function getRequestOrigin(c: Context) {
+  const origin = c.req.header('origin')
+  if (origin) return origin
+
+  const referer = c.req.header('referer')
+  if (!referer) return null
+
+  try {
+    return new URL(referer).origin
+  }
+  catch {
+    return null
+  }
+}
+
+function canBypassSignature(c: Context) {
+  const origin = getRequestOrigin(c)
+  return !!origin && getAllowedOrigins().includes(origin)
 }
 
 export function handler(fetch: (c: Context) => Promise<any>, opts?: ((c: Context) => CacheOptions) | CacheOptions) {
@@ -64,6 +96,20 @@ export function handler(fetch: (c: Context) => Promise<any>, opts?: ((c: Context
       if (!isValidApiKeyToken(incomingApiKey)) {
         if (process.env.NODE_ENV !== 'development') await delayInvalidApiKey()
       }
+    }
+
+    if (config.checkSignature && !canBypassSignature(c)) {
+      const signature = c.req.header('x-signature')
+      const nonce = c.req.header('x-nonce')
+      if (nonceMap.has(nonce)) throw unauthorized()
+      const s = await sign(nonce)
+      if (signature !== s) {
+        throw unauthorized()
+      }
+      nonceMap.add(nonce)
+      setTimeout(() => {
+        nonceMap.delete(nonce)
+      }, 600000)
     }
 
     if (config.rateLimit && isTooManyRequest(c, config.rateLimit.maxRequest, config.rateLimit.limitTimeWindow)) {

@@ -50,6 +50,7 @@ import { useShowroomSession } from '@/utils/showroomSession'
 import admin from './admin'
 import auth from './auth'
 import showroom from './showroom'
+import sitemap from './sitemap'
 import sousenkyo from './sousenkyo'
 import user from './user'
 import { combinedLives } from './websocket'
@@ -92,6 +93,7 @@ app.use('*', csrf({
 
 app.route('/admin', admin)
 app.route('/auth', auth)
+app.route('/sitemap', sitemap)
 app.route('/user', user)
 app.route('/showroom', showroom)
 app.route('/sousenkyo', sousenkyo)
@@ -196,8 +198,8 @@ app.get('/profile', useShowroomSession(), ...handler(getProfile, (c) => {
 app.get('/next_birthday', ...handler(nextBirthDay, { minutes: 30 }))
 app.get('/idn_lives', ...handler(() => fetchIDN(false), { seconds: 30, minutes: 1, useSingleProcess: true }))
 // TODO fix pagination
-app.get('/recent', ...handler(getRecents, { minutes: 4, useRateLimit: true }))
-app.get('/recent/:id', ...handler(getRecentDetails, { hours: 1, useRateLimit: true }))
+app.get('/recent', ...handler(getRecents, { minutes: 4, useRateLimit: true, checkSignature: true }))
+app.get('/recent/:id', ...handler(getRecentDetails, { hours: 1, useRateLimit: true, checkSignature: true }))
 app.get('/recent/:data_id/gifts', ...handler(getGifts, { days: 1 }))
 app.get('/recent/:data_id/stagelist', ...handler(getStageList, { days: 1 }))
 app.get('/client', ...handler(getClientInfo, {

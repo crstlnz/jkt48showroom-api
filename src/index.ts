@@ -9,7 +9,7 @@ import { startCron } from './cron'
 import api from './routes'
 import { initLiveData, setServer, websocketUpgrade, wsHandler } from './routes/websocket'
 import { generateShowroomId } from './utils/api/showroom'
-import { ApiError } from './utils/errorResponse'
+import { ApiError, unauthorized } from './utils/errorResponse'
 import { isJWTValid } from './utils/security/jwt'
 import webhook from './webhooks'
 import 'dotenv/config'
@@ -134,7 +134,7 @@ Bun.serve({
         if (e === -1) e = req.url.length
         apiKey = req.url.slice(s, e)
       }
-      if (!apiKey || !isJWTValid(apiKey)) throw new ApiError({ status: 401, message: 'Unauthorized!' })
+      if (!apiKey || !isJWTValid(apiKey)) throw unauthorized()
       return websocketUpgrade(req, server)
     }
 
