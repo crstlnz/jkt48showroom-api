@@ -81,6 +81,14 @@ function canBypassSignature(c: Context) {
   return !!origin && getAllowedOrigins().includes(origin)
 }
 
+function hasValidStaticApiKey(c: Context) {
+  const apiKey = process.env.API_KEY
+  if (!apiKey) return false
+
+  const incomingApiKey = c.req.header('x-api-key') || c.req.query('api_key')
+  return incomingApiKey === apiKey
+}
+
 export function handler(fetch: (c: Context) => Promise<any>, opts?: ((c: Context) => CacheOptions) | CacheOptions) {
   return createHandlers(createMiddleware(async (c, next) => {
     const config = defu(typeof opts === 'function' ? opts(c) : opts ?? {}, defaultConfig)
@@ -98,7 +106,7 @@ export function handler(fetch: (c: Context) => Promise<any>, opts?: ((c: Context
       }
     }
 
-    if (config.checkSignature && !canBypassSignature(c)) {
+    if (config.checkSignature && !canBypassSignature(c) && !hasValidStaticApiKey(c)) {
       const signature = c.req.header('x-signature')
       const nonce = c.req.header('x-nonce')
       if (nonceMap.has(nonce)) throw unauthorized()
