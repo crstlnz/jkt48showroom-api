@@ -1,5 +1,6 @@
 import type { Context } from 'hono'
 import type { FilterQuery } from 'mongoose'
+import { kebabCase } from 'lodash'
 import comparator from 'string-comparison'
 import IdolMember from '@/database/schema/48group/IdolMember'
 import EventDetail from '@/database/showroomDB/jkt48/EventDetail'
@@ -110,6 +111,7 @@ export async function getTheaterDetail(c: Context) {
             name: detailedMember?.info?.nicknames?.[0] || i.name,
             img: detailedMember?.info?.img ?? undefined,
             team: detailedMember?.team,
+            jkt_key: kebabCase(`${detailedMember?.name?.toLowerCase()}-${detailedMember?.jkt48id?.[0]}`),
             url_key: detailedMember?.slug,
           }
         }),
@@ -122,6 +124,7 @@ export async function getTheaterDetail(c: Context) {
             name: detailedMember?.info?.nicknames?.[0] || i.name,
             img: detailedMember?.info?.img ?? undefined,
             team: detailedMember?.team,
+            jkt_key: kebabCase(`${detailedMember?.name?.toLowerCase()}-${detailedMember?.jkt48id?.[0]}`),
             url_key: detailedMember?.slug,
           }
         }),
@@ -134,6 +137,7 @@ export async function getTheaterDetail(c: Context) {
             name: detailedMember?.info?.nicknames?.[0] || i.name,
             img: detailedMember?.info?.img ?? undefined,
             team: detailedMember?.team,
+            jkt_key: kebabCase(`${detailedMember?.name?.toLowerCase()}-${detailedMember?.jkt48id?.[0]}`),
             url_key: detailedMember?.slug,
           }
         }),

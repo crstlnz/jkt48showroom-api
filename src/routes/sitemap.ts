@@ -38,7 +38,7 @@ function toRecentSitemapUrl(data: Partial<Log.Live>, includeImages = true, image
 }
 
 app.get('/recent', ...handler(async (c: Context) => {
-  const pageQuery = c.req.query('page') ?? '1'
+  const pageQuery = c.req.query('page')
   const page = Math.max(Number(pageQuery), 1)
   const perpage = Math.min(Math.max(Number(c.req.query('perpage') ?? DEFAULT_PERPAGE), DEFAULT_PERPAGE), MAX_PERPAGE)
   const includeImages = true
@@ -63,7 +63,6 @@ app.get('/recent', ...handler(async (c: Context) => {
     .sort({ 'live_info.date.end': -1 })
     .lean()
 
-  console.log(select)
   if (pageQuery) {
     query.skip((page - 1) * perpage).limit(perpage)
     const data = await query.exec()
