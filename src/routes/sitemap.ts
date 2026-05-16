@@ -1,4 +1,5 @@
 import type { Context } from 'hono'
+import dayjs from 'dayjs'
 import { Hono } from 'hono'
 import LiveLog from '@/database/live/schema/LiveLog'
 import { useCORS } from '@/utils/cors'
@@ -38,9 +39,7 @@ function toRecentSitemapUrl(data: Partial<Log.Live>, includeImages = true, image
 }
 
 app.get('/recent', ...handler(async (c: Context) => {
-  const pageQuery = c.req.query('page')
-  const page = Math.max(Number(pageQuery), 1)
-  const perpage = Math.min(Math.max(Number(c.req.query('perpage') ?? DEFAULT_PERPAGE), DEFAULT_PERPAGE), MAX_PERPAGE)
+  const yearQuery = c.req.query('year') || '2026'
   const includeImages = true
   const imageLimit = Math.min(Math.max(Number(c.req.query('image_limit') ?? 1), 1), 5)
   const filter = process.env.NODE_ENV === 'development' ? {} : { is_dev: false }
@@ -58,21 +57,10 @@ app.get('/recent', ...handler(async (c: Context) => {
       : {}),
   }
 
-  const query = LiveLog.find({ ...filter })
+  const query = LiveLog.find({ ...filter, ...(yearQuery ? { 'live_info.date.end': { $gte: dayjs().startOf('year').set('year', Number(yearQuery) ?? 0).toDate(), $lte: dayjs().startOf('year').set('year', (Number(yearQuery) ?? 0) + 1).toDate() } } : {}) })
     .select(select)
     .sort({ 'live_info.date.end': -1 })
     .lean()
-
-  if (pageQuery) {
-    query.skip((page - 1) * perpage).limit(perpage)
-    const data = await query.exec()
-
-    return {
-      urls: data.map(i => toRecentSitemapUrl(i, includeImages, imageLimit)),
-      page,
-      perpage,
-    }
-  }
 
   const urls = []
   const cursor = query.cursor({ batchSize: 5000 })
