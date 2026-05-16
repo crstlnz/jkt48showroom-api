@@ -1,17 +1,15 @@
 import type { Context } from 'hono'
 import dayjs from 'dayjs'
 import { Hono } from 'hono'
+import { dbConnect } from '@/database'
 import LiveLog from '@/database/live/schema/LiveLog'
+import cache from '@/utils/cache'
 import { useCORS } from '@/utils/cors'
-import { handler } from '@/utils/factory'
 import { checkToken } from '@/utils/security/token'
 
 const app = new Hono()
 app.use('*', checkToken(false))
 app.use('*', useCORS('self'))
-
-const MAX_PERPAGE = 50000
-const DEFAULT_PERPAGE = 50000
 
 function isAbsoluteUrl(value: unknown): value is string {
   return typeof value === 'string' && /^https?:\/\//.test(value)
@@ -38,10 +36,48 @@ function toRecentSitemapUrl(data: Partial<Log.Live>, includeImages = true, image
   return images.length ? { ...url, images } : url
 }
 
-app.get('/recent', ...handler(async (c: Context) => {
-  const yearQuery = c.req.query('year') || '2026'
+const startYear = 2020
+const recentSitemapRefreshMs = 1000 * 60 * 60
+const historicalSitemapCacheMs = 1000 * 60 * 60 * 24 * 30
+const defaultImageLimit = 1
+
+declare global {
+  // eslint-disable-next-line vars-on-top
+  var _sitemapPrefetchInterval: Timer | undefined
+  // eslint-disable-next-line vars-on-top
+  var _sitemapPrefetchPromise: Promise<void> | undefined
+}
+
+function getCurrentYear() {
+  return dayjs().year()
+}
+
+function getYearsUntilCurrent() {
+  const currentYear = getCurrentYear()
+  return Array.from({ length: currentYear - startYear + 1 }, (_, index) => startYear + index)
+}
+
+function getSitemapYear(value?: string | null) {
+  const currentYear = getCurrentYear()
+  const year = Number(value ?? currentYear)
+  if (!Number.isFinite(year)) return currentYear
+  return Math.min(Math.max(year, startYear), currentYear)
+}
+
+function getImageLimit(value?: string | null) {
+  return Math.min(Math.max(Number(value ?? defaultImageLimit), 1), 5)
+}
+
+function getRecentSitemapCacheKey(year: number, imageLimit = defaultImageLimit) {
+  return `sitemap:recent:${year}:image_limit:${imageLimit}`
+}
+
+function getRecentSitemapCacheMs(year: number) {
+  return year === getCurrentYear() ? recentSitemapRefreshMs : historicalSitemapCacheMs
+}
+
+export async function buildRecentSitemap(year: number, imageLimit = defaultImageLimit) {
   const includeImages = true
-  const imageLimit = Math.min(Math.max(Number(c.req.query('image_limit') ?? 1), 1), 5)
   const filter = process.env.NODE_ENV === 'development' ? {} : { is_dev: false }
   const select = {
     '_id': 0,
@@ -56,8 +92,17 @@ app.get('/recent', ...handler(async (c: Context) => {
         }
       : {}),
   }
+  const yearStart = dayjs().startOf('year').set('year', year)
 
-  const query = LiveLog.find({ ...filter, ...(yearQuery ? { 'live_info.date.end': { $gte: dayjs().startOf('year').set('year', Number(yearQuery) ?? 0).toDate(), $lte: dayjs().startOf('year').set('year', (Number(yearQuery) ?? 0) + 1).toDate() } } : {}) })
+  await dbConnect('liveDB')
+
+  const query = LiveLog.find({
+    ...filter,
+    'live_info.date.end': {
+      $gte: yearStart.toDate(),
+      $lte: yearStart.add(1, 'year').toDate(),
+    },
+  })
     .select(select)
     .sort({ 'live_info.date.end': -1 })
     .lean()
@@ -68,6 +113,69 @@ app.get('/recent', ...handler(async (c: Context) => {
     urls.push(toRecentSitemapUrl(data, includeImages, imageLimit))
   }
   return urls
-}, { hours: 1, useSingleProcess: true }))
+}
+
+async function refreshRecentSitemapYear(year: number) {
+  const imageLimit = defaultImageLimit
+  const urls = await buildRecentSitemap(year, imageLimit)
+  await cache.set(getRecentSitemapCacheKey(year, imageLimit), urls, getRecentSitemapCacheMs(year))
+}
+
+async function refreshRecentSitemapYearsInOrder(years: number[]) {
+  for (const year of years) {
+    try {
+      console.log(`[Sitemap] Caching recent sitemap ${year}`)
+      await refreshRecentSitemapYear(year)
+      console.log(`[Sitemap] Cached recent sitemap ${year}`)
+    }
+    catch (error) {
+      console.error(`[Sitemap] Failed to cache recent sitemap ${year}`, error)
+    }
+  }
+}
+
+function queueRecentSitemapRefresh(years: number[]) {
+  const previousRefresh = globalThis._sitemapPrefetchPromise ?? Promise.resolve()
+  const nextRefresh = previousRefresh
+    .catch(() => undefined)
+    .then(() => refreshRecentSitemapYearsInOrder(years))
+
+  globalThis._sitemapPrefetchPromise = nextRefresh.finally(() => {
+    if (globalThis._sitemapPrefetchPromise === nextRefresh) {
+      globalThis._sitemapPrefetchPromise = undefined
+    }
+  })
+
+  return globalThis._sitemapPrefetchPromise
+}
+
+export function startRecentSitemapPrefetch() {
+  if (process.env.NODE_ENV === 'development') return
+  if (globalThis._sitemapPrefetchInterval) return
+
+  queueRecentSitemapRefresh(getYearsUntilCurrent()).catch(error => console.error('[Sitemap] Prefetch failed', error))
+
+  globalThis._sitemapPrefetchInterval = setInterval(() => {
+    queueRecentSitemapRefresh([getCurrentYear()]).catch(error => console.error('[Sitemap] Refresh failed', error))
+  }, recentSitemapRefreshMs)
+}
+
+app.get('/recent', async (c: Context) => {
+  const year = getSitemapYear(c.req.query('year'))
+  const imageLimit = getImageLimit(c.req.query('image_limit'))
+  const cacheKey = getRecentSitemapCacheKey(year, imageLimit)
+
+  if (process.env.NODE_ENV !== 'development') {
+    const cachedUrls = await cache.get(cacheKey)
+    if (cachedUrls) return c.json(cachedUrls)
+  }
+
+  const urls = await buildRecentSitemap(year, imageLimit)
+  if (process.env.NODE_ENV !== 'development') {
+    await cache.set(cacheKey, urls, getRecentSitemapCacheMs(year))
+  }
+
+  return c.json(urls)
+})
 
 export default app

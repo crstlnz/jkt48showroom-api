@@ -7,7 +7,8 @@ import { FetchError } from 'ofetch'
 import pkg from '../package.json'
 import { startCron } from './cron'
 import api from './routes'
-import { initLiveData, setServer, websocketUpgrade, wsHandler } from './routes/websocket'
+import { startRecentSitemapPrefetch } from './routes/sitemap'
+import { initLiveData, websocketUpgrade, wsHandler } from './routes/websocket'
 import { generateShowroomId } from './utils/api/showroom'
 import { ApiError, unauthorized } from './utils/errorResponse'
 import { isJWTValid } from './utils/security/jwt'
@@ -83,6 +84,7 @@ process.on('uncaughtException', (error) => {
 })
 
 initLiveData()
+startRecentSitemapPrefetch()
 
 export function isWebSocketPath(urlStr: string): boolean {
   // Skip protocol & host jika absolute URL
