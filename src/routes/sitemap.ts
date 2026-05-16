@@ -175,6 +175,7 @@ app.get('/recent', async (c: Context) => {
   if (process.env.NODE_ENV !== 'development') {
     const cached = getRecentSitemapCache(year, imageLimit)
     if (cached) {
+      console.log(`[Sitemap] Using cached recent sitemap ${year}`)
       if (year === getCurrentYear() && Date.now() - cached.refreshedAt >= recentSitemapRefreshMs) {
         queueRecentSitemapRefresh([year], imageLimit).catch(error => console.error('[Sitemap] Refresh failed', error))
       }
@@ -182,12 +183,17 @@ app.get('/recent', async (c: Context) => {
     }
 
     if (refreshPromises.size) {
+      console.log(`[Sitemap] Waiting sitemap prefetch before querying ${year}`)
       await refreshQueue
       const warmedCache = getRecentSitemapCache(year, imageLimit)
-      if (warmedCache) return c.json(warmedCache.urls)
+      if (warmedCache) {
+        console.log(`[Sitemap] Using warmed cached recent sitemap ${year}`)
+        return c.json(warmedCache.urls)
+      }
     }
   }
 
+  console.log(`[Sitemap] Querying recent sitemap ${year}`)
   const urls = await buildRecentSitemap(year, imageLimit)
   if (process.env.NODE_ENV !== 'development') {
     setRecentSitemapCache(year, imageLimit, urls)
