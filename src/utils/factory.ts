@@ -7,7 +7,7 @@ import { createFactory } from 'hono/factory'
 import { ApiError, unauthorized } from './errorResponse'
 import { isJWTValid } from './security/jwt'
 import { isTooManyRequest } from './security/rateLimitter'
-import { sign } from './security/signature'
+import { verifySignature } from './security/signature'
 import { getDurationObject, useCache } from './useCache'
 import { useRateLimitSingleProcess } from './useSingleProcess'
 
@@ -53,6 +53,7 @@ function isValidApiKeyToken(token?: string | null) {
 }
 
 const nonceMap = new Set()
+const SIGNATURE_TTL_SECONDS = 240
 
 function getAllowedOrigins() {
   return (process.env.SECONDARY_ORIGINS ?? '')
@@ -109,15 +110,23 @@ export function handler(fetch: (c: Context) => Promise<any>, opts?: ((c: Context
     if (config.checkSignature && !canBypassSignature(c) && !hasValidStaticApiKey(c)) {
       const signature = c.req.header('x-signature')
       const nonce = c.req.header('x-nonce')
+      const source = c.req.header('x-source')
+      const timestamp = c.req.header('x-timestamp')
+      if (!signature || !nonce || !timestamp) throw unauthorized()
+
+      const timestampSeconds = Number(timestamp)
+      const currentTimestampSeconds = Math.floor(Date.now() / 1000)
+      if (!Number.isSafeInteger(timestampSeconds)) throw unauthorized()
+      if (Math.abs(currentTimestampSeconds - timestampSeconds) > SIGNATURE_TTL_SECONDS) throw unauthorized()
+
       if (nonceMap.has(nonce)) throw unauthorized()
-      const s = await sign(nonce)
-      if (signature !== s) {
+      if (!await verifySignature(`${nonce}.${timestamp}`, signature, source)) {
         throw unauthorized()
       }
       nonceMap.add(nonce)
       setTimeout(() => {
         nonceMap.delete(nonce)
-      }, 600000)
+      }, SIGNATURE_TTL_SECONDS * 1000)
     }
 
     if (config.rateLimit && isTooManyRequest(c, config.rateLimit.maxRequest, config.rateLimit.limitTimeWindow)) {
