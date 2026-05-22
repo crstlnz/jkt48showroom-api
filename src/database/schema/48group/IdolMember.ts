@@ -33,6 +33,7 @@ const memberSchema = new Schema<IdolMember>({
   idn: {
     id: String,
     username: String,
+    link: String,
   },
   jkt48id: [String],
   code: String,

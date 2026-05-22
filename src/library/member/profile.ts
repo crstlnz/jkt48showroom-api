@@ -74,6 +74,29 @@ export async function getMemberDetails(slug: string): Promise<IMemberProfileAPI>
         'live_info.duration': -1,
       }).catch(() => null)
 
+  const socials = data.info?.socials?.filter((i) => {
+    try {
+      return !(new URL(i.url).host.includes('idn') || new URL(i.url).host.includes('showroom'))
+    }
+    catch {
+      return false
+    }
+  }) ?? []
+
+  if (data.idn?.link) {
+    socials.push({
+      title: 'IDN',
+      url: data.idn.link,
+    })
+  }
+
+  if (data.showroom) {
+    socials.push({
+      title: 'Showroom',
+      url: `https://www.showroom-live.com/r/${data.showroom.url}`,
+    })
+  }
+
   return {
     name: data.name,
     stats: {
@@ -120,7 +143,7 @@ export async function getMemberDetails(slug: string): Promise<IMemberProfileAPI>
     showroom_id: data.showroom_id,
     showroom_exists: data.showroom?.room_exists,
     profile_video: data.info?.profile_video,
-    socials: data.info?.socials ?? [],
+    socials,
     is_graduate: data.info?.is_graduate ?? false,
     bloodType: data.info?.blood_type,
     height: data.info?.height,
