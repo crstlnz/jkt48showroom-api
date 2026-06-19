@@ -3,7 +3,7 @@ import JKT48NewSchedule from '@/database/showroomDB/jkt48/JKT48NewSchedule'
 import { getTheaterList } from './theater'
 
 export default async function getEvents(): Promise<IApiEvent> {
-  const theaterList = await getTheaterList(1, 20, {
+  const theaterList = await getTheaterList(1, 50, {
     start_time: {
       $gte: dayjs().subtract(2, 'hour'),
     },
@@ -18,7 +18,7 @@ export default async function getEvents(): Promise<IApiEvent> {
   const nextSchedule = await JKT48NewSchedule.find({
     type: { $nin: ['show'] },
     date: { $gte: dayjs().startOf('day') },
-  }).sort('date').limit(10).lean()
+  }).sort('date').limit(30).lean()
 
   return {
     theater: {
