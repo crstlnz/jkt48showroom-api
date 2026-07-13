@@ -123,8 +123,7 @@ export async function getTheater(c: Context): Promise<IApiTheater> {
   const maxPerpage = 30
   let page = Number(c.req.query('page')) || 1
   let perpage = Number(c.req.query('perpage')) || 10
-  const type = String(c.req.query('type')) || 'show'
-  console.log(type)
+  const type = c.req.query('type') ? String(c.req.query('type')) : 'show'
   if (perpage > maxPerpage) perpage = maxPerpage
   const query: Parameters<typeof JKT48NewSchedule.countDocuments> = [{ type }]
   const total = await JKT48NewSchedule.countDocuments(...query)
