@@ -124,14 +124,14 @@ app.post('/beta', ...handler(async (c) => {
   const body = await c.req.json<{ fingerprint?: unknown, key?: unknown }>()
   const fingerprint = typeof body.fingerprint === 'string' ? body.fingerprint.trim() : ''
   const key = typeof body.key === 'string' ? body.key.trim() : ''
-  if (!fingerprint || fingerprint.length > 256) return c.json({ enabled: false })
+  if (!fingerprint || fingerprint.length > 256) return { enabled: false }
 
   if (!key) {
-    return c.json({ enabled: await getBetaDeviceAccess(fingerprint) })
+    return { enabled: await getBetaDeviceAccess(fingerprint) }
   }
 
-  return c.json({ enabled: await enrollBetaDevice({ fingerprint, keyHash: Bun.CryptoHasher.hash('sha256', key, 'hex') }) })
-}, { rateLimit: { maxRequest: 60, limitTimeWindow: 60 * 1000 } }))
+  return { enabled: await enrollBetaDevice({ fingerprint, keyHash: Bun.CryptoHasher.hash('sha256', key, 'hex') }) }
+}, { rateLimit: { maxRequest: 60, limitTimeWindow: 60 * 1000 }, useSingleProcess: false }))
 
 app.get('/now_live', ...handler(async (c) => {
   const data = combinedLives()

@@ -88,6 +88,15 @@ export async function upsertBetaDevice({ fingerprint, bypassKey, note }: UpsertB
 }
 
 export async function enrollBetaDevice({ fingerprint, keyHash }: EnrollBetaDeviceOptions) {
+  const key = await BetaKeyModel.findOne({ keyHash, expiresAt: { $gt: new Date() } })
+    .select('maxDevices')
+    .lean()
+  if (!key) return false
+
+  if (key.maxDevices == null) {
+    return await enrollUnlimitedBetaDevice({ fingerprint, keyHash })
+  }
+
   const session = await liveDB.startSession()
   let enabled = false
   try {
@@ -136,7 +145,58 @@ export async function enrollBetaDevice({ fingerprint, keyHash }: EnrollBetaDevic
   return enabled
 }
 
+async function enrollUnlimitedBetaDevice({ fingerprint, keyHash }: EnrollBetaDeviceOptions) {
+  const now = new Date()
+  const bypassKey = await BetaKeyModel.findOneAndUpdate(
+    { keyHash, expiresAt: { $gt: now } },
+    { $set: { lastUsedAt: now } },
+    { new: true },
+  )
+  if (!bypassKey) return false
+
+  const existingDevice = await BetaDeviceModel.findOne({ fingerprint, enabled: true })
+  if (existingDevice) {
+    await BetaDeviceModel.updateOne({ _id: existingDevice._id }, { $set: { lastSeenAt: now } })
+  }
+  else {
+    await BetaDeviceModel.updateOne(
+      { fingerprint },
+      {
+        $set: {
+          enabled: true,
+          bypassKey: bypassKey._id,
+          lastSeenAt: now,
+        },
+        $setOnInsert: { fingerprint },
+      },
+      { upsert: true },
+    )
+  }
+
+  invalidateBetaDeviceAccess(fingerprint)
+  return true
+}
+
 export async function removeBetaDevice(fingerprint: string) {
+  const deviceToRemove = await BetaDeviceModel.findOne({ fingerprint }).select('bypassKey').lean()
+  if (!deviceToRemove) {
+    invalidateBetaDeviceAccess(fingerprint)
+    return
+  }
+
+  if (!deviceToRemove.bypassKey) {
+    await BetaDeviceModel.deleteOne({ _id: deviceToRemove._id })
+    invalidateBetaDeviceAccess(fingerprint)
+    return
+  }
+
+  const bypassKey = await BetaKeyModel.findById(deviceToRemove.bypassKey).select('maxDevices').lean()
+  if (bypassKey?.maxDevices == null) {
+    await BetaDeviceModel.deleteOne({ _id: deviceToRemove._id })
+    invalidateBetaDeviceAccess(fingerprint)
+    return
+  }
+
   const session = await liveDB.startSession()
   try {
     await session.withTransaction(async () => {
