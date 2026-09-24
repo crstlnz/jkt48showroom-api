@@ -30,7 +30,7 @@ if (!process.env.SHOWROOM_API) throw new Error('Showroom API not provided!')
 
 app.get('/', c => c.json({
   author: 'crstlnz',
-  website: 'https://dc.crstlnz.my.id',
+  website: 'https://48live.my.id',
   dev: process.env.NODE_ENV === 'development' ? true : undefined,
   version: `${pkg.version}`,
 }))

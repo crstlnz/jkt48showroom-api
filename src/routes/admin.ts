@@ -1,4 +1,5 @@
 import { Hono } from 'hono'
+import { BetaKeyModel } from '@/database/schema/config/BetaKey'
 import { getBanner, updateBanner } from '@/library/admin/banner'
 import { addOrEditEvent } from '@/library/admin/event/add'
 import deleteEvent from '@/library/admin/event/delete'
@@ -24,6 +25,7 @@ import getMissingJikosoukai from '@/library/admin/missingJikosoukai'
 import getMissingJKT48ID from '@/library/admin/missingJKT48ID'
 import getAllSetlist from '@/library/admin/setlist'
 import { getStage48 } from '@/library/admin/stage48'
+import { listBetaDevices, removeBetaDevice, upsertBetaDevice } from '@/library/beta/access'
 import { CombinedLivesListZod } from '@/library/combinedNowLive'
 import { getJKT48EventById } from '@/library/jkt48/jkt48event'
 import { getTheaterById } from '@/library/jkt48/theater'
@@ -90,6 +92,84 @@ app.get('/get_token', (c) => {
   return c.text(createJWT({
     admin: true,
   }, 60 * 1000 * 2))
+})
+
+app.post('/beta_device', async (c) => {
+  const body = await c.req.json<{ fingerprint?: unknown, note?: unknown }>()
+  const fingerprint = typeof body.fingerprint === 'string' ? body.fingerprint.trim() : ''
+  const note = typeof body.note === 'string' ? body.note.trim() : undefined
+  if (!fingerprint || fingerprint.length > 256 || (note && note.length > 200)) {
+    throw new ApiError({ status: 400, message: 'Invalid fingerprint or note.' })
+  }
+
+  await upsertBetaDevice({ fingerprint, note })
+  return c.json({ enabled: true, fingerprint })
+})
+
+app.get('/beta_device', async (c) => {
+  return c.json(await listBetaDevices())
+})
+
+app.delete('/beta_device/:fingerprint', async (c) => {
+  await removeBetaDevice(c.req.param('fingerprint'))
+  return c.json({ enabled: false })
+})
+
+app.get('/beta', async (c) => {
+  const keys = await BetaKeyModel.aggregate([
+    { $sort: { createdAt: -1 } },
+    {
+      $lookup: {
+        from: 'allowedbetadevices',
+        let: { keyId: '$_id' },
+        pipeline: [
+          { $match: { $expr: { $eq: ['$bypassKey', '$$keyId'] } } },
+          { $count: 'count' },
+        ],
+        as: 'deviceUsage',
+      },
+    },
+    {
+      $set: {
+        deviceCount: {
+          $ifNull: [{ $arrayElemAt: ['$deviceUsage.count', 0] }, 0],
+        },
+      },
+    },
+    {
+      $project: {
+        keyHash: 0,
+        deviceUsage: 0,
+      },
+    },
+  ])
+  return c.json(keys)
+})
+
+app.post('/beta', async (c) => {
+  const body = await c.req.json<{ expiresAt?: unknown, note?: unknown, maxDevices?: unknown }>()
+  const expiresAt = new Date(typeof body.expiresAt === 'string' ? body.expiresAt : '')
+  const note = typeof body.note === 'string' ? body.note.trim() : undefined
+  const maxDevices = typeof body.maxDevices === 'number' ? body.maxDevices : undefined
+  const hasInvalidMaxDevices = body.maxDevices != null
+    && (typeof body.maxDevices !== 'number' || !Number.isSafeInteger(body.maxDevices) || body.maxDevices < 1)
+  if (Number.isNaN(expiresAt.getTime()) || expiresAt <= new Date() || (note && note.length > 200) || hasInvalidMaxDevices) {
+    throw new ApiError({ status: 400, message: 'Invalid expiry date or note.' })
+  }
+
+  const key = Bun.CryptoHasher.hash('sha256', crypto.randomUUID(), 'hex')
+  await BetaKeyModel.create({
+    keyHash: Bun.CryptoHasher.hash('sha256', key, 'hex'),
+    expiresAt,
+    note,
+    maxDevices,
+  })
+  return c.json({ key })
+})
+
+app.delete('/beta/:id', async (c) => {
+  await BetaKeyModel.deleteOne({ _id: c.req.param('id') })
+  return c.json({ deleted: true })
 })
 
 app.get('/banner', ...handler(getBanner))

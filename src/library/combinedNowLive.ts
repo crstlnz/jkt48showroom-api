@@ -115,31 +115,108 @@ export async function showroomNowlive(group: string = 'jkt48', debug = false): P
   }
 }
 
-async function idnNowLive(debug: boolean = false): Promise<INowLive[]> {
-  const idnLives = await fetchIDN(debug)
-  const members = await IdolMember.find({ 'idn.username': idnLives.map(i => i.user?.username || 'empty') }).lean()
-  return idnLives.map((i) => {
-    const member = members.find(m => m.idn?.username === i.user?.username)
-    return {
-      name: member?.info?.nicknames?.[0] ?? i.user?.name,
-      img: i.image,
-      img_alt: i.user.avatar,
-      url_key: i.user?.username,
-      slug: i.slug,
-      room_id: member?.showroom_id || 0,
-      is_graduate: member?.info.is_graduate ?? false,
-      is_group: member?.group === 'official',
-      group: 'jkt48', // karna idn hanya jkt48
-      chat_room_id: i.chat_room_id,
-      started_at: i.live_at,
+async function getDummyIDNLives(): Promise<INowLive[]> {
+  try {
+    const sampleMembers = await IdolMember.find({
+      'idn.username': { $exists: true, $ne: '' },
+      'info.is_graduate': { $ne: true },
+    }).limit(2).lean().catch(() => [])
+
+    if (sampleMembers?.length) {
+      return sampleMembers.map((m, idx) => ({
+        name: m.info?.nicknames?.[0] ?? m.name ?? `JKT48 Member ${idx + 1}`,
+        img: m.info?.img ?? 'https://static.showroom-live.com/image/room/cover/ee38ccf437e220f7ce8149c1c8aac94d6dca66734334bdad84c94bf41e78d3e0_square_s.png?v=1670924861',
+        img_alt: m.info?.img,
+        url_key: m.idn?.username ?? `dummy-${idx + 1}`,
+        slug: `${m.idn?.username ?? `dummy-${idx + 1}`}-live`,
+        room_id: Math.floor(Number(m.showroom_id)) || 0,
+        is_graduate: false,
+        is_group: false,
+        group: 'jkt48',
+        chat_room_id: `dummy-chat-${m.idn?.username ?? idx}`,
+        started_at: new Date().toISOString(),
+        streaming_url_list: [{
+          label: 'original',
+          quality: 1,
+          url: 'https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8',
+        }],
+        type: 'idn',
+      }))
+    }
+  }
+  catch (e) {
+    console.error('Failed to get sample members for dummy IDN:', e)
+  }
+
+  return [
+    {
+      name: 'Freya Jayawardana',
+      img: 'https://static.showroom-live.com/image/room/cover/ee38ccf437e220f7ce8149c1c8aac94d6dca66734334bdad84c94bf41e78d3e0_square_s.png?v=1670924861',
+      img_alt: 'https://static.showroom-live.com/image/room/cover/ee38ccf437e220f7ce8149c1c8aac94d6dca66734334bdad84c94bf41e78d3e0_square_s.png?v=1670924861',
+      url_key: 'jkt48-freya',
+      slug: 'jkt48-freya-dummy',
+      room_id: 332801,
+      is_graduate: false,
+      is_group: false,
+      group: 'jkt48',
+      chat_room_id: 'dummy-chat-freya',
+      started_at: new Date().toISOString(),
       streaming_url_list: [{
         label: 'original',
         quality: 1,
-        url: i.stream_url,
+        url: 'https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8',
       }],
       type: 'idn',
+    },
+  ]
+}
+
+async function idnNowLive(debug: boolean = false): Promise<INowLive[]> {
+  try {
+    const idnLives = await fetchIDN(debug).catch((e) => {
+      console.error('Failed to fetch IDN:', e)
+      return []
+    })
+
+    if (idnLives?.length) {
+      const members = await IdolMember.find({ 'idn.username': idnLives.map(i => i.user?.username || 'empty') }).lean().catch(() => [])
+      return idnLives.map((i) => {
+        const member = members.find(m => m.idn?.username === i.user?.username)
+        return {
+          name: member?.info?.nicknames?.[0] ?? i.user?.name,
+          img: i.image,
+          img_alt: i.user.avatar,
+          url_key: i.user?.username,
+          slug: i.slug,
+          room_id: member?.showroom_id || 0,
+          is_graduate: member?.info.is_graduate ?? false,
+          is_group: member?.group === 'official',
+          group: 'jkt48', // karna idn hanya jkt48
+          chat_room_id: i.chat_room_id,
+          started_at: i.live_at,
+          streaming_url_list: [{
+            label: 'original',
+            quality: 1,
+            url: i.stream_url,
+          }],
+          type: 'idn',
+        }
+      })
     }
-  })
+
+    if (debug) {
+      return await getDummyIDNLives()
+    }
+
+    return []
+  }
+  catch (e) {
+    console.error('Error in idnNowLive:', e)
+    if (debug) {
+      return await getDummyIDNLives()
+    }
+    return []
+  }
 }
 
 async function getJKT48V(_debug: boolean = false): Promise<YoutubeLive[]> {
@@ -157,7 +234,7 @@ export async function fetchCombined(group: string, debug = false): Promise<Combi
   const res: CombinedLive[] = [...sr]
   if (group === 'jkt48' || group === 'all') {
     const isDebug = debug
-    const idn = await singleflight.do(`idnlives-${isDebug}`, async () => await idnNowLive(isDebug))
+    const idn = await singleflight.do(`idnlives-${isDebug}`, async () => await idnNowLive(isDebug)).catch(() => [])
     const jkt48v = debug ? [] : await singleflight.do('jkt48v', async () => await getJKT48V().catch(() => [])).catch(() => [])
     res.push(...idn)
     res.push(...jkt48v)

@@ -5,6 +5,7 @@ import { logger } from 'hono/logger'
 import { ofetch } from 'ofetch'
 import { dbConnect } from '@/database'
 import { getBanner } from '@/library/admin/banner'
+import { enrollBetaDevice, getBetaDeviceAccess } from '@/library/beta/access'
 import { getClientInfo } from '@/library/client'
 import { fetchCombined } from '@/library/combinedNowLive'
 import { getFirstData } from '@/library/firstData'
@@ -118,6 +119,19 @@ app.use('/*', async (c, next) => {
   await dbConnect('all')
   await next()
 })
+
+app.post('/beta', ...handler(async (c) => {
+  const body = await c.req.json<{ fingerprint?: unknown, key?: unknown }>()
+  const fingerprint = typeof body.fingerprint === 'string' ? body.fingerprint.trim() : ''
+  const key = typeof body.key === 'string' ? body.key.trim() : ''
+  if (!fingerprint || fingerprint.length > 256) return c.json({ enabled: false })
+
+  if (!key) {
+    return c.json({ enabled: await getBetaDeviceAccess(fingerprint) })
+  }
+
+  return c.json({ enabled: await enrollBetaDevice({ fingerprint, keyHash: Bun.CryptoHasher.hash('sha256', key, 'hex') }) })
+}, { rateLimit: { maxRequest: 60, limitTimeWindow: 60 * 1000 } }))
 
 app.get('/now_live', ...handler(async (c) => {
   const data = combinedLives()

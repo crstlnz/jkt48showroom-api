@@ -33,6 +33,10 @@ export async function fetchIDN(debug: boolean = false): Promise<IDNLives[]> {
     if (idnLivesCache?.length) {
       return idnLivesCache
     }
+    if (debug) {
+      console.error('fetchIDN debug error, returning empty array:', e)
+      return []
+    }
     throw e
   }
 }
@@ -101,14 +105,19 @@ export async function newFetch(debug: boolean = false): Promise<IDNLives[]> {
     for (const live of result) {
       let chat_room_id = chat_room_ids.get(live.slug)
       if (!chat_room_id) {
-        const data = await ofetch<IDNLivesMobileAPI<IDNLiveDetailAPI>>(`https://api.idn.app/api/v4/livestream/${live.slug}`, {
-          headers: {
-            'User-Agent': 'Android/14/SM-A528B/6.47.4',
-            'x-api-key': '123f4c4e-6ce1-404d-8786-d17e46d65b5c',
-          },
-        })
-        chat_room_id = data.data.chat_room_id
-        chat_room_ids.set(live.slug, chat_room_id)
+        try {
+          const data = await ofetch<IDNLivesMobileAPI<IDNLiveDetailAPI>>(`https://api.idn.app/api/v4/livestream/${live.slug}`, {
+            headers: {
+              'User-Agent': 'Android/14/SM-A528B/6.47.4',
+              'x-api-key': '123f4c4e-6ce1-404d-8786-d17e46d65b5c',
+            },
+          })
+          chat_room_id = data.data.chat_room_id
+          chat_room_ids.set(live.slug, chat_room_id)
+        }
+        catch (e) {
+          console.error(`Failed to fetch detail for ${live.slug}:`, e)
+        }
       }
 
       res.push({

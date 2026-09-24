@@ -1,23 +1,28 @@
 import type { Context } from 'hono'
 import { getIp } from '.'
 
-const requestCounts = new Map()
+const requestCounts = new Map<string, { count: number, expiresAt: number }>()
+let lastCleanupAt = 0
+
+function cleanupExpiredRequests(now: number) {
+  if (now - lastCleanupAt < 60 * 1000) return
+  lastCleanupAt = now
+  for (const [key, requestData] of requestCounts) {
+    if (requestData.expiresAt <= now) requestCounts.delete(key)
+  }
+}
 
 export function isTooManyRequest(c: Context, maxRequest: number, limitTimeWindow: number) {
-  const ip = getIp(c)
-  if (!requestCounts.has(ip)) {
-    requestCounts.set(ip, { count: 1, startTime: Date.now() })
+  const now = Date.now()
+  cleanupExpiredRequests(now)
+  const ip = getIp(c) ?? 'unknown'
+  const key = `${maxRequest}:${limitTimeWindow}:${ip}`
+  const requestData = requestCounts.get(key)
+  if (!requestData || requestData.expiresAt <= now) {
+    requestCounts.set(key, { count: 1, expiresAt: now + limitTimeWindow })
+    return false
   }
-  else {
-    const requestData = requestCounts.get(ip)
-    requestData.count++
-    if (Date.now() - requestData.startTime > limitTimeWindow) {
-      requestData.count = 1
-      requestData.startTime = Date.now()
-    }
-    else if (requestData.count > maxRequest) {
-      return true
-    }
-  }
-  return false
+
+  requestData.count++
+  return requestData.count > maxRequest
 }
