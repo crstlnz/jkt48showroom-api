@@ -2,7 +2,6 @@ import type { Context } from 'hono'
 import dayjs from 'dayjs'
 import { z } from 'zod'
 import IdolMember from '@/database/schema/48group/IdolMember'
-import { cachedJKT48VLive } from '@/library/jkt48v'
 import { getOnlives } from '@/utils/api/showroom'
 import singleflight from '@/utils/singleflight'
 import { fetchIDN } from './idn/lives'
@@ -222,25 +221,13 @@ async function idnNowLive(debug: boolean = false): Promise<INowLive[]> {
   }
 }
 
-async function getJKT48V(_debug: boolean = false): Promise<YoutubeLive[]> {
-  const lives = await cachedJKT48VLive()
-  return lives.map((i) => {
-    return {
-      ...i,
-      type: 'youtube',
-    }
-  })
-}
-
 export async function fetchCombined(group: string, debug = false): Promise<CombinedLive[]> {
   const sr = await showroomNowlive(group, debug)
   const res: CombinedLive[] = [...sr]
   if (group === 'jkt48' || group === 'all') {
     const isDebug = debug
     const idn = await singleflight.do(`idnlives-${isDebug}`, async () => await idnNowLive(isDebug)).catch(() => [])
-    // const jkt48v = debug ? [] : await singleflight.do('jkt48v', async () => await getJKT48V().catch(() => [])).catch(() => [])
     res.push(...idn)
-    // res.push(...jkt48v)
   }
   return res
 }

@@ -1,10 +1,9 @@
 import type { Buffer } from 'buffer'
-import type { CombinedLive, YoutubeLive } from '@/library/combinedNowLive'
+import type { CombinedLive } from '@/library/combinedNowLive'
 import type { IdolGroup } from '@/types/index.types'
 import { createId } from '@paralleldrive/cuid2'
 import { decode, encode } from 'cbor-x'
 import { fetchCombined } from '@/library/combinedNowLive'
-import { cachedJKT48VLive, jkt48v_cache_time } from '@/library/jkt48v'
 import { IdolGroupTypes } from '@/types/index.types'
 import { AutoTrigger } from '@/utils/autoTrigger'
 import { debounce } from '@/utils/debounce'
@@ -12,7 +11,6 @@ import { verifyJWT } from '@/utils/security/jwt'
 
 let server: Bun.Server<WebSocketData> | null = null
 const currentLives = new Map<IdolGroup, CombinedLive[]>(IdolGroupTypes.map(group => [group, []]))
-let jkt48vLives: YoutubeLive[] = []
 
 const updateLivesTrigger = new AutoTrigger(async () => {
   initLiveData()
@@ -20,7 +18,7 @@ const updateLivesTrigger = new AutoTrigger(async () => {
 
 const isDev = process.env.NODE_ENV === 'development'
 export async function initLiveData() {
-  await Promise.all([fetchJKT48v(), ...IdolGroupTypes.map(async (group) => {
+  await Promise.all([...IdolGroupTypes.map(async (group) => {
     currentLives.set(group, (await fetchCombined(group, isDev)).filter(i => i.type !== 'youtube'))
   })])
   sendLiveUpdates('all')
@@ -111,21 +109,8 @@ const publishAdminUserCount = debounce(() => {
   publish(EventChannel.Admin, userCount())
 }, 1000)
 
-async function fetchJKT48v() {
-  if (process.env.NODE_ENV === 'development') return
-  const data = await cachedJKT48VLive().catch(() => null)
-  if (data) {
-    jkt48vLives = (await cachedJKT48VLive()).map(i => ({ ...i, type: 'youtube' }))
-    sendLiveUpdates('jkt48')
-  }
-}
-
-setInterval(async () => {
-  fetchJKT48v()
-}, jkt48v_cache_time + 1)
-
 export function combinedLives() {
-  return [...Array.from(currentLives.values()).flat(), ...jkt48vLives]
+  return Array.from(currentLives.values()).flat()
 }
 
 function sendLiveUpdates(group: IdolGroup | 'all' = 'jkt48') {

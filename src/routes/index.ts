@@ -22,7 +22,6 @@ import { getTheater } from '@/library/jkt48/theater'
 import { getTheaterDetail } from '@/library/jkt48/theater/details'
 import getSetlist from '@/library/jkt48/theater/setlist'
 import { getJKT48YoutubeVideo } from '@/library/jkt48tv'
-import { cachedJKT48VLive } from '@/library/jkt48v'
 import { getLeaderboard } from '@/library/leaderboard'
 import { getMembers } from '@/library/member'
 import { getMemberDetails } from '@/library/member/profile'
@@ -106,7 +105,6 @@ app.get('/showroom_competition', useCORS('self'), ...handler(getCompetitionRanki
 app.get('/showroom_competition_detail', useCORS('self'), ...handler(getCompetitionRankingDetails, { minutes: 10, useSingleProcess: true, checkApiKey: true, devCache: true }))
 app.get('/showroom_competition_top_fans', useCORS('self'), ...handler(getCompetitionTopFans, { minutes: 10, useSingleProcess: true, checkApiKey: true, devCache: true }))
 app.get('/jkt48_youtube', ...handler(getJKT48YoutubeVideo, { minutes: 30, useRateLimit: true, devCache: true, useSingleProcess: true }))
-app.get('/jkt48v_live', ...handler(cachedJKT48VLive, { minutes: 5 }))
 app.get('/member', ...handler(getMembers, { hours: 12 }))
 app.get('/member/:id', ...handler(c => getMemberDetails(c.req.param('id')), { minutes: 30, useRateLimit: true }))
 
