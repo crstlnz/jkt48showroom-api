@@ -49,6 +49,7 @@ export const INowLiveZod = z.object({
   is_group: z.boolean(),
   started_at: z.union([z.string(), z.number()]),
   chat_room_id: z.string().optional(),
+  live_type: z.string().optional(),
   streaming_url_list: z.array(StreamingURLZod),
   is_premium: z.boolean().optional(),
   group: z.string(),
@@ -193,6 +194,8 @@ async function idnNowLive(debug: boolean = false): Promise<INowLive[]> {
           is_group: member?.group === 'official',
           group: 'jkt48', // karna idn hanya jkt48
           chat_room_id: i.chat_room_id,
+          live_type: i.live_type,
+          is_premium: i.live_type?.toLowerCase() === 'idnliveplus',
           started_at: i.live_at,
           streaming_url_list: [{
             label: 'original',
@@ -235,9 +238,9 @@ export async function fetchCombined(group: string, debug = false): Promise<Combi
   if (group === 'jkt48' || group === 'all') {
     const isDebug = debug
     const idn = await singleflight.do(`idnlives-${isDebug}`, async () => await idnNowLive(isDebug)).catch(() => [])
-    const jkt48v = debug ? [] : await singleflight.do('jkt48v', async () => await getJKT48V().catch(() => [])).catch(() => [])
+    // const jkt48v = debug ? [] : await singleflight.do('jkt48v', async () => await getJKT48V().catch(() => [])).catch(() => [])
     res.push(...idn)
-    res.push(...jkt48v)
+    // res.push(...jkt48v)
   }
   return res
 }

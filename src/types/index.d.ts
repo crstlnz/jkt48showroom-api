@@ -367,6 +367,7 @@ declare global {
     view_count: number
     live_at: string
     stream_url: string
+    live_type?: string
   }
 
   interface IDNLiveAPI {

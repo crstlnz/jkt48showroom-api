@@ -15,6 +15,64 @@ declare global {
   var _promiseUserDB: Promise<Connection>
 }
 
+function handleConnectionPromise<T>(promise: Promise<T>) {
+  // The connection promise is created during module initialization, before
+  // dbConnect() has a chance to await it. Attach a rejection handler now so
+  // a failed initial connection does not become an unhandled rejection.
+  void promise.catch(() => undefined)
+  return promise
+}
+
+function logConnectionError(name: string, connection: Connection, error: unknown) {
+  if (!(error instanceof Error)) {
+    console.error(`${name} connection error:`, error)
+    return
+  }
+
+  const connectionError = error as Error & {
+    code?: string
+    syscall?: string
+    hostname?: string
+    reason?: {
+      type?: string
+      servers?: Map<string, unknown>
+    }
+  }
+  const cause = error.cause as (Error & {
+    code?: string
+    syscall?: string
+    hostname?: string
+  }) | undefined
+
+  console.error(`${name} connection error:`, {
+    error: connectionError.name,
+    message: connectionError.message,
+    code: connectionError.code,
+    syscall: connectionError.syscall,
+    hostname: connectionError.hostname,
+    cause: cause
+      ? {
+          error: cause.name,
+          message: cause.message,
+          code: cause.code,
+          syscall: cause.syscall,
+          hostname: cause.hostname,
+        }
+      : undefined,
+    connection: {
+      host: connection.host,
+      port: connection.port,
+      readyState: connection.readyState,
+    },
+    topology: connectionError.reason
+      ? {
+          type: connectionError.reason.type,
+          servers: connectionError.reason.servers ? [...connectionError.reason.servers.keys()] : undefined,
+        }
+      : undefined,
+  })
+}
+
 class DB {
   private static _instance: DB
   dc: Connection
@@ -32,16 +90,29 @@ class DB {
     console.log('Construct DB')
     const isDev = process.env.NODE_ENV === 'development'
     this.dc = isDev && global._clientDC ? global._clientDC : mongoose.connection
-    this.dcPromise = (isDev && global._promiseDC) ? global._promiseDC : mongoose.connect(process.env.MONGODB_URI ?? '')
+    this.dcPromise = handleConnectionPromise((isDev && global._promiseDC) ? global._promiseDC : mongoose.connect(process.env.MONGODB_URI ?? ''))
 
     this.jkt48 = (isDev && global._clientJKT48) ? global._clientJKT48 : mongoose.createConnection(process.env.MONGODB_URI_JKT48_SHOWROOM || '')
-    this.jkt48Promise = (isDev && global._promiseJKT48) ? global._promiseJKT48 : this.jkt48.asPromise()
+    this.jkt48Promise = handleConnectionPromise((isDev && global._promiseJKT48) ? global._promiseJKT48 : this.jkt48.asPromise())
 
     this.live = (isDev && global._clientLive) ? global._clientLive : mongoose.createConnection(process.env.MONGODB_URI_LIVE_DB || '')
-    this.livePromise = (isDev && global._promiseLive) ? global._promiseLive : this.live.asPromise()
+    this.livePromise = handleConnectionPromise((isDev && global._promiseLive) ? global._promiseLive : this.live.asPromise())
 
-    this.user = (isDev && global._clientUserDB) ? global._clientLive : mongoose.createConnection(process.env.MONGODB_URI_USER_DB || '')
-    this.userPromise = (isDev && global._promiseUserDB) ? global._promiseUserDB : this.live.asPromise()
+    this.user = (isDev && global._clientUserDB) ? global._clientUserDB : mongoose.createConnection(process.env.MONGODB_URI_USER_DB || '')
+    this.userPromise = handleConnectionPromise((isDev && global._promiseUserDB) ? global._promiseUserDB : this.user.asPromise())
+
+    this.dc.on('error', (error) => {
+      logConnectionError('MongoDB', this.dc, error)
+    })
+    this.jkt48.on('error', (error) => {
+      logConnectionError('JKT48 ShowroomDB', this.jkt48, error)
+    })
+    this.live.on('error', (error) => {
+      logConnectionError('LiveDB', this.live, error)
+    })
+    this.user.on('error', (error) => {
+      logConnectionError('UserDB', this.user, error)
+    })
 
     this.dc.on('open', () => {
       console.log('MongoDB connected!')

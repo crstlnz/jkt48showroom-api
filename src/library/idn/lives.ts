@@ -2,6 +2,7 @@ import dayjs from 'dayjs'
 import { ofetch } from 'ofetch'
 import IdolMember from '@/database/schema/48group/IdolMember'
 import { convertToMilliseconds } from '@/utils'
+import { generateUUID } from '@/utils/security'
 
 const idnUsernames = new Set<string>()
 const additionalUsernames = ['jkt48-official']
@@ -57,7 +58,7 @@ export async function getIDNLives(): Promise<IDNLives[]> {
   return await promise
 }
 
-const chat_room_ids = new Map<string, string>()
+const liveDetails = new Map<string, { chatRoomId?: string, liveType?: string }>()
 
 export async function fetchAllIDNLives(page = 1): Promise<IDNLiveAPI[]> { // mobile api
   const res = await ofetch<IDNLivesMobileAPI<IDNLiveAPI[]>>(`https://mobile-api.idntimes.com/v3/livestreams?category=all&page=${page}&_=${new Date().getTime()}`, {
@@ -103,17 +104,21 @@ export async function newFetch(debug: boolean = false): Promise<IDNLives[]> {
     const res: IDNLives[] = []
 
     for (const live of result) {
-      let chat_room_id = chat_room_ids.get(live.slug)
-      if (!chat_room_id) {
+      let detail = liveDetails.get(live.slug)
+      if (!detail) {
         try {
-          const data = await ofetch<IDNLivesMobileAPI<IDNLiveDetailAPI>>(`https://api.idn.app/api/v4/livestream/${live.slug}`, {
+          const data = await ofetch<IDNLivesMobileAPI<IDNLiveDetailAPI>>(`https://api-gumlet.idn.app/api/v5/livestream/${live.slug}`, {
             headers: {
               'User-Agent': 'Android/14/SM-A528B/6.47.4',
               'x-api-key': '123f4c4e-6ce1-404d-8786-d17e46d65b5c',
+              'x-request-id': `${generateUUID()}_${new Date().getTime()}`,
             },
           })
-          chat_room_id = data.data.chat_room_id
-          chat_room_ids.set(live.slug, chat_room_id)
+          detail = {
+            chatRoomId: data.data.chat_room_id,
+            liveType: data.data.live_type,
+          }
+          liveDetails.set(live.slug, detail)
         }
         catch (e) {
           console.error(`Failed to fetch detail for ${live.slug}:`, e)
@@ -127,13 +132,14 @@ export async function newFetch(debug: boolean = false): Promise<IDNLives[]> {
           username: live.creator?.username,
           avatar: live.creator?.image_url,
         },
-        chat_room_id,
+        chat_room_id: detail?.chatRoomId,
         image: live.image_url,
         stream_url: live.playback_url,
         title: live.title,
         slug: live.slug,
         view_count: live.view_count,
         live_at: dayjs(convertToMilliseconds(live.live_at)).toISOString(),
+        live_type: detail?.liveType,
       })
     }
 
